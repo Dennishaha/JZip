@@ -90,23 +90,32 @@ goto :setpath
 
 
 :Set_Info
-if not "%~2"=="" set "path.raw=!path.raw! "%~2"" & shift /2 & goto :Set_Info
+if not "%~2"=="" (
+	if not defined raw.number set "raw.number=0"
+	set /a "raw.number=!raw.number!+1"
+	set "path.raw.!raw.number!=%~2"
+	shift /2
+	goto :Set_Info
+)
+
 for %%a in (list,unzip,add,add-7z) do if "%~1"=="%%a" set "ArchiveOrder=%%a"
 
 for %%a in (add,add-7z) do if "%~1"=="%%a" (
 	if "%%a"=="add" set "Archive.exten=.rar" & set "type.editor=rar"
 	if "%%a"=="add-7z" set "Archive.exten=.7z" & set "type.editor=7z"
-	
-	set "path.File=!path.raw!"
-	set "path.Archive=!path.raw:"=!%Archive.exten%"
+
+	for /f "usebackq delims== tokens=1,*" %%a in (`set "path.raw."`) do (
+		set "path.File=!path.File! "%%~b""
+	)
+	set "path.Archive=!path.raw.1!%Archive.exten%"
 	call "%dir.jzip%\Parts\Arc_Add.cmd"
 )
 
-for %%a in (list,unzip) do if "%~1"=="%%a" for %%a in (!path.raw!) do (
-	set "path.Archive=%%~a"
-	set "dir.Archive=%%~dpa" & set "dir.Archive=!dir.Archive:~0,-1!"
-	set "Archive.name=%%~na"
-	set "Archive.exten=%%~xa"
+for %%a in (list,unzip) do if "%~1"=="%%a" for /f "usebackq delims== tokens=1,*" %%a in (`set "path.raw."`) do (
+	set "path.Archive=%%~b"
+	set "dir.Archive=%%~dpb" & set "dir.Archive=!dir.Archive:~0,-1!"
+	set "Archive.name=%%~nb"
+	set "Archive.exten=%%~xb"
 	title %%a %title%
 	
 	for %%A in (7z,zip,bz2,gz,tgz,tar,wim,xz,001,cab,iso,dll) do if /i "!Archive.exten!"==".%%A" set "type.editor=7z"
@@ -117,11 +126,11 @@ for %%a in (list,unzip) do if "%~1"=="%%a" for %%a in (!path.raw!) do (
 	)
 	
 	if defined type.editor (
-		if "%~1"=="list" start "%%a %title%" cmd /c "%dir.jzip%\Parts\Arc.cmd"
+		if "%~1"=="list" start "%%b %title%" cmd /c "%dir.jzip%\Parts\Arc.cmd"
 		if "%~1"=="unzip" call "%dir.jzip%\Parts\Arc_Unzip.cmd"
 		set "type.editor="
 	) else (
-		set "ui.nospt=!ui.nospt! %%a"
+		set "ui.nospt=!ui.nospt! %%b"
 	)
 )
 
@@ -158,7 +167,7 @@ goto :EOF
 :preset
 ::加载 Choice 组件
 set "choice=choice"
-ver|findstr /i /c:" 5.*">nul&& if not exist "%windir%\system32\choice.exe" set "choice=%dir.jzip%\Components\x86\choice.exe"
+ver|findstr /i /c:" 5.">nul&& if not exist "%windir%\system32\choice.exe" set "choice=%dir.jzip%\Components\x86\choice.exe"
 
 ::设定压缩包编辑器
 if "%processor_architecture%"=="x86" set "path.editor.7z=%dir.jzip%\Components\x86\7z.exe"
@@ -168,7 +177,7 @@ if "%processor_architecture%"=="AMD64" set "path.editor.rar=%dir.jzip%\Component
 set "path.editor.cab=%dir.jzip%\Components\x86\cabarc.exe"
 
 ::预配置 Jzip 环境
-set "jzip.ver=2 181223.0233"
+set "jzip.ver=2 181224.0243"
 set "title=-- Jzip"
 set "界面颜色=f3"
 set "查看器扩展="
