@@ -4,7 +4,7 @@ set "dir.Desktop=%Userprofile%\Desktop"
 set "dir.SMP=%appdata%\Microsoft\Windows\Start Menu\Programs"
 set "dir.SendTo=%appdata%\Microsoft\Windows\SendTo"
 ::ÊÊÓÃÓÚ Windows NT5
-ver|findstr /i /c:" 5.*" 1>nul 2>nul && (
+ver|findstr /i /c:" 5." 1>nul 2>nul && (
 	set "dir.SMP=%Userprofile%\Start Menu\Programs"
 	set "dir.SendTo=%Userprofile%\SendTo"
 )

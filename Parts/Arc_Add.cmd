@@ -13,11 +13,7 @@ if not defined path.File (
 call :GetFile_Single %path.File%
 
 :Archive_Setting
-call :GetFile_Info %path.Archive%
-for %%a in (7z,zip,tar,bz2,gz,xz,wim) do if /i "%Archive.exten%"==".%%a" set "type.editor=7z"
-for %%a in (rar) do if /i "%Archive.exten%"==".%%a" set "type.editor=rar"
-for %%a in (cab) do if /i "%Archive.exten%"==".%%a" set "type.editor=cab"
-if "!自解压!"=="y" (set "path.Archive=!dir.File!\!File.name!.exe") else (set "path.Archive=!dir.File!\!File.name!!Archive.exten!")
+call :Archive_info "%path.Archive%"
 if "%ArchiveOrder%"=="add-7z" goto :Add_Process
 for %%a in (固实文件,压缩加密,自解压) do if "!%%a!"=="y" (set "ui.%%a=●") else (set "ui.%%a=○")
 cls
@@ -37,7 +33,7 @@ if "%ArchiveOrder%"=="add" (
 	echo.
 	echo.
 )
-for %%i in (rar,7z,zip,bz2,gz,xz,cab) do if "%Archive.exten%"==".%%i" (
+for %%a in (rar,7z,zip,bz2,gz,xz,cab) do if "%Archive.exten%"==".%%a" (
 	for %%A in (0:"○○○○○ 存储",1:"●○○○○ 最快",2:"●●○○○ 很快",3:"●●●○○ 标准",4:"●●●●○ 很好",5:"●●●●● 最好") do for /f "tokens=1,2 delims=:" %%a in ("%%A") do (
 		if "%压缩级别%"=="%%~a" echo.            [E] 压缩效率：         %%~b
 	)
@@ -154,10 +150,15 @@ if "%~2"=="" (
 	set "File.Single=n"
 )
 
-:GetFile_Info
+:Archive_info
 for /f "usebackq delims==" %%a in ('"%~1"') do (
 	set "dir.File=%%~dpa" & set "dir.File=!dir.File:~0,-1!"
 	set "File.name=%%~na"
 	set "File.exten=%%~xa"
+	if not "%自解压%"=="y" set "path.Archive=%%~dpa%%~na!Archive.exten!"
+	if "%自解压%"=="y" set "path.Archive=%%~dpa%%~na.exe"
 )
+for %%a in (7z,zip,tar,bz2,gz,xz,wim) do if /i "%Archive.exten%"==".%%a" set "type.editor=7z"
+if /i "%Archive.exten%"==".rar" set "type.editor=rar"
+if /i "%Archive.exten%"==".cab" set "type.editor=cab"
 goto :EOF
