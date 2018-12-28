@@ -42,7 +42,7 @@ for %%a in (rar,7z,zip,bz2,gz,xz,cab) do if "%Archive.exten%"==".%%a" (
 		4/"●●●●○ 很好"	
 		5/"●●●●● 最好"
 	) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
-		if "%压缩级别%"=="%%~a" echo.            [E] 压缩效率           %%~b
+		if "!压缩级别!"=="%%~a" echo.            [E] 压缩效率           %%~b
 	)
 ) 
 for %%a in (tar,wim) do if /i "%Archive.exten%"==".%%a" (
