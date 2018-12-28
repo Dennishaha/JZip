@@ -27,12 +27,12 @@ echo.
 echo.请用键盘选择并回车...
 echo.-----------------------
 %choice% /c:12340 /n
-set "next=%errorlevel%"
-if "%next%"=="1" set SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\default.sfx"& goto :next
-if "%next%"=="2" set SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\default64.sfx"& goto :next
-if "%next%"=="3" set SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\wincon.sfx"& goto :next
-if "%next%"=="4" set SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\wincon64.sfx"& goto :next
-if "%next%"=="5" goto :EOF
+set "key=%errorlevel%"
+if "%key%"=="1" set SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\default.sfx"& goto :next
+if "%key%"=="2" set SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\default64.sfx"& goto :next
+if "%key%"=="3" set SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\wincon.sfx"& goto :next
+if "%key%"=="4" set SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\wincon64.sfx"& goto :next
+if "%key%"=="5" goto :EOF
 goto :menu-rar
 
 :menu-exe
@@ -58,16 +58,16 @@ echo.
 echo.
 echo.请用键盘选择并回车...
 echo.-----------------------
-set next=&set /p next=
-if "%next%"=="" set SfxOrder=s-& goto :next
-if "%next%"=="0" goto :EOF
+set key=&set /p key=
+if "%key%"=="" set SfxOrder=s-& goto :next
+if "%key%"=="0" goto :EOF
 goto :menu-exe
 
 :next
 set "random1=%random%%random%"
 md "%dir.jzip.temp%\%random1%"
 
-if "%type.editor%"=="rar" "%path.editor.rar%" %SfxOrder% -w%dir.jzip.temp%\%random1% "%path.Archive%"
+if "%type.editor%"=="rar" "%path.editor.rar%" %SfxOrder% -w%dir.jzip.temp%\%random1% "%path.Archive%" %iferror%
 
 echo.------------------------------------------------------------------------------
 echo.

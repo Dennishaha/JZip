@@ -1,6 +1,6 @@
 
 :more
-title JFsoft Zip %jzip.ver% %processor_architecture%
+title JFsoft Zip Ñ¹Ëõ
 call "%dir.jzip%\Parts\Set_Lnk.cmd" -info
 call "%dir.jzip%\Parts\Set_FastEdit.cmd" -info
 call "%dir.jzip%\Parts\Set_UI.cmd" -info
@@ -10,49 +10,52 @@ echo.
 echo.  ^<  Jzip ÉèÖÃ                                                       [K] Ð¶ÔØ
 echo.¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª
 echo.
-echo.                [1] ÓÒ¼ü²Ëµ¥¹ØÁª          %tips.Lnk.SendTo%
-echo.                [2] ÔÚ×ÀÃæ½¨Á¢½Ý¾¶        %tips.Lnk.Desktop%
+echo.                [1] %tips.Lnk.SendTo% ÓÒ¼ü²Ëµ¥¹ØÁª          
+echo.                [2] %tips.Lnk.Desktop% ÔÚ×ÀÃæ½¨Á¢½Ý¾¶        
 echo.
-echo.                [3] ½çÃæÑÕÉ«Éè¶¨ ^>        %ui.word%(%ui.paper%)
-echo.                [4] ¿ìËÙ±à¼­Ä£Ê½          %tips.FastEdit%
-echo.                [5] ÎÄ¼þ²é¿´Æ÷À©Õ¹        %ui.²é¿´Æ÷À©Õ¹%
+echo.                [3]    ½çÃæÑÕÉ«Éè¶¨ ^>   %ui.word%(%ui.paper%)
+echo.                [4] %tips.FastEdit% ¿ìËÙ±à¼­Ä£Ê½          
+echo.                [5] %ui.²é¿´Æ÷À©Õ¹% ÎÄ¼þ²é¿´Æ÷À©Õ¹        
 echo.
 echo.                    ÁÙÊ±ÎÄ¼þ¼Ð
 echo.                    %dir.jzip.temp%
 echo.                    [6]´ò¿ª [7]×Ô¶¨Òå [8]»Ö¸´Ä¬ÈÏ
 echo.
 echo.                [A] ¼ì²é¸üÐÂ
-echo.                [B] Ç°Íù Jzip ¹Ù·½ÍøÕ¾
-echo.                [C] ¹ØÓÚ Jzip
+echo.                [B] Ç°Íù Jzip ¹ÙÍø
+echo.                [C] ¹ØÓÚ Jzip %jzip.ver%
 echo.
 echo.                [0] »ù±¾Ñ¡Ïî
 echo.
 echo. ¼üÈë²¢»Ø³µÒÔÑ¡Ôñ...
 echo.-----------------------
 %choice% /c:12345678abck0 /n
-set "next=%errorlevel%"
-if "%next%"=="1" call "%dir.jzip%\Parts\Set_Lnk.cmd" -switch sendto
-if "%next%"=="2" call "%dir.jzip%\Parts\Set_Lnk.cmd" -switch desktop
-if "%next%"=="3" call "%dir.jzip%\Parts\Set_UI.cmd"
-if "%next%"=="4" call "%dir.jzip%\Parts\Set_FastEdit.cmd" -switch
-if "%next%"=="5" call :²é¿´Æ÷À©Õ¹ -switch
-if "%next%"=="6" start "" "%dir.jzip.temp%"
-if "%next%"=="7" call :ÁÙÊ±ÎÄ¼þ¼Ð
-if "%next%"=="8" call :ÁÙÊ±ÎÄ¼þ¼Ð default
-if "%next%"=="9" call "%dir.jzip%\Parts\VerControl.cmd" -upgrade
-if "%next%"=="10" explorer "http://jfsoft.cc/jzip"
-if "%next%"=="11" call :About_Jzip
-if "%next%"=="12" call "%dir.jzip%\Parts\VerControl.cmd" -uninstall
-if "%next%"=="13" set "next=" & goto :EOF
+set "key=%errorlevel%"
+if "%key%"=="1" call "%dir.jzip%\Parts\Set_Lnk.cmd" -switch sendto
+if "%key%"=="2" call "%dir.jzip%\Parts\Set_Lnk.cmd" -switch desktop
+if "%key%"=="3" call "%dir.jzip%\Parts\Set_UI.cmd"
+if "%key%"=="4" call "%dir.jzip%\Parts\Set_FastEdit.cmd" -switch
+if "%key%"=="5" call :²é¿´Æ÷À©Õ¹ -switch
+if "%key%"=="6" start "" "%dir.jzip.temp%"
+if "%key%"=="7" call :ÁÙÊ±ÎÄ¼þ¼Ð
+if "%key%"=="8" call :ÁÙÊ±ÎÄ¼þ¼Ð default
+if "%key%"=="9" call "%dir.jzip%\Parts\VerControl.cmd" -upgrade
+if "%key%"=="10" explorer "http://jfsoft.cc/jzip"
+if "%key%"=="11" call :About_Jzip
+if "%key%"=="12" call "%dir.jzip%\Parts\VerControl.cmd" -uninstall
+if "%key%"=="13" set "key=" & goto :EOF
 goto :more
 
 :ÁÙÊ±ÎÄ¼þ¼Ð
-if "%~1"=="" set dir.jzip.temp.new=&set /p dir.jzip.temp.new=Çë¼üÈëÐÂÂ·¾¶£º
 if "%~1"=="default" set dir.jzip.temp.new=%temp%\JFsoft\Jzip
-del /q /f /s "%dir.jzip.temp%"& rd /q /s "%dir.jzip.temp%"
-if not exist "%dir.jzip.temp.new%" md "%dir.jzip.temp.new%"
-if exist "%dir.jzip.temp.new%" (set dir.jzip.temp=%dir.jzip.temp.new%) else (echo.±§Ç¸£¬ÔÝÊ±ÎÞ·¨ÉèÖÃ¸ÃÄ¿Â¼¡£&pause)
-call "%dir.jzip%\Parts\Set_Refresh.cmd"
+if "%~1"=="" set dir.jzip.temp.new=&set /p dir.jzip.temp.new=Çë¼üÈëÐÂÂ·¾¶£º
+md "%dir.jzip.temp.new%" && (
+	set dir.jzip.temp=%dir.jzip.temp.new%
+	reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /t REG_SZ /v "dir.jzip.temp" /d "!dir.jzip.temp!" /f 1>nul
+	rd /q /s "%dir.jzip.temp%"
+) || (
+	pause 1>nul
+)
 goto :EOF
 
 :²é¿´Æ÷À©Õ¹
@@ -60,7 +63,7 @@ if "%1"=="-info" if "%²é¿´Æ÷À©Õ¹%"=="y" (set "ui.²é¿´Æ÷À©Õ¹=¡ñ") else (set "ui.²
 if "%1"=="-switch" (
 	if "%²é¿´Æ÷À©Õ¹%"=="" set "²é¿´Æ÷À©Õ¹=y"
 	if "%²é¿´Æ÷À©Õ¹%"=="y" set "²é¿´Æ÷À©Õ¹="
-	call "%dir.jzip%\Parts\Set_Refresh.cmd"
+	reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /t REG_SZ /v "²é¿´Æ÷À©Õ¹" /d "!²é¿´Æ÷À©Õ¹!" /f 1>nul
 	start "" cmd /c ""%path.jzip.launcher%" -setting" & Exit
 )
 goto :EOF

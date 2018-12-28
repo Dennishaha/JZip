@@ -12,9 +12,27 @@ ver|findstr /i /c:" 5." 1>nul 2>nul && (
 ::±»µ÷ÓÃ
 if /i "%1"=="-info" call :Lnk %1 all 
 for %%A in (-on,-off) do if /i "%1"=="%%A" call :Lnk %1 %2
-if /i "%1"=="-reon" call :Lnk -off all & call :Lnk -on all 
-if /i "%1"=="-switch" if "!tips.Lnk.%2!"=="¡ñ" (call :Lnk -off %2) else (call :Lnk -on %2)
-call "%dir.jzip%\Parts\Set_Refresh.cmd"
+if /i "%1"=="-reon" (
+	call :Lnk -on SMP
+	if "%×ÀÃæ½Ý¾¶%"=="y" call :Lnk -on Desktop
+	if "%ÓÒ¼ü½Ý¾¶%"=="y" call :Lnk -on SendTo
+)
+if /i "%1"=="-switch" (
+	for %%A in (
+		"¡ñ"/"-off"/"Desktop"/"×ÀÃæ½Ý¾¶"/""
+		"¡ñ"/"-off"/"SendTo"/"ÓÒ¼ü½Ý¾¶"/""
+		"¡ð"/"-on"/"Desktop"/"×ÀÃæ½Ý¾¶"/"y"
+		"¡ð"/"-on"/"SendTo"/"ÓÒ¼ü½Ý¾¶"/"y"
+	) do for /f "usebackq tokens=1-5 delims=/" %%a in ('%%A') do (
+		if /i "!tips.Lnk.%2!"=="%%~a" (
+			call :Lnk %%~b %2
+			if /i "%~2"=="%%~c" set "%%~d=%%~e"
+		)
+	)
+	for %%a in (×ÀÃæ½Ý¾¶,ÓÒ¼ü½Ý¾¶) do (
+	reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /t REG_SZ /v "%%a" /d "!%%a!" /f 1>nul
+	)
+)
 goto :EOF
 
 :Lnk

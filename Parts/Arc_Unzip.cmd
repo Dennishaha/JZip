@@ -10,8 +10,8 @@ if "%dir.typein%"=="" set "dir.release=%dir.Archive%"
 
 if exist "%dir.release%" set "dir.release=%dir.Archive%\%Archive.name%_folder"
 
-if "%type.editor%"=="rar" "%path.editor.rar%" x "%path.Archive%" "%dir.release%\"
-if "%type.editor%"=="7z" "%path.editor.7z%" x -o"%dir.release%\" "%path.Archive%"
+if "%type.editor%"=="rar" "%path.editor.rar%" x "%path.Archive%" "%dir.release%\" %iferror%
+if "%type.editor%"=="7z" "%path.editor.7z%" x -o"%dir.release%\" "%path.Archive%" %iferror%
 
 echo.------------------------------------------------------------------------------
 echo.
@@ -20,7 +20,7 @@ echo.     %dir.release%\
 echo.
 echo.                                    [»Ø³µ] ºÃ
 pause>nul
-
+goto :EOF
 
 :Set_Unzip
 echo.

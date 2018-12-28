@@ -45,17 +45,17 @@ echo.
 echo.请用键盘选择并回车...
 echo.-----------------------
 %choice% /c:qwn0123456789abcdef /n
-set "next=%errorlevel%"
-if "%next%"=="1" set "ui.mouse=word"
-if "%next%"=="2" set "ui.mouse=paper"
-if "%next%"=="3" goto :EOF
+set "key=%errorlevel%"
+if "%key%"=="1" set "ui.mouse=word"
+if "%key%"=="2" set "ui.mouse=paper"
+if "%key%"=="3" goto :EOF
 
 for %%A in (4:0,5:1,6:2,7:3,8:4,9:5,10:6,11:7,12:8,13:9,14:a,15:b,16:c,17:d,18:e,19:f) do (
 	for /f "tokens=1,2 delims=:" %%a in ("%%A") do (
-		if "%next%"=="%%a" (
+		if "%key%"=="%%a" (
 			if "%ui.mouse%"=="word" set "界面颜色=%界面颜色:~0,1%%%b"
 			if "%ui.mouse%"=="paper" set "界面颜色=%%b%界面颜色:~1,1%"
-			call "%dir.jzip%\Parts\Set_Refresh.cmd"
+			reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /t REG_SZ /v "界面颜色" /d "!界面颜色!" /f 1>nul
 		)
 	)
 )
