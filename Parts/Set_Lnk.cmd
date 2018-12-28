@@ -25,8 +25,10 @@ if /i "%1"=="-switch" (
 		"¡ð"/"-on"/"SendTo"/"ÓÒ¼ü½Ý¾¶"/"y"
 	) do for /f "usebackq tokens=1-5 delims=/" %%a in ('%%A') do (
 		if /i "!tips.Lnk.%2!"=="%%~a" (
-			call :Lnk %%~b %2
-			if /i "%~2"=="%%~c" set "%%~d=%%~e"
+			if /i "%~2"=="%%~c" (
+				call :Lnk %%~b %2
+				set "%%~d=%%~e"
+			)
 		)
 	)
 	for %%a in (×ÀÃæ½Ý¾¶,ÓÒ¼ü½Ý¾¶) do (

@@ -175,7 +175,7 @@ goto :EOF
 
 :preset
 ::预配置 Jzip 环境
-set "jzip.ver=2 181228.1331"
+set "jzip.ver=2 181228.1645"
 set "title=-- Jzip"
 
 set "dir.jzip.temp=%temp%\JFsoft\Jzip"
@@ -197,7 +197,7 @@ set "key.request=set "key=" & for /f "usebackq delims=" %%a in (`xcopy /l /w "%~
 set "iferror=|| (echo.抱歉，Jzip 出现问题。 & pause 1>nul & goto :EOF)"
 
 set "choice=choice"
-ver|findstr /i /c:" 5.">nul&& if not exist "%windir%\system32\choice.exe" set "choice=%dir.jzip%\Components\x86\choice.exe"
+ver|findstr /i /c:" 5.">nul&& if not exist "%windir%\system32\choice.exe" set ""choice=%dir.jzip%\Components\x86\choice.exe""
 
 if "%processor_architecture%"=="x86" set "path.editor.7z=%dir.jzip%\Components\x86\7z.exe"
 if "%processor_architecture%"=="x86" set "path.editor.rar=%dir.jzip%\Components\x86\rar.exe"

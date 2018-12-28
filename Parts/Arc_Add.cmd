@@ -33,6 +33,7 @@ if "%ArchiveOrder%"=="add" (
 	echo.
 )
 for %%a in (rar,7z,zip,bz2,gz,xz,cab) do if "%Archive.exten%"==".%%a" (
+	if not defined 压缩级别 set "压缩级别=3"
 	for %%A in (
 		0/"○○○○○ 存储"
 		1/"●○○○○ 最快"
@@ -72,10 +73,10 @@ for %%a in (rar,7z,zip) do if /i "%Archive.exten%"==".%%a" (
 )
 if "%ArchiveOrder%"=="add" for %%a in (rar) do if /i "%Archive.exten%"==".%%a" (
 	echo.
+	if not defined 压缩版本.rar set "压缩版本.rar=5"
 	for %%A in (
 		"4"/"●","5"/"○"
 	) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
-		if not defined 压缩版本.rar set "压缩版本.rar=5"
 		if "!压缩版本.rar!"=="%%~a" echo.            [D] 兼容早期版本       %%~b
 	)
 	for %%A in (
