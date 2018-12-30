@@ -139,7 +139,7 @@ for %%a in (list,unzip) do if "%~1"=="%%a" for /f "usebackq delims== tokens=1,*"
 		if "%~1"=="unzip" call "%dir.jzip%\Parts\Arc_Unzip.cmd"
 		set "type.editor="
 	) else (
-		set "ui.nospt=!ui.nospt! !path.Archive!"
+		set "ui.nospt=!ui.nospt!/!path.Archive!"
 	)
 )
 
@@ -157,9 +157,9 @@ echo.
 echo.                              以下项不是压缩文件。
 echo.
 echo.
-echo.          %ui.nospt:"=%
-echo.
-echo.
+:describe_split
+for /f "tokens=1,* delims=/" %%a in ("!ui.nospt!") do set "ui.nospt=%%~b" & echo.      %%~a
+if not "!ui.nospt!"=="" goto :describe_split
 echo.
 echo.
 echo.                                  [回车] 好
@@ -175,7 +175,7 @@ goto :EOF
 
 :preset
 ::预配置 Jzip 环境
-set "jzip.ver=2 181228.2150"
+set "jzip.ver=2 181230.2100"
 set "title=-- Jzip"
 
 set "dir.jzip.temp=%temp%\JFsoft\Jzip"
