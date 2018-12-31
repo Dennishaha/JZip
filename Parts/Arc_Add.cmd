@@ -1,5 +1,5 @@
 
-if not defined path.File (
+if /i not "%~1"=="new" (
 	echo.
 	echo. 请拖入要添加的文件^(夹^)：
 	echo.
