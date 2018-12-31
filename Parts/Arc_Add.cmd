@@ -1,5 +1,5 @@
 
-if /i not "%~1"=="new" (
+if /i "%~1"=="" (
 	echo.
 	echo. 请拖入要添加的文件^(夹^)：
 	echo.
@@ -9,8 +9,6 @@ if /i not "%~1"=="new" (
 	set "path.File=" & set /p "path.File="
 	if not defined path.File goto :EOF
 )
-
-call :GetFile_Single %path.File%
 
 :Archive_Setting
 call :Archive_info "%path.Archive%"
@@ -32,21 +30,21 @@ if "%ArchiveOrder%"=="add" (
 	)
 	echo.
 )
-for %%a in (rar,7z,zip,bz2,gz,xz,cab) do if "%Archive.exten%"==".%%a" (
-	if not defined 压缩级别 set "压缩级别=3"
-	for %%A in (
-		0/"○○○○○ 存储"
-		1/"●○○○○ 最快"
-		2/"●●○○○ 很快"
-		3/"●●●○○ 默认"
-		4/"●●●●○ 很好"	
-		5/"●●●●● 最好"
-	) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
-		if "!压缩级别!"=="%%~a" echo.            [E] 压缩效率           %%~b
+if not defined 压缩级别 set "压缩级别=3"
+for %%A in (
+	0/"○○○○○ 存储"
+	1/"●○○○○ 最快"
+	2/"●●○○○ 很快"
+	3/"●●●○○ 默认"
+	4/"●●●●○ 很好"	
+	5/"●●●●● 最好"
+) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
+	if "%%~a"=="!压缩级别!" for %%a in (rar,7z,zip,bz2,gz,xz,cab) do if "%Archive.exten%"==".%%a" (
+		echo.            [E] 压缩效率           %%~b
 	)
-) 
-for %%a in (tar,wim) do if /i "%Archive.exten%"==".%%a" (
-	echo.                压缩效率           ○○○○○ 存储
+	if "%%~a"=="0" for %%a in (tar,wim) do if "%Archive.exten%"==".%%a" (
+		echo.                压缩效率           %%~b
+	)
 )
 if "%ArchiveOrder%"=="add" for %%a in (rar,7z,xz) do if /i "%Archive.exten%"==".%%a" (
 	echo.            [A] 固实文件           %ui.固实文件%
@@ -58,7 +56,7 @@ if "%ArchiveOrder%"=="add" for %%a in (rar,7z,zip,tar,bz2,gz,xz,wim) do if /i "%
 if "%ArchiveOrder%"=="add" for %%a in (rar,7z,zip) do if /i "%Archive.exten%"==".%%a" (
 	echo.
 	for %%A in (
-		""/"○ "
+		""/○
 		a32/"● 标准界面"
 		a64/"● 标准界面（64位）"
 		b32/"● 控制台界面"
@@ -165,14 +163,6 @@ if "%ArchiveOrder%"=="add" (
 set "path.File=" & goto :EOF
 
 
-
-:GetFile_Single
-if "%~2"=="" (
-	dir "%~1" /a:d /b 1>nul 2>nul && set "File.Single=n" || set "File.Single=y"
-) else (
-	set "File.Single=n"
-)
-goto :EOF
 
 :Archive_info
 for /f "usebackq delims==" %%a in ('"%~1"') do (

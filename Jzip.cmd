@@ -93,7 +93,7 @@ goto :setpath
 if not "%~2"=="" (
 	if not defined raw.number set "raw.number=0"
 	set /a "raw.number=!raw.number!+1"
-	set "path.raw.!raw.number!=%~2"
+	dir "%~2" /b 1>nul 2>nul && set "path.raw.!raw.number!=%~2"
 	shift /2
 	goto :Set_Info
 )
@@ -106,12 +106,15 @@ for %%a in (add,add-7z) do if "%~1"=="%%a" (
 		for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKEY_CURRENT_USER\Software\JFsoft.Jzip\Record" 2^>nul') do if /i "%%b"=="REG_SZ" set "%%a=%%c"
 	)
 	for /f "usebackq delims== tokens=1,*" %%a in (`set "path.raw."`) do (
-		dir "%%~b" /b 1>nul 2>nul && set "path.File=!path.File! "%%~b""
+		set "path.File=!path.File! "%%~b""
 	)
-	set "path.Archive=!path.raw.1!%Archive.exten%"
+	dir "!path.raw.1!" /a:d /b 1>nul 2>nul && set "File.Single=n"
+	if defined path.raw.2 dir "!path.raw.2!" /b 1>nul 2>nul && set "File.Single=n"
+	
+	set "path.Archive=!path.raw.1!%Archive.exten%"	
 	if defined path.File call "%dir.jzip%\Parts\Arc_Add.cmd" new
 	
-	if "%ArchiveOrder%"=="add" (
+	if "%~1"=="add" (
 	for %%a in (Archive.exten,压缩级别,固实文件) do (
 		reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip\Record" /t REG_SZ /v "%%a" /d "!%%a!" /f 1>nul %iferror%
 		)
@@ -175,7 +178,7 @@ goto :EOF
 
 :preset
 ::预配置 Jzip 环境
-set "jzip.ver=2 181231.1300"
+set "jzip.ver=2 181231.1500"
 set "title=-- Jzip"
 
 set "dir.jzip.temp=%temp%\JFsoft\Jzip"

@@ -17,7 +17,7 @@ echo.                [3]    界面颜色设定 ^>   %ui.word%(%ui.paper%)
 echo.                [4] %tips.FastEdit% 快速编辑模式          
 echo.                [5] %ui.查看器扩展% 文件查看器扩展        
 echo.
-echo.                    临时文件夹
+echo.                    工作目录
 echo.                    %dir.jzip.temp%
 echo.                    [6]打开 [7]自定义 [8]恢复默认
 echo.
