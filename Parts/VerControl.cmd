@@ -20,11 +20,11 @@ if "%1"=="Install" md %dir.jzip.temp% 1>nul 2>nul
 
 for %%a in (Install,Upgrade) do if "%1"=="%%a" (
 	dir "%dir.jzip.temp%\verinfo.txt" /a:-d /b 1>nul 2>nul && del /q /f /s "%dir.jzip.temp%\verinfo.txt" 1>nul 2>nul
-	bitsadmin /transfer %random% /download /priority foreground https://jfsoft.cc/jzip/verinfo.txt "%dir.jzip.temp%\verinfo.txt" %if.error.1%
+	bitsadmin /transfer %random% /download /priority foreground https://github.com/Dennishaha/JZip/blob/master/Server/ver.ini?raw=true "%dir.jzip.temp%\verinfo.txt" %if.error.1%
 	cls
 	dir "%dir.jzip.temp%\verinfo.txt" /a:-d /b 1>nul 2>nul %if.error.2%
 
-	for /f "usebackq tokens=1,2* delims==" %%a in (`type "%dir.jzip.temp%\verinfo.txt"`) do set "%%a=%%b"
+	for /f "eol=[ usebackq tokens=1,2* delims==" %%a in (`type "%dir.jzip.temp%\verinfo.txt"`) do set "%%a=%%b"
 	set "jzip.newver.page=%dir.jzip.temp%\full.!jzip.newver!.exe"
 )
 
@@ -47,7 +47,7 @@ for %%a in (Install,Upgrade) do if "%1"=="%%a" if /i not "%jzip.ver%"=="%jzip.ne
 	:describe_split
 	for /f "tokens=1,* delims=;" %%a in ("!jzip.newver.describe!") do (
 		set "jzip.newver.describe=%%~b"
-		echo. & echo.      %%~a
+		echo.      %%~a
 	)
 	if not "!jzip.newver.describe!"=="" goto :describe_split
 )

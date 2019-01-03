@@ -178,7 +178,7 @@ goto :EOF
 
 :preset
 ::‘§≈‰÷√ Jzip ª∑æ≥
-set "jzip.ver=2 181231.1500"
+set "jzip.ver=2 190103.1700"
 set "title=-- Jzip"
 
 set "dir.jzip.temp=%temp%\JFsoft\Jzip"
