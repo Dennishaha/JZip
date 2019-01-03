@@ -20,7 +20,7 @@ if "%1"=="Install" md %dir.jzip.temp% 1>nul 2>nul
 
 for %%a in (Install,Upgrade) do if "%1"=="%%a" (
 	dir "%dir.jzip.temp%\verinfo.txt" /a:-d /b 1>nul 2>nul && del /q /f /s "%dir.jzip.temp%\verinfo.txt" 1>nul 2>nul
-	bitsadmin /transfer %random% /download /priority foreground https://github.com/Dennishaha/JZip/blob/master/Server/ver.ini?raw=true "%dir.jzip.temp%\verinfo.txt" %if.error.1%
+	bitsadmin /transfer %random% /download /priority foreground https://raw.githubusercontent.com/Dennishaha/JZip/master/Server/ver.ini "%dir.jzip.temp%\verinfo.txt" %if.error.1%
 	cls
 	dir "%dir.jzip.temp%\verinfo.txt" /a:-d /b 1>nul 2>nul %if.error.2%
 
