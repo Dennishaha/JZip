@@ -17,7 +17,7 @@ JFsoft Zip Tool 是一款命令行版的压缩工具，基于 7Zip Rar 命令行
 ###### [在这里获取](https://github.com/Dennishaha/JZip/releases)
   
 ````
-  安装过程将自动开始。
+  下载 GetJzip.cmd 并允许运行，安装过程将自动开始。
 ````
 
 ### 使用 Jzip 不执行安装
@@ -25,8 +25,7 @@ JFsoft Zip Tool 是一款命令行版的压缩工具，基于 7Zip Rar 命令行
 ###### [文件夹](https://github.com/Dennishaha/JZip/tree/master/App)
 
 ````
-  拉取 App 文件夹的所有内容至一个空文件夹。
-  运行 Jzip.cmd。
+  拉取 App 文件夹的所有内容至一个空文件夹，运行 Jzip.cmd。
 ````
 
 ### 移除 JZip
@@ -34,6 +33,7 @@ JFsoft Zip Tool 是一款命令行版的压缩工具，基于 7Zip Rar 命令行
 ````
   应用内建的卸载选项可完全移除 Jzip。
   
-  移除 Jzip 注册表项。
-  删除 Jzip.cmd 所在文件夹的所有内容。
+  会执行如下：
+    移除 Jzip 注册表项。
+    删除 Jzip.cmd 所在文件夹的所有内容。
 ````
