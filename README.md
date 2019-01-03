@@ -1,5 +1,7 @@
 # JZip
 
+![mainui](https://raw.githubusercontent.com/Dennishaha/JZip/master/Server/mainui.jpg)
+
 JFsoft Zip Tool 是一款命令行版的压缩工具，基于 7Zip Rar 命令行工具。
 
 提供了 ZIP RAR 7Z TAR GZIP BZ2 XZ WIM 等文件的压缩和管理，
