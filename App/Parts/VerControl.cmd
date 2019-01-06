@@ -32,6 +32,7 @@ sc qc bits | findstr "DISABLED" >nul && (
 			1>> "%temp%\getadmin.vbs" echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c sc config bits start= demand >nul", "", "runas", 1 && "%temp%\getadmin.vbs"
 		)
 	)
+	ping localhost -n 2 >nul
 )
 
 set "if.error.1=|| (echo. bitsadmin 组件出现错误，在早期版本的 Windows 中可能缺失。 & pause & goto :EOF)"
