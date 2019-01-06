@@ -178,7 +178,7 @@ goto :EOF
 
 :preset
 ::预配置 Jzip 环境
-set "jzip.ver=2 190106.1700"
+set "jzip.ver=2 190106.2030"
 set "title=-- Jzip"
 
 set "dir.jzip.temp=%temp%\JFsoft\Jzip"
@@ -213,7 +213,7 @@ goto :EOF
 :su
 ::取得管理员权限
 if defined %* set "params=%*" & set "params=!params:~4!"
-( if exist "%temp%\getadmin.vbs" erase "%temp%\getadmin.vbs" ) && fsutil dirty query %systemdrive% 1>nul 2>nul || (  echo Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c cd ""%~sdp0"" && %~s0 %params%", "", "runas", 1 >> "%temp%\getadmin.vbs" && "%temp%\getadmin.vbs" && exit /b)
+( if exist "%temp%\getadmin.vbs" erase "%temp%\getadmin.vbs" ) && fsutil dirty query %systemdrive% 1>nul 2>nul || ( 1>> "%temp%\getadmin.vbs" echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c cd ""%~sdp0"" && %~s0 %params%", "", "runas", 1 && "%temp%\getadmin.vbs" && exit /b)
 goto :EOF
 
 

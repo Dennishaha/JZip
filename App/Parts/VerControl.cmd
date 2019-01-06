@@ -11,6 +11,29 @@ goto :EOF
 
 :Wizard
 title Jzip Installer
+cls
+
+sc query bits | findstr "STOPPED" >nul && (
+	echo.
+	echo.
+	if "%1"=="Install" echo.      Jzip 安装过程需要 bits 服务。
+	if "%1"=="Upgrade" echo.      Jzip 更新过程需要 bits 服务。
+	echo.
+	if "%1"=="Install" echo.      您是否允许 Jzip 启用服务？
+	if "%1"=="Upgrade" echo.      您是否允许 Jzip 启用服务？
+	echo.
+	echo.
+	echo.      [回车] 允许  [0] 取消
+	set "key=" & set /p "key="
+	if /i not "!key!"=="" goto :EOF
+	cls
+	( if exist "%temp%\getadmin.vbs" erase "%temp%\getadmin.vbs" ) && (
+		fsutil dirty query %systemdrive% 1>nul 2>nul || (
+			1>> "%temp%\getadmin.vbs" echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c sc config bits start= demand >nul ", "", "runas", 1 && "%temp%\getadmin.vbs"
+		)
+	)
+)
+
 set "if.error.1=|| (echo. bitsadmin 组件出现错误，在早期版本的 Windows 中可能缺失。 & pause & goto :EOF)"
 set "if.error.2=|| (echo. 网路连接出现错误，请重新尝试。 & pause & goto :EOF)"
 set "if.error.3=|| (echo. 更新文件出现错误，请重新尝试。 & pause & goto :EOF)"
@@ -86,4 +109,3 @@ if "%1"=="UnInstall" (
 	cmd /c "rd /q /s "%dir.jzip%"  1>nul 2>nul"
 )
 goto :EOF
-
