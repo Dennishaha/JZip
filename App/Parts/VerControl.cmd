@@ -13,7 +13,7 @@ goto :EOF
 title Jzip Installer
 cls
 
-sc query bits | findstr "STOPPED" >nul && (
+sc qc bits | findstr "DISABLED" >nul && (
 	echo.
 	echo.
 	if "%1"=="Install" echo.      Jzip 安装过程需要 bits 服务。
@@ -29,7 +29,7 @@ sc query bits | findstr "STOPPED" >nul && (
 	cls
 	( if exist "%temp%\getadmin.vbs" erase "%temp%\getadmin.vbs" ) && (
 		fsutil dirty query %systemdrive% 1>nul 2>nul || (
-			1>> "%temp%\getadmin.vbs" echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c sc config bits start= demand >nul ", "", "runas", 1 && "%temp%\getadmin.vbs"
+			1>> "%temp%\getadmin.vbs" echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c sc config bits start= demand >nul", "", "runas", 1 && "%temp%\getadmin.vbs"
 		)
 	)
 )
@@ -42,12 +42,12 @@ if "%1"=="Install" set "dir.jzip.temp=%temp%\JFsoft\JZip"
 if "%1"=="Install" md %dir.jzip.temp% 1>nul 2>nul
 
 for %%a in (Install,Upgrade) do if "%1"=="%%a" (
-	dir "%dir.jzip.temp%\verinfo.txt" /a:-d /b 1>nul 2>nul && del /q /f /s "%dir.jzip.temp%\verinfo.txt" 1>nul 2>nul
-	bitsadmin /transfer %random% /download /priority foreground https://raw.githubusercontent.com/Dennishaha/JZip/master/Server/ver.ini "%dir.jzip.temp%\verinfo.txt" %if.error.1%
+	dir "%dir.jzip.temp%\ver.ini" /a:-d /b 1>nul 2>nul && del /q /f /s "%dir.jzip.temp%\ver.ini" 1>nul 2>nul
+	bitsadmin /transfer %random% /download /priority foreground https://raw.githubusercontent.com/Dennishaha/JZip/master/Server/ver.ini "%dir.jzip.temp%\ver.ini" %if.error.1%
 	cls
-	dir "%dir.jzip.temp%\verinfo.txt" /a:-d /b 1>nul 2>nul %if.error.2%
+	dir "%dir.jzip.temp%\ver.ini" /a:-d /b 1>nul 2>nul %if.error.2%
 
-	for /f "eol=[ usebackq tokens=1,2* delims==" %%a in (`type "%dir.jzip.temp%\verinfo.txt"`) do set "%%a=%%b"
+	for /f "eol=[ usebackq tokens=1,2* delims==" %%a in (`type "%dir.jzip.temp%\ver.ini"`) do set "%%a=%%b"
 	set "jzip.newver.page=%dir.jzip.temp%\full.!jzip.newver!.exe"
 )
 

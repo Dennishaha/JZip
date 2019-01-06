@@ -70,4 +70,5 @@ goto :EOF
 
 :目标路径
 set /p "path.Archive=-- 请输入压缩档路径："
+set "path.Archive=%path.Archive:"=%"
 goto :EOF

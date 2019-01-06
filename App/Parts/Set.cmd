@@ -21,15 +21,15 @@ echo.                    工作目录
 echo.                    %dir.jzip.temp%
 echo.                    [6]打开 [7]自定义 [8]恢复默认
 echo.
-echo.                [A] 检查更新
-echo.                [B] 前往 Jzip 官网
-echo.                [C] 关于 Jzip %jzip.ver%
+echo.                [A] 检查更新  %jzip.ver%
+echo.                [B] 前往 Jzip 项目 
 echo.
 echo.                [0] 基本选项
 echo.
+echo.
 echo. 键入并回车以选择...
 echo.-----------------------
-%choice% /c:12345678abck0 /n
+%choice% /c:12345678abk0 /n
 set "key=%errorlevel%"
 if "%key%"=="1" call "%dir.jzip%\Parts\Set_Lnk.cmd" -switch sendto
 if "%key%"=="2" call "%dir.jzip%\Parts\Set_Lnk.cmd" -switch desktop
@@ -40,10 +40,9 @@ if "%key%"=="6" start "" "%dir.jzip.temp%"
 if "%key%"=="7" call :临时文件夹
 if "%key%"=="8" call :临时文件夹 default
 if "%key%"=="9" call "%dir.jzip%\Parts\VerControl.cmd" -upgrade
-if "%key%"=="10" explorer "http://jfsoft.cc/jzip"
-if "%key%"=="11" call :About_Jzip
-if "%key%"=="12" call "%dir.jzip%\Parts\VerControl.cmd" -uninstall
-if "%key%"=="13" set "key=" & goto :EOF
+if "%key%"=="10" explorer "https://github.com/dennishaha/Jzip"
+if "%key%"=="11" call "%dir.jzip%\Parts\VerControl.cmd" -uninstall
+if "%key%"=="12" set "key=" & goto :EOF
 goto :more
 
 :临时文件夹
@@ -66,10 +65,4 @@ if "%1"=="-switch" (
 	reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /t REG_SZ /v "查看器扩展" /d "!查看器扩展!" /f 1>nul
 	start "" cmd /c ""%path.jzip.launcher%" -setting" & Exit
 )
-goto :EOF
-
-:About_Jzip
-cls
-more /e <"%dir.jzip%\Components\About.txt"
-pause
 goto :EOF
