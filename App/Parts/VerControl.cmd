@@ -11,9 +11,9 @@ goto :EOF
 
 :Wizard
 title Jzip Installer
-set "if.error.1=|| (echo.需要 bitsadmin 组件，在早期版本的 Windows 中可能缺失。 & goto :EOF)"
-set "if.error.2=|| (echo.网路连接出现错误，请重新尝试。 & goto :EOF)"
-set "if.error.3=|| (echo. 更新文件出现错误，请重新尝试。 & goto :EOF)"
+set "if.error.1=|| (echo. bitsadmin 组件出现错误，在早期版本的 Windows 中可能缺失。 & pause & goto :EOF)"
+set "if.error.2=|| (echo. 网路连接出现错误，请重新尝试。 & pause & goto :EOF)"
+set "if.error.3=|| (echo. 更新文件出现错误，请重新尝试。 & pause & goto :EOF)"
 
 if "%1"=="Install" set "dir.jzip.temp=%temp%\JFsoft\JZip"
 if "%1"=="Install" md %dir.jzip.temp% 1>nul 2>nul
@@ -43,7 +43,7 @@ if "%1"=="Upgrade" (
 	)
 )
 for %%a in (Install,Upgrade) do if "%1"=="%%a" if /i not "%jzip.ver%"=="%jzip.newver%" (
-	echo.
+	echo. & echo.
 	:describe_split
 	for /f "tokens=1,* delims=;" %%a in ("!jzip.newver.describe!") do (
 		set "jzip.newver.describe=%%~b"
