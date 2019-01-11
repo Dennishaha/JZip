@@ -166,7 +166,7 @@ set "path.File=" & goto :EOF
 
 :Archive_info
 for /f "usebackq delims==" %%a in ('"%~1"') do (
-	set "dir.File=%%~dpa" & set "dir.File=!dir.File:~0,-1!"
+	set "dir.File=%%~dpa" && set "dir.File=!dir.File:~0,-1!"
 	set "File.name=%%~na"
 	set "File.exten=%%~xa"
 	

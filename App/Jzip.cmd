@@ -10,7 +10,7 @@ call :preset
 ::被调用
 if exist "%~1" call :Set_Info list %* & goto :END
 if exist "%~2" call :Set_Info %* & goto :END
-if /i "%~1"=="-su" goto :su
+if /i "%~1"=="-su" call :su %* & if errorlevel 1 goto :EOF
 if /i "%~1"=="-install" call "%dir.jzip%\Parts\Set_Lnk.cmd" -reon
 if /i "%~1"=="-setting" call "%dir.jzip%\Parts\Set.cmd"
 
@@ -30,7 +30,7 @@ echo.
 echo.                               [3] 解压缩文件 ^>
 echo.
 echo.                               [4] 文件管理器 ^>
-echo.                               [5] 提升权限 ↗
+net session >nul 2>nul || echo.                               [5] 提升权限 ↗
 echo.
 echo.                               [6] 设置 ^>
 echo.
@@ -46,7 +46,7 @@ if "%key%"=="1" call :SetPath list
 if "%key%"=="2" call :SetPath add
 if "%key%"=="3" call :SetPath unzip
 if "%key%"=="4" call "%dir.jzip%\Parts\File.cmd"
-if "%key%"=="5" goto :SU
+if "%key%"=="5" call :su %* & if errorlevel 1 goto :EOF
 if "%key%"=="6" call "%dir.jzip%\Parts\Set.cmd"
 if "%key%"=="7" goto :END
 ::清除已有变量并重启
@@ -178,7 +178,7 @@ goto :EOF
 
 :preset
 ::预配置 Jzip 环境
-set "jzip.ver=2 190106.2230"
+set "jzip.ver=2 190111.1830"
 set "title=-- Jzip"
 
 set "dir.jzip.temp=%temp%\JFsoft\Jzip"
@@ -212,8 +212,10 @@ goto :EOF
 
 :su
 ::取得管理员权限
-if defined %* set "params=%*" & set "params=!params:~4!"
-( if exist "%temp%\getadmin.vbs" erase "%temp%\getadmin.vbs" ) && fsutil dirty query %systemdrive% 1>nul 2>nul || ( 1>> "%temp%\getadmin.vbs" echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c cd ""%~sdp0"" && %~s0 %params%", "", "runas", 1 && "%temp%\getadmin.vbs" && exit /b)
+set "params=%*" && set "params=!params:~4!"
+( if exist "%temp%\getadmin.vbs" erase "%temp%\getadmin.vbs" ) && net session >nul 2>nul || (
+	1>> "%temp%\getadmin.vbs" echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c cd ""%~sdp0"" && %~s0 %params%", "", "runas", 1 && "%temp%\getadmin.vbs" && exit /b 1
+)
 goto :EOF
 
 
