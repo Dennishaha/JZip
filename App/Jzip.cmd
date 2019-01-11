@@ -178,7 +178,7 @@ goto :EOF
 
 :preset
 ::预配置 Jzip 环境
-set "jzip.ver=2 190111.2030"
+set "jzip.ver=2 190111.2230"
 set "title=-- Jzip"
 
 set "dir.jzip.temp=%temp%\JFsoft\Jzip"
@@ -212,8 +212,8 @@ goto :EOF
 
 :su
 ::取得管理员权限
+set "params=%*" && set "params=!params:~4!"
 net session >nul 2>nul || (
-	set "params=%*" && set "params=!params:~4!"
 	1> "%dir.jzip.temp%\getadmin.vbs" (
 		echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c %~s0 %params%", "", "runas", 1
 		echo.Set fso = CreateObject^("Scripting.FileSystemObject"^)
