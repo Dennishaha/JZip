@@ -13,6 +13,11 @@ goto :EOF
 title Jzip Installer
 cls
 
+if "%1"=="Install" (
+	set "dir.jzip.temp=%temp%\JFsoft\JZip"
+	md !dir.jzip.temp! 1>nul 2>nul
+)
+
 sc qc bits | findstr "DISABLED" >nul && (
 	echo.
 	echo.
@@ -27,10 +32,14 @@ sc qc bits | findstr "DISABLED" >nul && (
 	set "key=" & set /p "key="
 	if /i not "!key!"=="" goto :EOF
 	cls
-	( if exist "%temp%\getadmin.vbs" erase "%temp%\getadmin.vbs" ) && (
-		net session >nul 2>nul || (
-			1>> "%temp%\getadmin.vbs" echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c sc config bits start= demand >nul", "", "runas", 1 && "%temp%\getadmin.vbs"
-		)
+	net session >nul 2>nul && sc config bits start= demand >nul", "", "runas", 1
+	net session >nul 2>nul || (
+		1> "%dir.jzip.temp%\getadmin.vbs" (
+			echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c sc config bits start= demand >nul", "", "runas", 1
+			echo.Set fso = CreateObject^("Scripting.FileSystemObject"^)
+			echo.fso.DeleteFile^(WScript.ScriptFullName^)
+			)
+		) && "%dir.jzip.temp%\getadmin.vbs"
 	)
 	ping localhost -n 2 >nul
 )
@@ -38,9 +47,6 @@ sc qc bits | findstr "DISABLED" >nul && (
 set "if.error.1=|| (echo. bitsadmin 组件出现错误，在早期版本的 Windows 中可能缺失。 & pause & goto :EOF)"
 set "if.error.2=|| (echo. 网路连接出现错误，请重新尝试。 & pause & goto :EOF)"
 set "if.error.3=|| (echo. 更新文件出现错误，请重新尝试。 & pause & goto :EOF)"
-
-if "%1"=="Install" set "dir.jzip.temp=%temp%\JFsoft\JZip"
-if "%1"=="Install" md %dir.jzip.temp% 1>nul 2>nul
 
 for %%a in (Install,Upgrade) do if "%1"=="%%a" (
 	dir "%dir.jzip.temp%\ver.ini" /a:-d /b 1>nul 2>nul && del /q /f /s "%dir.jzip.temp%\ver.ini" 1>nul 2>nul

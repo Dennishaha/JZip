@@ -178,7 +178,7 @@ goto :EOF
 
 :preset
 ::预配置 Jzip 环境
-set "jzip.ver=2 190111.1830"
+set "jzip.ver=2 190111.2030"
 set "title=-- Jzip"
 
 set "dir.jzip.temp=%temp%\JFsoft\Jzip"
@@ -212,9 +212,14 @@ goto :EOF
 
 :su
 ::取得管理员权限
-set "params=%*" && set "params=!params:~4!"
-( if exist "%temp%\getadmin.vbs" erase "%temp%\getadmin.vbs" ) && net session >nul 2>nul || (
-	1>> "%temp%\getadmin.vbs" echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c cd ""%~sdp0"" && %~s0 %params%", "", "runas", 1 && "%temp%\getadmin.vbs" && exit /b 1
+net session >nul 2>nul || (
+	set "params=%*" && set "params=!params:~4!"
+	1> "%dir.jzip.temp%\getadmin.vbs" (
+		echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c %~s0 %params%", "", "runas", 1
+		echo.Set fso = CreateObject^("Scripting.FileSystemObject"^)
+		echo.fso.DeleteFile^(WScript.ScriptFullName^)
+		)
+	) && "%dir.jzip.temp%\getadmin.vbs" && exit /b 1
 )
 goto :EOF
 
