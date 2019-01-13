@@ -129,16 +129,16 @@ for %%a in (list,unzip) do if "%~1"=="%%a" for /f "usebackq delims== tokens=1,*"
 	title %%~b %title%
 	
 	dir "!path.Archive!" /a:-d /b 1>nul 2>nul && (
-		for %%A in (7z,zip,bz2,gz,tgz,tar,wim,xz,001,cab,iso,dll,msi,chm,cpio,deb,dmg,lzh,lzma,rpm,udf,vhd,xar) do if /i "!Archive.exten!"==".%%A" set "type.editor=7z"
-		if /i "!Archive.exten!"==".rar" set "type.editor=rar"
-		if /i "!Archive.exten!"==".exe" (
+		for %%A in (%jzip.spt.7z%) do if /i "!Archive.exten!"==".%%A" set "type.editor=7z"
+		for %%A in (%jzip.spt.rar%) do if /i "!Archive.exten!"==".%%A" set "type.editor=rar"
+		for %%A in (%jzip.spt.exe%) do if /i "!Archive.exten!"==".%%A" (
 			"%path.editor.7z%" l "!path.Archive!" | findstr "^   Date" 1>nul && set "type.editor=7z"
 			"%path.editor.rar%" l "!path.Archive!" | findstr "^详情:" 1>nul && set "type.editor=rar"
 		)
 	)
 	
 	if defined type.editor (
-		if "%~1"=="list" start "%%~b %title%" cmd /c "%dir.jzip%\Parts\Arc.cmd"
+		if "%~1"=="list" start "%%~b %title%" cmd /e:on /v:on /c "@echo off && call "%dir.jzip%\Parts\Arc.cmd""
 		if "%~1"=="unzip" call "%dir.jzip%\Parts\Arc_Unzip.cmd"
 		set "type.editor="
 	) else (
@@ -174,11 +174,11 @@ goto :EOF
 
 
 
-::以下为调用组件
+:: 以下为函数
 
 :preset
-::预配置 Jzip 环境
-set "jzip.ver=2 190111.2230"
+:: 预配置 Jzip 环境
+set "jzip.ver=2 190113.2300"
 set "title=-- Jzip"
 
 set "dir.jzip.temp=%temp%\JFsoft\Jzip"
@@ -187,18 +187,26 @@ set "桌面捷径=y"
 set "右键捷径=y"
 set "查看器扩展="
 
-::加载用户配置信息及临时文件夹
+:: Jzip 文件支持类型
+set "jzip.spt.rar=rar"
+set "jzip.spt.7z=7z,zip,bz2,gz,tgz,tar,wim,xz,001,cab,iso,dll,msi,chm,cpio,deb,dmg,lzh,lzma,rpm,udf,vhd,xar"
+set "jzip.spt.exe=exe"
+set "jzip.spt.write=exe,rar,7z,zip,tar,wim"
+set "jzip.spt.open=%jzip.spt.rar%,%jzip.spt.7z%"
+
+:: 加载用户配置信息及临时文件夹
 for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKEY_CURRENT_USER\Software\JFsoft.Jzip" 2^>nul') do if /i "%%b"=="REG_SZ" set "%%a=%%c"
 set "最近运行=%date:~0,10% %time%"
 for %%a in (dir.jzip.temp,界面颜色,桌面捷径,右键捷径,查看器扩展,最近运行) do reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /t REG_SZ /v "%%a" /d "!%%a!" /f 1>nul
 dir "%dir.jzip.temp%" /a:d /b 1>nul 2>nul || md "%dir.jzip.temp%" || (set dir.jzip.temp=%temp%\JFsoft\Jzip & md "!dir.jzip.temp!")
 
-::配置组件
+:: 配置组件 - 动态
 color %界面颜色%
 if "%查看器扩展%"=="y" (set "ViewExten=| more /e /s") else (set "ViewExten=")
 set "key.request=set "key=" & for /f "usebackq delims=" %%a in (`xcopy /l /w "%~f0" "%~f0" 2^^>nul`) do if not defined key set "key=%%a" & set "key=^^!key:~-1%^^!""
 set "iferror=|| (echo.抱歉，Jzip 出现问题。 & pause 1>nul & goto :EOF)"
 
+:: 配置组件 - 静态
 set "choice=choice"
 ver|findstr /i /c:" 5.">nul&& if not exist "%windir%\system32\choice.exe" set ""choice=%dir.jzip%\Components\x86\choice.exe""
 

@@ -1,7 +1,3 @@
-@echo off
-setlocal EnableExtensions
-setlocal enabledelayedexpansion
-
 color %界面颜色%
 
 :menu
@@ -9,7 +5,7 @@ cls
 for %%a in (rar,7z,cab) do if "%type.editor%"=="%%a" "!path.editor.%%a!" l "%path.Archive%" %ViewExten%
 
 echo.———————————————————————————————————————
-for %%a in (exe,rar,7z,zip,tar,wim) do if /i "%Archive.exten%"==".%%a" set "ui.Archive.writeable=y"
+for %%a in (%jzip.spt.write%) do if /i "%Archive.exten%"==".%%a" set "ui.Archive.writeable=y"
 if "%ui.Archive.writeable%"=="y" (
 	echo. [1]打开 [2]提取 [3]解压到 [4]添加 [5]删除 [6]重命名 [7]高级 [0]返回
 ) else (
