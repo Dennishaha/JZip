@@ -1,6 +1,7 @@
 @echo off
 setlocal EnableExtensions
 setlocal enabledelayedexpansion
+chcp 936 >nul
 
 ::µ÷ÓÃ
 if /i "%1"=="" call :Wizard Install
@@ -108,11 +109,11 @@ if "%1"=="Install" set "dir.jzip=%appdata%\JFsoft\JZip\App"
 for %%a in (UnInstall,Upgrade) do if "%1"=="%%a" call "%dir.jzip%\Parts\Set_Lnk.cmd" -off all
 
 for %%a in (Install,Upgrade) do if "%1"=="%%a" (
-	cmd /c "@echo off & rd /q /s "%dir.jzip%" 1>nul 2>nul & md "%dir.jzip%" 1>nul 2>nul & "%jzip.newver.page%" x -o"%dir.jzip%\" & "%dir.jzip%\%jzip.newver.installer%" -install"
+	cmd /q /c "rd /q /s "%dir.jzip%" >nul 2>nul & md "%dir.jzip%" >nul 2>nul & "%jzip.newver.page%" x -o"%dir.jzip%\" & "%dir.jzip%\%jzip.newver.installer%" -install"
 	exit
 )
 if "%1"=="UnInstall" (
 	reg delete "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /f 1>nul
-	cmd /c "rd /q /s "%dir.jzip%"  1>nul 2>nul"
+	cmd /q /c "rd /q /s "%dir.jzip%"  1>nul 2>nul"
 )
 goto :EOF

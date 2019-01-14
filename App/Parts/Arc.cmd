@@ -1,4 +1,3 @@
-color %½çÃæÑÕÉ«%
 
 :menu
 cls

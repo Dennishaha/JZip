@@ -1,6 +1,7 @@
 @echo off
 setlocal EnableExtensions
 setlocal enabledelayedexpansion
+chcp 936 >nul
 
 ::预配置
 set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
@@ -138,7 +139,7 @@ for %%a in (list,unzip) do if "%~1"=="%%a" for /f "usebackq delims== tokens=1,*"
 	)
 	
 	if defined type.editor (
-		if "%~1"=="list" start "%%~b %title%" cmd /e:on /v:on /c "@echo off && call "%dir.jzip%\Parts\Arc.cmd""
+		if "%~1"=="list" start "%%~b %title%" cmd /q /e:on /v:on /c "chcp 936 >nul & color %界面颜色% & call "%dir.jzip%\Parts\Arc.cmd""
 		if "%~1"=="unzip" call "%dir.jzip%\Parts\Arc_Unzip.cmd"
 		set "type.editor="
 	) else (
@@ -178,7 +179,7 @@ goto :EOF
 
 :preset
 :: 预配置 Jzip 环境
-set "jzip.ver=2 190113.2300"
+set "jzip.ver=2 190114.1130"
 set "title=-- Jzip"
 
 set "dir.jzip.temp=%temp%\JFsoft\Jzip"
