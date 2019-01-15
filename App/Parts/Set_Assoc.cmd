@@ -18,15 +18,15 @@ goto :EOF
 net session >nul 2>nul && (
 	for %%a in (%jzip.spt.open%) do 1>nul assoc .%%a=JFsoft.Jzip
 	1>nul ftype JFsoft.Jzip="%path.jzip.launcher%" %%1
+	reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /v "文件关联" /d "y" /f >nul
 )
 net session >nul 2>nul || (
 	1> "%dir.jzip.temp%\getadmin.vbs" (
-		echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/q /c for %%a in (%jzip.spt.open%) do assoc .%%a=JFsoft.Jzip& ftype JFsoft.Jzip=""%path.jzip.launcher%"" %%1", "", "runas", 1
+		echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/q /c for %%a in (%jzip.spt.open%) do assoc .%%a=JFsoft.Jzip& ftype JFsoft.Jzip=""%path.jzip.launcher%"" %%1& reg add ""HKEY_CURRENT_USER\Software\JFsoft.Jzip"" /v ""文件关联"" /d ""y"" /f ", "", "runas", 1
 		echo.Set fso = CreateObject^("Scripting.FileSystemObject"^) : fso.DeleteFile^(WScript.ScriptFullName^)
 		)
 	) && "%dir.jzip.temp%\getadmin.vbs"
 )
-reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /t REG_SZ /v "文件关联" /d "y" /f >nul
 goto :EOF
 
 
@@ -34,14 +34,14 @@ goto :EOF
 net session >nul 2>nul && (
 	for %%a in (%jzip.spt.open%) do 1>nul assoc .%%a=
 	1>nul ftype JFsoft.Jzip=
+	reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /v "文件关联" /d "" /f >nul
 )
 net session >nul 2>nul || (
 	1> "%dir.jzip.temp%\getadmin.vbs" (
-		echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/q /c for %%a in (%jzip.spt.open%) do assoc .%%a=& ftype JFsoft.Jzip=", "", "runas", 1
+		echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/q /c for %%a in (%jzip.spt.open%) do assoc .%%a=& ftype JFsoft.Jzip=& reg add ""HKEY_CURRENT_USER\Software\JFsoft.Jzip"" /v ""文件关联"" /d """" /f ", "", "runas", 1
 		echo.Set fso = CreateObject^("Scripting.FileSystemObject"^) : fso.DeleteFile^(WScript.ScriptFullName^)
 		)
 	) && "%dir.jzip.temp%\getadmin.vbs"
 )
-reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /t REG_SZ /v "文件关联" /d "" /f >nul
 goto :EOF
 
