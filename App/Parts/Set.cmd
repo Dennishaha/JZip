@@ -21,7 +21,7 @@ echo.                [6] %ui.查看器扩展% 文件查看器扩展
 echo.
 echo.                    工作目录
 echo.                    %dir.jzip.temp%
-echo.                    ⑦打开 ⑧自定义 ⑧恢复默认
+echo.                    ⑦打开 ⑧自定义 ⑨恢复默认
 echo.
 echo.                [A] 检查更新  %jzip.ver%
 echo.                [B] 前往 Jzip 项目
