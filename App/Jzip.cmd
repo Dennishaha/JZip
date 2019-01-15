@@ -3,10 +3,48 @@ setlocal EnableExtensions
 setlocal enabledelayedexpansion
 chcp 936 >nul
 
-::预配置
+:: 预配置 Jzip 环境
 set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 set "path.jzip.launcher=%~0"
-call :preset
+set "dir.jzip.temp=%temp%\JFsoft\Jzip"
+
+set "jzip.ver=2 190115.2100"
+set "title=-- Jzip"
+
+set "界面颜色=f3"
+set "文件关联="
+set "桌面捷径=y"
+set "右键捷径=y"
+set "查看器扩展="
+
+:: Jzip 文件支持类型
+set "jzip.spt.rar=rar"
+set "jzip.spt.7z=7z,zip,bz2,gz,tgz,tar,wim,xz,001,cab,iso,dll,msi,chm,cpio,deb,dmg,lzh,lzma,rpm,udf,vhd,xar"
+set "jzip.spt.exe=exe"
+set "jzip.spt.write=exe,rar,7z,zip,tar,wim"
+set "jzip.spt.open=%jzip.spt.rar%,%jzip.spt.7z%"
+
+:: 加载用户配置信息及临时文件夹
+for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKEY_CURRENT_USER\Software\JFsoft.Jzip" 2^>nul') do if /i "%%b"=="REG_SZ" set "%%a=%%c"
+set "最近运行=%date:~0,10% %time%"
+for %%a in (dir.jzip.temp,界面颜色,文件关联,桌面捷径,右键捷径,查看器扩展,最近运行) do reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /t REG_SZ /v "%%a" /d "!%%a!" /f >nul
+dir "%dir.jzip.temp%" /a:d /b 1>nul 2>nul || md "%dir.jzip.temp%" || (set dir.jzip.temp=%temp%\JFsoft\Jzip & md "!dir.jzip.temp!")
+
+:: 配置组件 - 动态
+color %界面颜色%
+if "%查看器扩展%"=="y" (set "ViewExten=| more /e /s") else (set "ViewExten=")
+set "key.request=set "key=" & for /f "usebackq delims=" %%a in (`xcopy /l /w "%~f0" "%~f0" 2^^>nul`) do if not defined key set "key=%%a" & set "key=^^!key:~-1%^^!""
+set "iferror=|| (echo.抱歉，Jzip 出现问题。 & pause >nul & goto :EOF)"
+
+:: 配置组件 - 静态
+set "choice=choice"
+ver | findstr /i /c:" 5." >nul && if not exist "%windir%\system32\choice.exe" set ""choice=%dir.jzip%\Components\x86\choice.exe""
+
+if "%processor_architecture%"=="x86" set "path.editor.7z=%dir.jzip%\Components\x86\7z.exe"
+if "%processor_architecture%"=="x86" set "path.editor.rar=%dir.jzip%\Components\x86\rar.exe"
+if "%processor_architecture%"=="AMD64" set "path.editor.7z=%dir.jzip%\Components\x64\7z.exe"
+if "%processor_architecture%"=="AMD64" set "path.editor.rar=%dir.jzip%\Components\x64\rar.exe"
+set "path.editor.cab=%dir.jzip%\Components\x86\cabarc.exe"
 
 ::被调用
 if exist "%~1" call :Set_Info list %* & goto :END
@@ -14,6 +52,8 @@ if exist "%~2" call :Set_Info %* & goto :END
 if /i "%~1"=="-su" call :su %* & if errorlevel 1 goto :EOF
 if /i "%~1"=="-install" call "%dir.jzip%\Parts\Set_Lnk.cmd" -reon & call "%dir.jzip%\Parts\Set_Assoc.cmd" -reon & call "%dir.jzip%\Parts\Set.cmd"
 if /i "%~1"=="-setting" call "%dir.jzip%\Parts\Set.cmd"
+
+
 
 :BASIC
 title JFsoft Zip 压缩
@@ -90,6 +130,7 @@ if defined key call :Set_Info %~1 !key! & goto :EOF
 goto :setpath
 
 
+
 :Set_Info
 if not "%~2"=="" (
 	if not defined raw.number set "raw.number=0"
@@ -110,14 +151,14 @@ for %%a in (add,add-7z) do if "%~1"=="%%a" (
 		set "path.File=!path.File! "%%~b""
 	)
 	dir "!path.raw.1!" /a:d /b 1>nul 2>nul && set "File.Single=n"
-	if defined path.raw.2 dir "!path.raw.2!" /b 1>nul 2>nul && set "File.Single=n"
+	if defined path.raw.2 dir "!path.raw.2!" /b >nul 2>nul && set "File.Single=n"
 	
 	set "path.Archive=!path.raw.1!%Archive.exten%"	
 	if defined path.File call "%dir.jzip%\Parts\Arc_Add.cmd" new
 	
 	if "%~1"=="add" (
 	for %%a in (Archive.exten,压缩级别,固实文件) do (
-		reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip\Record" /t REG_SZ /v "%%a" /d "!%%a!" /f 1>nul %iferror%
+		reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip\Record" /t REG_SZ /v "%%a" /d "!%%a!" /f >nul %iferror%
 		)
 	)
 )
@@ -133,8 +174,8 @@ for %%a in (list,unzip) do if "%~1"=="%%a" for /f "usebackq delims== tokens=1,*"
 		for %%A in (%jzip.spt.7z%) do if /i "!Archive.exten!"==".%%A" set "type.editor=7z"
 		for %%A in (%jzip.spt.rar%) do if /i "!Archive.exten!"==".%%A" set "type.editor=rar"
 		for %%A in (%jzip.spt.exe%) do if /i "!Archive.exten!"==".%%A" (
-			"%path.editor.7z%" l "!path.Archive!" | findstr "^   Date" 1>nul && set "type.editor=7z"
-			"%path.editor.rar%" l "!path.Archive!" | findstr "^详情:" 1>nul && set "type.editor=rar"
+			"%path.editor.7z%" l "!path.Archive!" | findstr "^   Date" >nul && set "type.editor=7z"
+			"%path.editor.rar%" l "!path.Archive!" | findstr "^详情:" >nul && set "type.editor=rar"
 		)
 	)
 	
@@ -149,6 +190,7 @@ for %%a in (list,unzip) do if "%~1"=="%%a" for /f "usebackq delims== tokens=1,*"
 
 if defined ui.nospt call :NOSUPPORT
 goto :EOF
+
 
 
 :NOSUPPORT
@@ -177,55 +219,20 @@ goto :EOF
 
 :: 以下为函数
 
-:preset
-:: 预配置 Jzip 环境
-set "jzip.ver=2 190115.1330"
-set "title=-- Jzip"
-
-set "dir.jzip.temp=%temp%\JFsoft\Jzip"
-set "界面颜色=f3"
-set "文件关联="
-set "桌面捷径=y"
-set "右键捷径=y"
-set "查看器扩展="
-
-:: Jzip 文件支持类型
-set "jzip.spt.rar=rar"
-set "jzip.spt.7z=7z,zip,bz2,gz,tgz,tar,wim,xz,001,cab,iso,dll,msi,chm,cpio,deb,dmg,lzh,lzma,rpm,udf,vhd,xar"
-set "jzip.spt.exe=exe"
-set "jzip.spt.write=exe,rar,7z,zip,tar,wim"
-set "jzip.spt.open=%jzip.spt.rar%,%jzip.spt.7z%"
-
-:: 加载用户配置信息及临时文件夹
-for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKEY_CURRENT_USER\Software\JFsoft.Jzip" 2^>nul') do if /i "%%b"=="REG_SZ" set "%%a=%%c"
-set "最近运行=%date:~0,10% %time%"
-for %%a in (dir.jzip.temp,界面颜色,文件关联,桌面捷径,右键捷径,查看器扩展,最近运行) do reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /t REG_SZ /v "%%a" /d "!%%a!" /f 1>nul
-dir "%dir.jzip.temp%" /a:d /b 1>nul 2>nul || md "%dir.jzip.temp%" || (set dir.jzip.temp=%temp%\JFsoft\Jzip & md "!dir.jzip.temp!")
-
-:: 配置组件 - 动态
-color %界面颜色%
-if "%查看器扩展%"=="y" (set "ViewExten=| more /e /s") else (set "ViewExten=")
-set "key.request=set "key=" & for /f "usebackq delims=" %%a in (`xcopy /l /w "%~f0" "%~f0" 2^^>nul`) do if not defined key set "key=%%a" & set "key=^^!key:~-1%^^!""
-set "iferror=|| (echo.抱歉，Jzip 出现问题。 & pause 1>nul & goto :EOF)"
-
-:: 配置组件 - 静态
-set "choice=choice"
-ver|findstr /i /c:" 5.">nul&& if not exist "%windir%\system32\choice.exe" set ""choice=%dir.jzip%\Components\x86\choice.exe""
-
-if "%processor_architecture%"=="x86" set "path.editor.7z=%dir.jzip%\Components\x86\7z.exe"
-if "%processor_architecture%"=="x86" set "path.editor.rar=%dir.jzip%\Components\x86\rar.exe"
-if "%processor_architecture%"=="AMD64" set "path.editor.7z=%dir.jzip%\Components\x64\7z.exe"
-if "%processor_architecture%"=="AMD64" set "path.editor.rar=%dir.jzip%\Components\x64\rar.exe"
-set "path.editor.cab=%dir.jzip%\Components\x86\cabarc.exe"
-goto :EOF
-
-
 :su
-::取得管理员权限
-if not "%~1"=="" ( set "params=%*" & set "params=!params:~4!" )
+::当前权限判断
 net session >nul 2>nul || (
+	
+	::处理传入参数以适应 vbs
+	if not "%~2"=="" (
+		set "params=%*"
+		set "params=!params:~4!"
+		set "params=!params:"=""!"
+	)
+	
+	::取得管理员权限
 	1> "%dir.jzip.temp%\getadmin.vbs" (
-		echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c ""%~s0"" %params%", "", "runas", 1
+		echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c call ""%~s0"" !params!", "", "runas", 1
 		echo.Set fso = CreateObject^("Scripting.FileSystemObject"^) : fso.DeleteFile^(WScript.ScriptFullName^)
 		)
 	) && "%dir.jzip.temp%\getadmin.vbs" && exit /b 1
@@ -235,6 +242,6 @@ goto :EOF
 
 :END
 ::退出时清理临时文件
-if defined dir.jzip.temp rd /q /s "%dir.jzip.temp%" 1>nul
-if defined dir.jzip.temp md "%dir.jzip.temp%" 1>nul
+if defined dir.jzip.temp rd /q /s "%dir.jzip.temp%" >nul
+if defined dir.jzip.temp md "%dir.jzip.temp%" >nul
 goto :EOF
