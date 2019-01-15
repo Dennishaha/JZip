@@ -37,8 +37,7 @@ sc qc bits | findstr "DISABLED" >nul && (
 	net session >nul 2>nul || (
 		1> "%dir.jzip.temp%\getadmin.vbs" (
 			echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c sc config bits start= demand >nul", "", "runas", 1
-			echo.Set fso = CreateObject^("Scripting.FileSystemObject"^)
-			echo.fso.DeleteFile^(WScript.ScriptFullName^)
+			echo.Set fso = CreateObject^("Scripting.FileSystemObject"^) : fso.DeleteFile^(WScript.ScriptFullName^)
 			)
 		) && "%dir.jzip.temp%\getadmin.vbs"
 	)
@@ -106,14 +105,18 @@ for %%a in (Install,Upgrade) do  if "%1"=="%%a" (
 
 if "%1"=="Install" set "dir.jzip=%appdata%\JFsoft\JZip\App"
 
-for %%a in (UnInstall,Upgrade) do if "%1"=="%%a" call "%dir.jzip%\Parts\Set_Lnk.cmd" -off all
+for %%a in (UnInstall,Upgrade) do if "%1"=="%%a" (
+	call "%dir.jzip%\Parts\Set_Lnk.cmd" -off all
+	call "%dir.jzip%\Parts\Set_Assoc.cmd" & if "!tips.FileAssoc!"=="¡ñ" call "%dir.jzip%\Parts\Set_Assoc.cmd" -off
+)
 
 for %%a in (Install,Upgrade) do if "%1"=="%%a" (
 	cmd /q /c "rd /q /s "%dir.jzip%" >nul 2>nul & md "%dir.jzip%" >nul 2>nul & "%jzip.newver.page%" x -o"%dir.jzip%\" & "%dir.jzip%\%jzip.newver.installer%" -install"
 	exit
 )
+
 if "%1"=="UnInstall" (
-	reg delete "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /f 1>nul
-	cmd /q /c "rd /q /s "%dir.jzip%"  1>nul 2>nul"
+	reg delete "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /f >nul
+	cmd /q /c "rd /q /s "%dir.jzip%"  >nul 2>nul"
 )
 goto :EOF

@@ -2,6 +2,7 @@
 :more
 title JFsoft Zip 压缩
 call "%dir.jzip%\Parts\Set_Lnk.cmd" -info
+call "%dir.jzip%\Parts\Set_Assoc.cmd" -info
 call "%dir.jzip%\Parts\Set_FastEdit.cmd" -info
 call "%dir.jzip%\Parts\Set_UI.cmd" -info
 call :查看器扩展 -info
@@ -10,39 +11,40 @@ echo.
 echo.  ^<  Jzip 设置                                                       [K] 卸载
 echo.———————————————————————————————————————
 echo.
-echo.                [1] %tips.Lnk.SendTo% 右键菜单关联          
-echo.                [2] %tips.Lnk.Desktop% 在桌面建立捷径        
+echo.                [1] %tips.FileAssoc% 压缩文件关联
+echo.                [2] %tips.Lnk.SendTo% 右键菜单扩展
+echo.                [3] %tips.Lnk.Desktop% 在桌面建立捷径
 echo.
-echo.                [3]    界面颜色设定 ^>   %ui.word%(%ui.paper%)
-echo.                [4] %tips.FastEdit% 快速编辑模式          
-echo.                [5] %ui.查看器扩展% 文件查看器扩展        
+echo.                [4]    界面颜色设定 ^>   %ui.word%(%ui.paper%)
+echo.                [5] %tips.FastEdit% 快速编辑模式
+echo.                [6] %ui.查看器扩展% 文件查看器扩展
 echo.
 echo.                    工作目录
 echo.                    %dir.jzip.temp%
-echo.                    [6]打开 [7]自定义 [8]恢复默认
+echo.                    ⑦打开 ⑧自定义 ⑧恢复默认
 echo.
 echo.                [A] 检查更新  %jzip.ver%
-echo.                [B] 前往 Jzip 项目 
+echo.                [B] 前往 Jzip 项目
 echo.
-echo.                [0] 基本选项
-echo.
+echo.                [0] 主界面
 echo.
 echo. 键入并回车以选择...
 echo.-----------------------
-%choice% /c:12345678abk0 /n
+%choice% /c:123456789abk0 /n
 set "key=%errorlevel%"
-if "%key%"=="1" call "%dir.jzip%\Parts\Set_Lnk.cmd" -switch sendto
-if "%key%"=="2" call "%dir.jzip%\Parts\Set_Lnk.cmd" -switch desktop
-if "%key%"=="3" call "%dir.jzip%\Parts\Set_UI.cmd"
-if "%key%"=="4" call "%dir.jzip%\Parts\Set_FastEdit.cmd" -switch
-if "%key%"=="5" call :查看器扩展 -switch
-if "%key%"=="6" start "" "%dir.jzip.temp%"
-if "%key%"=="7" call :临时文件夹
-if "%key%"=="8" call :临时文件夹 default
-if "%key%"=="9" call "%dir.jzip%\Parts\VerControl.cmd" -upgrade
-if "%key%"=="10" explorer "https://github.com/dennishaha/Jzip"
-if "%key%"=="11" call "%dir.jzip%\Parts\VerControl.cmd" -uninstall
-if "%key%"=="12" set "key=" & goto :EOF
+if "%key%"=="1" call "%dir.jzip%\Parts\Set_Assoc.cmd" -switch
+if "%key%"=="2" call "%dir.jzip%\Parts\Set_Lnk.cmd" -switch sendto
+if "%key%"=="3" call "%dir.jzip%\Parts\Set_Lnk.cmd" -switch desktop
+if "%key%"=="4" call "%dir.jzip%\Parts\Set_UI.cmd"
+if "%key%"=="5" call "%dir.jzip%\Parts\Set_FastEdit.cmd" -switch
+if "%key%"=="6" call :查看器扩展 -switch
+if "%key%"=="7" start "" "%dir.jzip.temp%"
+if "%key%"=="8" call :临时文件夹
+if "%key%"=="9" call :临时文件夹 default
+if "%key%"=="10" call "%dir.jzip%\Parts\VerControl.cmd" -upgrade
+if "%key%"=="11" explorer "https://github.com/dennishaha/Jzip"
+if "%key%"=="12" call "%dir.jzip%\Parts\VerControl.cmd" -uninstall
+if "%key%"=="13" set "key=" & goto :EOF
 goto :more
 
 :临时文件夹

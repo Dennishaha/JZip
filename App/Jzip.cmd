@@ -12,7 +12,7 @@ call :preset
 if exist "%~1" call :Set_Info list %* & goto :END
 if exist "%~2" call :Set_Info %* & goto :END
 if /i "%~1"=="-su" call :su %* & if errorlevel 1 goto :EOF
-if /i "%~1"=="-install" call "%dir.jzip%\Parts\Set_Lnk.cmd" -reon
+if /i "%~1"=="-install" call "%dir.jzip%\Parts\Set_Lnk.cmd" -reon & call "%dir.jzip%\Parts\Set_Assoc.cmd" -reon & call "%dir.jzip%\Parts\Set.cmd"
 if /i "%~1"=="-setting" call "%dir.jzip%\Parts\Set.cmd"
 
 :BASIC
@@ -179,11 +179,12 @@ goto :EOF
 
 :preset
 :: 预配置 Jzip 环境
-set "jzip.ver=2 190114.1130"
+set "jzip.ver=2 190115.1230"
 set "title=-- Jzip"
 
 set "dir.jzip.temp=%temp%\JFsoft\Jzip"
 set "界面颜色=f3"
+set "文件关联="
 set "桌面捷径=y"
 set "右键捷径=y"
 set "查看器扩展="
@@ -198,7 +199,7 @@ set "jzip.spt.open=%jzip.spt.rar%,%jzip.spt.7z%"
 :: 加载用户配置信息及临时文件夹
 for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKEY_CURRENT_USER\Software\JFsoft.Jzip" 2^>nul') do if /i "%%b"=="REG_SZ" set "%%a=%%c"
 set "最近运行=%date:~0,10% %time%"
-for %%a in (dir.jzip.temp,界面颜色,桌面捷径,右键捷径,查看器扩展,最近运行) do reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /t REG_SZ /v "%%a" /d "!%%a!" /f 1>nul
+for %%a in (dir.jzip.temp,界面颜色,文件关联,桌面捷径,右键捷径,查看器扩展,最近运行) do reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /t REG_SZ /v "%%a" /d "!%%a!" /f 1>nul
 dir "%dir.jzip.temp%" /a:d /b 1>nul 2>nul || md "%dir.jzip.temp%" || (set dir.jzip.temp=%temp%\JFsoft\Jzip & md "!dir.jzip.temp!")
 
 :: 配置组件 - 动态
@@ -221,12 +222,11 @@ goto :EOF
 
 :su
 ::取得管理员权限
-set "params=%*" && set "params=!params:~4!"
+if not "%~1"=="" ( set "params=%*" & set "params=!params:~4!" )
 net session >nul 2>nul || (
 	1> "%dir.jzip.temp%\getadmin.vbs" (
-		echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c %~s0 %params%", "", "runas", 1
-		echo.Set fso = CreateObject^("Scripting.FileSystemObject"^)
-		echo.fso.DeleteFile^(WScript.ScriptFullName^)
+		echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c ""%~s0"" %params%", "", "runas", 1
+		echo.Set fso = CreateObject^("Scripting.FileSystemObject"^) : fso.DeleteFile^(WScript.ScriptFullName^)
 		)
 	) && "%dir.jzip.temp%\getadmin.vbs" && exit /b 1
 )
