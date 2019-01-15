@@ -8,43 +8,44 @@ if /i "%1"=="-reon" (
 	if "%文件关联%"=="y" call :on
 )
 if "%1"=="-switch" (
-	if "%tips.FileAssoc%"=="●" call :off
-	if "%tips.FileAssoc%"=="○" call :on
+	if "%tips.FileAssoc%"=="●" call :off reg
+	if "%tips.FileAssoc%"=="○" call :on reg
 )
 goto :EOF
 
 
 :on
-net session >nul 2>nul && (
-	for %%a in (%jzip.spt.open%) do 1>nul assoc .%%a=JFsoft.Jzip
-	1>nul ftype JFsoft.Jzip="%path.jzip.launcher%" %%1
-	reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /v "文件关联" /d "y" /f >nul
+1>"%dir.jzip.temp%\Assoc.cmd" (
+	echo.for %%^%%a in ^(%jzip.spt.open%^) do 1^>nul assoc .%%^%%a=JFsoft.Jzip
+	echo.1^>nul ftype JFsoft.Jzip="%path.jzip.launcher%" %%^%%1
 )
-net session >nul 2>nul || (
-	1> "%dir.jzip.temp%\getadmin.vbs" (
-		echo.Set UAC = CreateObject^("Shell.Application"^)
-		echo.UAC.ShellExecute "cmd.exe", "/q /c for %%a in (%jzip.spt.open%) do assoc .%%a=JFsoft.Jzip& ftype JFsoft.Jzip=""%path.jzip.launcher%"" %%1& reg add ""HKEY_CURRENT_USER\Software\JFsoft.Jzip"" /v ""文件关联"" /d ""y"" /f ", "", "runas", 1
-		echo.Set fso = CreateObject^("Scripting.FileSystemObject"^) : fso.DeleteFile^(WScript.ScriptFullName^)
-		)
-	) && "%dir.jzip.temp%\getadmin.vbs"
+if "%1"=="reg" 1>>"%dir.jzip.temp%\Assoc.cmd" (
+	echo.reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /v "文件关联" /d "y" /f ^>nul
 )
-goto :EOF
+goto :Assoc
 
 
 :off
-net session >nul 2>nul && (
-	for %%a in (%jzip.spt.open%) do 1>nul assoc .%%a=
-	1>nul ftype JFsoft.Jzip=
-	reg delete "HKEY_CLASSES_ROOT\JFsoft.Jzip" /f
-	reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /v "文件关联" /d "" /f >nul
+1>"%dir.jzip.temp%\Assoc.cmd" (
+	echo.for %%^%%a in ^(%jzip.spt.open%^) do 1^>nul assoc .%%^%%a=
+	echo.1^>nul ftype JFsoft.Jzip=
+	echo.reg delete "HKEY_CLASSES_ROOT\JFsoft.Jzip" /f ^>nul
 )
+if "%1"=="reg" 1>>"%dir.jzip.temp%\Assoc.cmd" (
+	echo.reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /v "文件关联" /d "" /f ^>nul
+)
+goto :Assoc
+
+
+:Assoc
+net session >nul 2>nul && call "%dir.jzip.temp%\Assoc.cmd"
 net session >nul 2>nul || (
 	1> "%dir.jzip.temp%\getadmin.vbs" (
-		echo.Set UAC = CreateObject^("Shell.Application"^)
-		echo.UAC.ShellExecute "cmd.exe", "/q /c for %%a in (%jzip.spt.open%) do assoc .%%a=& ftype JFsoft.Jzip=& reg delete ""HKEY_CLASSES_ROOT\JFsoft.Jzip"" /f & reg add ""HKEY_CURRENT_USER\Software\JFsoft.Jzip"" /v ""文件关联"" /d """" /f ", "", "runas", 1
-		echo.Set fso = CreateObject^("Scripting.FileSystemObject"^) : fso.DeleteFile^(WScript.ScriptFullName^)
-		)
-	) && "%dir.jzip.temp%\getadmin.vbs"
+		echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/q /c call ""%dir.jzip.temp%\Assoc.cmd""", "", "runas", 1
+	) && start /w "" wscript "%dir.jzip.temp%\getadmin.vbs" && del /q /f /s "%dir.jzip.temp%\getadmin.vbs" >nul
+	cls & ping localhost -n 2 >nul
 )
+del /q /f /s "%dir.jzip.temp%\Assoc.cmd" >nul
 goto :EOF
+
 

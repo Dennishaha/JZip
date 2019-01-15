@@ -38,8 +38,7 @@ sc qc bits | findstr "DISABLED" >nul && (
 		1> "%dir.jzip.temp%\getadmin.vbs" (
 			echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c sc config bits start= demand >nul", "", "runas", 1
 			echo.Set fso = CreateObject^("Scripting.FileSystemObject"^) : fso.DeleteFile^(WScript.ScriptFullName^)
-			)
-		) && "%dir.jzip.temp%\getadmin.vbs"
+		) && start /w "" wscript "%dir.jzip.temp%\getadmin.vbs" && del /q /f /s "%dir.jzip.temp%\getadmin.vbs" >nul
 	)
 	ping localhost -n 2 >nul
 )
