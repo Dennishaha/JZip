@@ -17,6 +17,7 @@ cls
 if "%1"=="Install" (
 	set "dir.jzip.temp=%temp%\JFsoft\JZip"
 	md !dir.jzip.temp! 1>nul 2>nul
+	color f3
 )
 
 sc qc bits | findstr "DISABLED" >nul && (

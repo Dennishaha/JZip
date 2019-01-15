@@ -8,7 +8,7 @@ set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 set "path.jzip.launcher=%~0"
 set "dir.jzip.temp=%temp%\JFsoft\Jzip"
 
-set "jzip.ver=2 190115.2230"
+set "jzip.ver=2 190116.0100"
 set "title=-- Jzip"
 
 set "界面颜色=f3"
@@ -37,9 +37,7 @@ set "key.request=set "key=" & for /f "usebackq delims=" %%a in (`xcopy /l /w "%~
 set "iferror=|| (echo.抱歉，Jzip 出现问题。 & pause >nul & goto :EOF)"
 
 :: 配置组件 - 静态
-set "choice=choice"
-ver | findstr /i /c:" 5." >nul && if not exist "%windir%\system32\choice.exe" set ""choice=%dir.jzip%\Components\x86\choice.exe""
-
+choice /? >nul 2>nul && set "choice=choice" || set "choice="%dir.jzip%\Components\x86\choice.exe""
 if "%processor_architecture%"=="x86" set "path.editor.7z=%dir.jzip%\Components\x86\7z.exe"
 if "%processor_architecture%"=="x86" set "path.editor.rar=%dir.jzip%\Components\x86\rar.exe"
 if "%processor_architecture%"=="AMD64" set "path.editor.7z=%dir.jzip%\Components\x64\7z.exe"
