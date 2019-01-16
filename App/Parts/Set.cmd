@@ -52,7 +52,7 @@ if "%~1"=="default" set dir.jzip.temp.new=%temp%\JFsoft\Jzip
 if "%~1"=="" set dir.jzip.temp.new=&set /p dir.jzip.temp.new=Çë¼üÈëÐÂÂ·¾¶£º
 md "%dir.jzip.temp.new%" && (
 	set dir.jzip.temp=%dir.jzip.temp.new%
-	reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /t REG_SZ /v "dir.jzip.temp" /d "!dir.jzip.temp!" /f 1>nul
+	reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "dir.jzip.temp" /d "!dir.jzip.temp!" /f 1>nul
 	rd /q /s "%dir.jzip.temp%"
 ) || (
 	pause 1>nul
@@ -64,7 +64,7 @@ if "%1"=="-info" if "%²é¿´Æ÷À©Õ¹%"=="y" (set "ui.²é¿´Æ÷À©Õ¹=¡ñ") else (set "ui.²
 if "%1"=="-switch" (
 	if "%²é¿´Æ÷À©Õ¹%"=="" set "²é¿´Æ÷À©Õ¹=y"
 	if "%²é¿´Æ÷À©Õ¹%"=="y" set "²é¿´Æ÷À©Õ¹="
-	reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /t REG_SZ /v "²é¿´Æ÷À©Õ¹" /d "!²é¿´Æ÷À©Õ¹!" /f 1>nul
+	reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "²é¿´Æ÷À©Õ¹" /d "!²é¿´Æ÷À©Õ¹!" /f 1>nul
 	start "" cmd /c ""%path.jzip.launcher%" -setting" & Exit
 )
 goto :EOF

@@ -55,7 +55,7 @@ for %%A in (4:0,5:1,6:2,7:3,8:4,9:5,10:6,11:7,12:8,13:9,14:a,15:b,16:c,17:d,18:e
 		if "%key%"=="%%a" (
 			if "%ui.mouse%"=="word" set "界面颜色=%界面颜色:~0,1%%%b"
 			if "%ui.mouse%"=="paper" set "界面颜色=%%b%界面颜色:~1,1%"
-			reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /t REG_SZ /v "界面颜色" /d "!界面颜色!" /f >nul
+			reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "界面颜色" /d "!界面颜色!" /f >nul
 		)
 	)
 )

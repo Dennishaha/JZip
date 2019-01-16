@@ -1,6 +1,6 @@
 
 ::检测目前状态
-reg QUERY "HKEY_CURRENT_USER\Console" /t REG_DWORD /v QuickEdit | findstr "0x1" >nul && set "tips.FastEdit=●" || set "tips.FastEdit=○"
+reg QUERY "HKCU\Console" /t REG_DWORD /v QuickEdit | findstr "0x1" >nul && set "tips.FastEdit=●" || set "tips.FastEdit=○"
 
 ::被调用
 if "%1"=="-on" call :on
@@ -14,9 +14,9 @@ if "%1"=="-switch" (
 goto :EOF
 
 :on
-reg add "HKEY_CURRENT_USER\Console" /t REG_DWORD /v QuickEdit /d 0x0000001 /f
+reg add "HKCU\Console" /t REG_DWORD /v QuickEdit /d 0x0000001 /f
 goto :EOF
 
 :off
-reg add "HKEY_CURRENT_USER\Console" /t REG_DWORD /v QuickEdit /d 0x0000000 /f
+reg add "HKCU\Console" /t REG_DWORD /v QuickEdit /d 0x0000000 /f
 goto :EOF

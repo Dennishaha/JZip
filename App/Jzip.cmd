@@ -8,7 +8,7 @@ set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 set "path.jzip.launcher=%~0"
 set "dir.jzip.temp=%temp%\JFsoft\Jzip"
 
-set "jzip.ver=2 190116.1030"
+set "jzip.ver=2 190116.1130"
 set "title=-- Jzip"
 
 set "界面颜色=f3"
@@ -25,9 +25,9 @@ set "jzip.spt.write=exe,rar,7z,zip,tar,wim"
 set "jzip.spt.open=%jzip.spt.rar%,%jzip.spt.7z%"
 
 :: 加载用户配置信息及临时文件夹
-for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKEY_CURRENT_USER\Software\JFsoft.Jzip" 2^>nul') do if /i "%%b"=="REG_SZ" set "%%a=%%c"
+for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip" 2^>nul') do if /i "%%b"=="REG_SZ" set "%%a=%%c"
 set "最近运行=%date:~0,10% %time%"
-for %%a in (dir.jzip.temp,界面颜色,文件关联,桌面捷径,右键捷径,查看器扩展,最近运行) do reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /t REG_SZ /v "%%a" /d "!%%a!" /f >nul
+for %%a in (dir.jzip.temp,界面颜色,文件关联,桌面捷径,右键捷径,查看器扩展,最近运行) do reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "%%a" /d "!%%a!" /f >nul
 dir "%dir.jzip.temp%" /a:d /b 1>nul 2>nul || md "%dir.jzip.temp%" || (set dir.jzip.temp=%temp%\JFsoft\Jzip & md "!dir.jzip.temp!")
 
 :: 配置组件 - 动态
@@ -143,7 +143,7 @@ for %%a in (list,unzip,add,add-7z) do if "%~1"=="%%a" set "ArchiveOrder=%%a"
 for %%a in (add,add-7z) do if "%~1"=="%%a" (
 	set "Archive.exten=.7z"
 	if "%~1"=="add" (
-		for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKEY_CURRENT_USER\Software\JFsoft.Jzip\Record" 2^>nul') do if /i "%%b"=="REG_SZ" set "%%a=%%c"
+		for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip\Record" 2^>nul') do if /i "%%b"=="REG_SZ" set "%%a=%%c"
 	)
 	for /f "usebackq delims== tokens=1,*" %%a in (`set "path.raw."`) do (
 		set "path.File=!path.File! "%%~b""
@@ -156,7 +156,7 @@ for %%a in (add,add-7z) do if "%~1"=="%%a" (
 	
 	if "%~1"=="add" (
 	for %%a in (Archive.exten,压缩级别,固实文件) do (
-		reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip\Record" /t REG_SZ /v "%%a" /d "!%%a!" /f >nul %iferror%
+		reg add "HKCU\Software\JFsoft.Jzip\Record" /t REG_SZ /v "%%a" /d "!%%a!" /f >nul %iferror%
 		)
 	)
 )

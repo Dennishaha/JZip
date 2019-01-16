@@ -1,5 +1,5 @@
 ::检测目前状态
-reg query "HKEY_CLASSES_ROOT\JFsoft.Jzip" >nul 2>nul && set "tips.FileAssoc=●" || set "tips.FileAssoc=○"
+reg query "HKCR\JFsoft.Jzip" >nul 2>nul && set "tips.FileAssoc=●" || set "tips.FileAssoc=○"
 
 ::被调用
 if "%1"=="-on" call :on
@@ -20,7 +20,7 @@ goto :EOF
 	echo.1^>nul ftype JFsoft.Jzip="%path.jzip.launcher%" %%^%%1
 )
 if "%1"=="reg" 1>>"%dir.jzip.temp%\Assoc.cmd" (
-	echo.reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /v "文件关联" /d "y" /f ^>nul
+	echo.reg add "HKCU\Software\JFsoft.Jzip" /v "文件关联" /d "y" /f ^>nul
 )
 goto :Assoc
 
@@ -29,10 +29,10 @@ goto :Assoc
 1>"%dir.jzip.temp%\Assoc.cmd" (
 	echo.for %%^%%a in ^(%jzip.spt.open%^) do 1^>nul assoc .%%^%%a=
 	echo.1^>nul ftype JFsoft.Jzip=
-	echo.reg delete "HKEY_CLASSES_ROOT\JFsoft.Jzip" /f ^>nul
+	echo.reg delete "HKCR\JFsoft.Jzip" /f ^>nul
 )
 if "%1"=="reg" 1>>"%dir.jzip.temp%\Assoc.cmd" (
-	echo.reg add "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /v "文件关联" /d "" /f ^>nul
+	echo.reg add "HKCU\Software\JFsoft.Jzip" /v "文件关联" /d "" /f ^>nul
 )
 goto :Assoc
 

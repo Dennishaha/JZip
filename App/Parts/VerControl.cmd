@@ -115,7 +115,7 @@ for %%a in (Install,Upgrade) do if "%1"=="%%a" (
 )
 
 if "%1"=="UnInstall" (
-	reg delete "HKEY_CURRENT_USER\Software\JFsoft.Jzip" /f >nul
+	reg delete "HKCU\Software\JFsoft.Jzip" /f >nul
 	cmd /q /c "rd /q /s "%dir.jzip%"  >nul 2>nul"
 )
 goto :EOF

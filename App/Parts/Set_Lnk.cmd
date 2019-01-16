@@ -1,3 +1,10 @@
+::取得特殊文件夹
+for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" 2^>nul') do (
+	if /i "%%b"=="REG_EXPAND_SZ" (
+		set "dir.%%a=%%~c"
+		set "dir.%%a=!dir.%%a:%%USERPROFILE%%=%UserProFile%!"
+	)
+)
 
 ::被调用
 if /i "%1"=="-info" call :Lnk %1 all 
@@ -44,7 +51,7 @@ for %%A in (
 	if /i "%1"=="-on" if /i "%2"=="%%~a" (
 		1>"%dir.jzip.temp%\ink.vbs" (
 			echo.Set WshShell = WScript.CreateObject^("WScript.Shell"^)
-			echo.Set Ink = WshShell.CreateShortcut^(WshShell.SpecialFolders^("%%~a"^) ^& "\%%~b"^)
+			echo.Set Ink = WshShell.CreateShortcut^("!dir.%%~a!\%%~b"^)
 			echo.Ink.TargetPath = "%%~c"
 			echo.Ink.Arguments = "%%~d"
 			echo.Ink.WindowStyle = "1"
@@ -56,21 +63,10 @@ for %%A in (
 		cscript //nologo "%dir.jzip.temp%\ink.vbs"
 	)
 	if /i "%1"=="-off" if /i "%2"=="%%~a" (
-		1>"%dir.jzip.temp%\ink.vbs" (
-			echo.Set WshShell = WScript.CreateObject^("WScript.Shell"^)
-			echo.Set fso = CreateObject^("Scripting.FileSystemObject"^)
-			echo.fso.DeleteFile^(WshShell.SpecialFolders^("%%~a"^) ^& "\%%~b"^)
-		)
-		cscript //nologo "%dir.jzip.temp%\ink.vbs"
+		del /q /f /s "!dir.%%~a!\%%~b" >nul 2>nul
 	)
 	if /i "%1"=="-info" if /i "%2"=="%%~a" (
-		1>"%dir.jzip.temp%\ink.vbs" (
-			echo.Set WshShell = WScript.CreateObject^("WScript.Shell"^)
-			echo.WSH.echo WshShell.SpecialFolders^("%%~a"^)
-		)
-		for /f "delims=" %%x in ('cscript //nologo "%dir.jzip.temp%\ink.vbs"') do (
-			dir "%%~x\%%~b" /a:-d /b 1>nul 2>nul && set "tips.Lnk.%%~a=●" || set "tips.Lnk.%%~a=○"
-		)
+		dir "!dir.%%~a!\%%~b" /a:-d /b >nul 2>nul && set "tips.Lnk.%%~a=●" || set "tips.Lnk.%%~a=○"
 	)
 )
 goto :EOF
