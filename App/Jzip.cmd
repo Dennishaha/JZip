@@ -8,7 +8,7 @@ set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 set "path.jzip.launcher=%~0"
 set "dir.jzip.temp=%temp%\JFsoft\Jzip"
 
-set "jzip.ver=2 190116.0130"
+set "jzip.ver=2 190116.1030"
 set "title=-- Jzip"
 
 set "界面颜色=f3"
@@ -231,7 +231,7 @@ net session >nul 2>nul || (
 	::取得管理员权限
 	1> "%dir.jzip.temp%\getadmin.vbs" (
 		echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c call ""%~s0"" !params!", "", "runas", 1
-	) && start /w "" wscript "%dir.jzip.temp%\getadmin.vbs" && del /q /f /s "%dir.jzip.temp%\getadmin.vbs" >nul && exit /b 1
+	) && cscript //nologo "%dir.jzip.temp%\getadmin.vbs" && del /q /f /s "%dir.jzip.temp%\getadmin.vbs" >nul && exit /b 1
 )
 goto :EOF
 

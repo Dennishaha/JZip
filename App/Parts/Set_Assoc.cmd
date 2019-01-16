@@ -42,7 +42,7 @@ net session >nul 2>nul && call "%dir.jzip.temp%\Assoc.cmd"
 net session >nul 2>nul || (
 	1> "%dir.jzip.temp%\getadmin.vbs" (
 		echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/q /c call ""%dir.jzip.temp%\Assoc.cmd""", "", "runas", 1
-	) && start /w "" wscript "%dir.jzip.temp%\getadmin.vbs" && del /q /f /s "%dir.jzip.temp%\getadmin.vbs" >nul
+	) && cscript //nologo "%dir.jzip.temp%\getadmin.vbs" && del /q /f /s "%dir.jzip.temp%\getadmin.vbs" >nul
 	cls & ping localhost -n 2 >nul
 )
 del /q /f /s "%dir.jzip.temp%\Assoc.cmd" >nul
