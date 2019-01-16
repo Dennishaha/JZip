@@ -8,7 +8,7 @@ set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 set "path.jzip.launcher=%~0"
 set "dir.jzip.temp=%temp%\JFsoft\Jzip"
 
-set "jzip.ver=2 190116.1130"
+set "jzip.ver=2 190116.1200"
 set "title=-- Jzip"
 
 set "½çÃæÑÕÉ«=f3"

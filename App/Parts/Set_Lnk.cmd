@@ -57,7 +57,7 @@ for %%A in (
 			echo.Ink.WindowStyle = "1"
 			echo.Ink.IconLocation = "%dir.jzip%\Components\Icon\%%~e"
 			echo.Ink.Description = ""
-			echo.Ink.WorkingDirectory = WshShell.SpecialFolders^("Desktop"^)
+			echo.Ink.WorkingDirectory = "!dir.Desktop!"
 			echo.Ink.Save
 		)
 		cscript //nologo "%dir.jzip.temp%\ink.vbs"
