@@ -17,6 +17,7 @@ cls
 if "%1"=="Install" (
 	set "dir.jzip.temp=%temp%\JFsoft\JZip"
 	md !dir.jzip.temp! 1>nul 2>nul
+	mode 80, 25
 	color f3
 )
 
@@ -34,11 +35,9 @@ sc qc bits | findstr "DISABLED" >nul && (
 	set "key=" & set /p "key="
 	if /i not "!key!"=="" goto :EOF
 	cls
-	net session >nul 2>nul && sc config bits start= demand >nul", "", "runas", 1
+	net session >nul 2>nul && (sc config bits start= demand >nul)
 	net session >nul 2>nul || (
-		1> "%dir.jzip.temp%\getadmin.vbs" (
-			echo.Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/c sc config bits start= demand >nul", "", "runas", 1
-		) && cscript //nologo "%dir.jzip.temp%\getadmin.vbs" && del /q /f /s "%dir.jzip.temp%\getadmin.vbs" >nul
+		mshta vbscript:CreateObject^("Shell.Application"^).ShellExecute^("cmd.exe","/c sc config bits start= demand >nul","","runas",1^)^(window.close^)
 	)
 	ping localhost -n 2 >nul
 )

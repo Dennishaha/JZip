@@ -48,25 +48,25 @@ for %%A in (
 	"SendTo"/"Jzip - 添加到压缩文件.lnk"/"%path.jzip.launcher%"/"add"/"add.ico"
 	"SendTo"/"Jzip - 添加到 .7z.lnk"/"%path.jzip.launcher%"/"add-7z"/"add.ico"
 ) do for /f "usebackq tokens=1-5 delims=/" %%a in ('%%A') do (
-	if /i "%1"=="-on" if /i "%2"=="%%~a" (
-		1>"%dir.jzip.temp%\ink.vbs" (
-			echo.Set WshShell = WScript.CreateObject^("WScript.Shell"^)
-			echo.Set Ink = WshShell.CreateShortcut^("!dir.%%~a!\%%~b"^)
-			echo.Ink.TargetPath = "%%~c"
-			echo.Ink.Arguments = "%%~d"
-			echo.Ink.WindowStyle = "1"
-			echo.Ink.IconLocation = "%dir.jzip%\Components\Icon\%%~e"
-			echo.Ink.Description = ""
-			echo.Ink.WorkingDirectory = "!dir.Desktop!"
-			echo.Ink.Save
-		)
-		cscript //nologo "%dir.jzip.temp%\ink.vbs"
-	)
-	if /i "%1"=="-off" if /i "%2"=="%%~a" (
-		del /q /f /s "!dir.%%~a!\%%~b" >nul 2>nul
-	)
-	if /i "%1"=="-info" if /i "%2"=="%%~a" (
-		dir "!dir.%%~a!\%%~b" /a:-d /b >nul 2>nul && set "tips.Lnk.%%~a=●" || set "tips.Lnk.%%~a=○"
+	if /i "%2"=="%%~a" (
+		if /i "%1"=="-on" call :CreateLnk %%a %%b %%c %%d %%e
+		if /i "%1"=="-off" del /q /f /s "!dir.%%~a!\%%~b" >nul 2>nul
+		if /i "%1"=="-info" dir "!dir.%%~a!\%%~b" /a:-d /b >nul 2>nul && set "tips.Lnk.%%~a=●" || set "tips.Lnk.%%~a=○"
 	)
 )
+goto :EOF
+
+:CreateLnk
+1>"%dir.jzip.temp%\ink.vbs" (
+	echo.Set WshShell = WScript.CreateObject^("WScript.Shell"^)
+	echo.Set Ink = WshShell.CreateShortcut^("!dir.%~1!\%~2"^)
+	echo.Ink.TargetPath = "%~3"
+	echo.Ink.Arguments = "%~4"
+	echo.Ink.WindowStyle = "1"
+	echo.Ink.IconLocation = "%dir.jzip%\Components\Icon\%~5"
+	echo.Ink.Description = ""
+	echo.Ink.WorkingDirectory = "!dir.Desktop!"
+	echo.Ink.Save
+)
+cscript //nologo "%dir.jzip.temp%\ink.vbs"
 goto :EOF

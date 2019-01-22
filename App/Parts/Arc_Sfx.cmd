@@ -64,7 +64,6 @@ if "%key%"=="0" goto :EOF
 goto :menu-exe
 
 :next
-set "random1=%random%%random%"
 md "%dir.jzip.temp%\%random1%"
 
 if "%type.editor%"=="rar" "%path.editor.rar%" %SfxOrder% -w%dir.jzip.temp%\%random1% "%path.Archive%" %iferror%

@@ -1,17 +1,27 @@
 
 if /i "%~1"=="" (
-	echo.
-	echo. 请拖入要添加的文件^(夹^)：
-	echo.
-	echo. 注：使用 空格 区分项以添加多个项。
-	echo.     文件夹路径后加 \* 不传递基目录。
-	echo.
-	set "path.File=" & set /p "path.File="
+	set "path.File="
+	call "%dir.jzip%\Parts\Select_File.cmd"
+	set "path.File=!key!"
 	if not defined path.File goto :EOF
 )
 
 :Archive_Setting
-call :Archive_info "%path.Archive%"
+for /f "delims=" %%a in ("!path.Archive!") do (
+	set "dir.File=%%~dpa" && set "dir.File=!dir.File:~0,-1!"
+	set "File.name=%%~na"
+	set "File.exten=%%~xa"
+
+	if not defined 自解压 set "path.Archive=%%~dpa%%~na!Archive.exten!"
+	if defined 自解压 set "path.Archive=%%~dpa%%~na.exe"
+	title !path.Archive! %title%
+
+	for %%i in (7z,zip,tar,bz2,gz,xz,wim) do if /i "!Archive.exten!"==".%%i" set "type.editor=7z"
+	if /i "!Archive.exten!"==".rar" set "type.editor=rar"
+	if /i "!Archive.exten!"==".cab" set "type.editor=cab"
+)
+
+::快速压缩时前往压缩执行
 if "%ArchiveOrder%"=="add-7z" goto :Add_Process
 for %%a in (固实文件,压缩加密) do if "!%%a!"=="y" (set "ui.%%a=●") else (set "ui.%%a=○")
 cls
@@ -162,27 +172,3 @@ if "%ArchiveOrder%"=="add" (
 )
 set "path.File=" & goto :EOF
 
-
-
-:Archive_info
-for /f "usebackq delims==" %%a in ('"%~1"') do (
-	set "dir.File=%%~dpa" && set "dir.File=!dir.File:~0,-1!"
-	set "File.name=%%~na"
-	set "File.exten=%%~xa"
-	
-	dir "!path.raw.1!" /a:-d /b 1>nul 2>nul && (
-		if not defined 自解压 set "path.Archive=%%~dpa%%~na!Archive.exten!"
-		if defined 自解压 set "path.Archive=%%~dpa%%~na.exe"
-	)
-	dir "%~1" /a:d /b 1>nul 2>nul && (
-		if not defined 自解压 set "path.Archive=%~1!Archive.exten!"
-		if defined 自解压 set "path.Archive=%~1.exe"
-	)
-
-	title !path.Archive! %title%
-)
-
-for %%a in (7z,zip,tar,bz2,gz,xz,wim) do if /i "%Archive.exten%"==".%%a" set "type.editor=7z"
-if /i "%Archive.exten%"==".rar" set "type.editor=rar"
-if /i "%Archive.exten%"==".cab" set "type.editor=cab"
-goto :EOF

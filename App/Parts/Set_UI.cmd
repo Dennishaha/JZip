@@ -1,13 +1,15 @@
 
 ::µ÷ÓÃÅÐ¶Ï
+set "color.list=0/ºÚ,1/À¶,2/ÂÌ,3/Çà,4/ºì,5/×Ï,6/»Æ,7/Ç³»Ò,8/Éî»Ò,9/Ç³À¶,a/Ç³ÂÌ,b/Ç³Çà,c/Ç³ºì,d/Ç³×Ï,e/Ç³»Æ,f/°×"
+
 if "%~1"=="-info" call :text_color
 if "%~1"=="" call :start
 goto :eof
 
 
 :text_color
-for %%A in (0:ºÚ,1:À¶,2:ÂÌ,3:Ç³ÂÌ,4:ºì,5:×Ï,6:»Æ,7:°×,8:»Ò,9:µ­À¶,a:µ­ÂÌ,b:µ­Ç³ÂÌ,c:µ­ºì,d:µ­×Ï,e:µ­»Æ,f:ÁÁ°×) do (
-	for /f "tokens=1,2 delims=:" %%a in ("%%A") do (
+for %%A in (!color.list!) do (
+	for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
 		if "%½çÃæÑÕÉ«:~1,1%"=="%%a" set "ui.word=%%b"
 		if "%½çÃæÑÕÉ«:~0,1%"=="%%a" set "ui.paper=%%b"
 	)
@@ -15,48 +17,91 @@ for %%A in (0:ºÚ,1:À¶,2:ÂÌ,3:Ç³ÂÌ,4:ºì,5:×Ï,6:»Æ,7:°×,8:»Ò,9:µ­À¶,a:µ­ÂÌ,b:µ­Ç³Â
 goto :EOF
 
 :start
-call :text_color
 if not defined ui.mouse set "ui.mouse=word"
 color %½çÃæÑÕÉ«%
 cls
 echo.
-echo.  ^<  Jzip ½çÃæÑÕÉ«ÉèÖÃ
-echo.¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª
+echo.  ¡¶  Jzip ½çÃæÑÕÉ«ÉèÖÃ
 echo.
-if "%ui.mouse%"=="word" echo.                   ^>^>^>  [Q] ÎÄ×Ö        %ui.word%
-if not "%ui.mouse%"=="word" echo.                        [Q] ÎÄ×Ö        %ui.word%
 echo.
-if "%ui.mouse%"=="paper" echo.                   ^>^>^>  [W] µ×É«        %ui.paper%
-if not "%ui.mouse%"=="paper" echo.                        [W] µ×É«        %ui.paper%
 echo.
-if errorlevel 1 echo.                 µ±Ç°ÑÕÉ«²»ÉúÐ§£¬ÎÄ×ÖºÍµ×É«Ò»ÖÂ»áµ¼ÖÂÎÞ·¨ÏÔÊ¾ÄÚÈÝ¡£
+if "%ui.mouse%"=="paper" (
+echo.                                                    ©°-----------©´
+echo.                 µã»÷ÏÂ·½ÑÕÉ«Éè¶¨   ^< ±³¾°É« ^>      ©¦  Éè¶¨ÎÄ×Ö ©¦
+echo.                                                    ©¸-----------©¼
+)
+if "%ui.mouse%"=="word" (
+echo.                                                    ©°-----------©´
+echo.                 µã»÷ÏÂ·½ÑÕÉ«Éè¶¨   [ ÎÄ×ÖÉ« ]      ©¦  Éè¶¨±³¾° ©¦
+echo.                                                    ©¸-----------©¼
+)
 echo.
-echo.                         0 = ºÚÉ«       8 = »ÒÉ«
-echo.                         1 = À¶É«       9 = µ­À¶É«
-echo.                         2 = ÂÌÉ«       A = µ­ÂÌÉ«
-echo.                         3 = Ç³ÂÌÉ«     B = µ­Ç³ÂÌÉ«
-echo.                         4 = ºìÉ«       C = µ­ºìÉ«
-echo.                         5 = ×ÏÉ«       D = µ­×ÏÉ«
-echo.                         6 = »ÆÉ«       E = µ­»ÆÉ«
-echo.                         7 = °×É«       F = ÁÁ°×É«
 echo.
-echo.                      ^< [N] ·µ»Ø   
 echo.
-echo.ÇëÓÃ¼üÅÌÑ¡Ôñ²¢»Ø³µ...
-echo.-----------------------
-%choice% /c:qwn0123456789abcdef /n
-set "key=%errorlevel%"
-if "%key%"=="1" set "ui.mouse=word"
-if "%key%"=="2" set "ui.mouse=paper"
-if "%key%"=="3" goto :EOF
+echo.
+set "ui.colorselect=   ºÚ     Éî»Ò    Ç³»Ò     °×   "
+for %%A in (!color.list!) do for /f "tokens=1-2 delims=/" %%a in ("%%A") do (
+	if "%½çÃæÑÕÉ«:~1,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =[ %%~b ]!"
+	if "%½çÃæÑÕÉ«:~0,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =< %%~b >!"
+)
+echo.                     !ui.colorselect!
+echo.
+echo.
+set "ui.colorselect=   ºì      »Æ      ÂÌ      Çà      À¶      ×Ï   "
+for %%A in (!color.list!) do for /f "tokens=1-2 delims=/" %%a in ("%%A") do (
+	if "%½çÃæÑÕÉ«:~1,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =[ %%~b ]!"
+	if "%½çÃæÑÕÉ«:~0,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =< %%~b >!"
+)
+echo.             !ui.colorselect!
+echo.
+echo.
+set "ui.colorselect=  Ç³ºì    Ç³»Æ    Ç³ÂÌ    Ç³Çà    Ç³À¶    Ç³×Ï  "
+for %%A in (!color.list!) do for /f "tokens=1-2 delims=/" %%a in ("%%A") do (
+	if "%½çÃæÑÕÉ«:~1,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =[ %%~b ]!"
+	if "%½çÃæÑÕÉ«:~0,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =< %%~b >!"
+)
+echo.             !ui.colorselect!
+echo.
+echo.
+echo.
 
-for %%A in (4:0,5:1,6:2,7:3,8:4,9:5,10:6,11:7,12:8,13:9,14:a,15:b,16:c,17:d,18:e,19:f) do (
-	for /f "tokens=1,2 delims=:" %%a in ("%%A") do (
-		if "%key%"=="%%a" (
-			if "%ui.mouse%"=="word" set "½çÃæÑÕÉ«=%½çÃæÑÕÉ«:~0,1%%%b"
-			if "%ui.mouse%"=="paper" set "½çÃæÑÕÉ«=%%b%½çÃæÑÕÉ«:~1,1%"
-			reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "½çÃæÑÕÉ«" /d "!½çÃæÑÕÉ«!" /f >nul
-		)
+%tmouse% /d 0 -1 1
+%tmouse.process%
+
+for %%A in (
+	3}22}0}2}back}
+	53}64}5}7}change}
+	14}19}14}16}ºì}
+	14}19}17}19}Ç³ºì}
+	22}27}11}13}ºÚ}
+	22}27}14}16}»Æ}
+	22}27}17}19}Ç³»Æ}
+	30}35}11}13}Éî»Ò}
+	30}35}14}16}ÂÌ}
+	30}35}17}19}Ç³ÂÌ}
+	38}43}11}13}Ç³»Ò}
+	38}43}14}16}Çà}
+	38}43}17}19}Ç³Çà}
+	46}51}11}13}°×}
+	46}51}14}16}À¶}
+	46}51}17}19}Ç³À¶}
+	54}59}14}16}×Ï}
+	54}59}17}19}Ç³×Ï}
+) do for /f "tokens=1-5 delims=}" %%a in ("%%A") do (
+	if defined mouse.x if defined mouse.y (
+		if %mouse.x% GEQ %%~a if %mouse.x% LEQ %%~b if %mouse.y% GEQ %%~c if %mouse.y% LEQ %%~d (set "key=%%~e")
+	)
+)
+
+if "%key%"=="change" ( if "%ui.mouse%"=="paper" set "ui.mouse=word" ) & ( if "%ui.mouse%"=="word" set "ui.mouse=paper" )
+if "%key%"=="back" goto :EOF
+
+for %%A in (!color.list!) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
+	if "%key%"=="%%b" (
+		if "%ui.mouse%"=="word" if not "%½çÃæÑÕÉ«:~0,1%"=="%%a" set "½çÃæÑÕÉ«=%½çÃæÑÕÉ«:~0,1%%%a"
+		if "%ui.mouse%"=="paper" if not "%½çÃæÑÕÉ«:~1,1%"=="%%a" set "½çÃæÑÕÉ«=%%a%½çÃæÑÕÉ«:~1,1%"
+		reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "½çÃæÑÕÉ«" /d "!½çÃæÑÕÉ«!" /f >nul
 	)
 )
 goto :start
+
