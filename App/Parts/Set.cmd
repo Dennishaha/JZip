@@ -4,7 +4,6 @@ title JFsoft Zip 压缩
 call "%dir.jzip%\Parts\Set_Lnk.cmd" -info
 call "%dir.jzip%\Parts\Set_Assoc.cmd" -info
 call "%dir.jzip%\Parts\Set_UI.cmd" -info
-call :查看器扩展 -info
 cls
 echo.
 echo.  《 设置

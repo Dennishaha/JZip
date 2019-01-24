@@ -160,15 +160,5 @@ if "%type.editor%"=="7z" "%path.editor.7z%" a %btn.压缩加密% %btn.压缩级别% %btn
 
 if "%type.editor%"=="cab" "%path.editor.cab%" -r %btn.压缩级别% n "%path.Archive%" %path.File% %iferror%
 
-
-if "%ArchiveOrder%"=="add" (
-	echo.------------------------------------------------------------------------------
-	echo.
-	echo.     生成路径：
-	echo.       %path.Archive:~0,66%
-	echo.       %path.Archive:~66%
-	echo.                                    [回车] 好
-	pause >nul
-)
 set "path.File=" & goto :EOF
 

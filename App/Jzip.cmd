@@ -20,7 +20,7 @@ set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 set "path.jzip.launcher=%~0"
 set "dir.jzip.temp=%temp%\JFsoft.Jzip"
 
-set "jzip.ver=3 [190123.0030]"
+set "jzip.ver=3.0.1"
 set "title=-- Jzip"
 
 set "界面颜色=f0"
@@ -44,7 +44,7 @@ dir "%dir.jzip.temp%" /a:d /b 1>nul 2>nul || md "%dir.jzip.temp%" || (set dir.jz
 :: 配置组件
 color %界面颜色%
 
-set "iferror=|| (echo.抱歉，Jzip 出现问题。 & pause >nul & goto :EOF)"
+set "iferror=|| (mshta vbscript:execute^("msgbox(""抱歉，Jzip 组件中断。"",64,""提示"")(window.close)"^) & goto :EOF)"
 choice /? >nul 2>nul && set "choice=choice" || set "choice="%dir.jzip%\Components\x86\choice.exe""
 set "key.request=set "key=" & for /f "usebackq delims=" %%a in (`xcopy /l /w "%~f0" "%~f0" 2^^>nul`) do if not defined key set "key=%%a" & set "key=^^!key:~-1%^^!""
 
@@ -202,7 +202,7 @@ for %%a in (list,unzip) do if "%~1"=="%%a" (
 	)
 )
 
-if not "!ui.nospt!"=="""""" start /b "" mshta vbscript:execute^("msgbox^(""以下项不是压缩文件。""^&vbCrLf^&!ui.nospt!,64+4096,""提示""^)^(window.close^)"^)
+if not "!ui.nospt!"=="""""" start /b "" mshta vbscript:execute^("msgbox(""以下项不是压缩文件。""^&vbCrLf^&!ui.nospt!,64+4096,""提示"")(window.close)"^)
 
 goto :EOF
 

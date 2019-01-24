@@ -2,50 +2,54 @@
 setlocal EnableExtensions
 setlocal enabledelayedexpansion
 chcp 936 >nul
-mode 110, 35
 color %界面颜色%
 
 ::初始变量设定
+set "Window.Wide=110"
+set "Window.Height=35"
+mode %Window.Wide%, %Window.Height%
+
 for %%a in (%jzip.spt.write%) do if /i "%Archive.exten%"==".%%a" set "ui.Archive.writeable=y"
 if "%type.editor%"=="rar" set "listzip.FileBoundary=^\<----------- ---------  ---------- -----  ----\>$"
 if "%type.editor%"=="7z" set "listzip.FileBoundary=^\<------------------- ----- ------------ ------------  ------------------------\>$"
 for /f "delims=" %%a in ('cscript //nologo "%dir.jzip%\Parts\Create_GUID.vbs"') do set "random1=%%a"
 set "listzip.txt=%dir.jzip.temp%\%random1%.tmp"
-set "listzip.ViewLineBlock=30"
 set "listzip.Dir="
 
 :Menu
 cls
 
-::检测压缩档是否存在
-if not exist "%path.Archive%" mshta "vbscript:msgbox("找不到压缩文件。",64,"提示")(window.close)" & exit /b
+:: 动态调整窗口大小，调试时需注释以禁用
+for /f "tokens=1-2 delims= " %%i in ('mode') do (
+	if "%%i"=="行:　" set "Window.Height=%%~j"
+	if "%%i"=="列:　　" set "Window.Wide=%%~j"
+)
+set /a "listzip.ViewLineBlock=Window.Height-5"
 
-::生成压缩档文件列表
+:: 生成压缩档文件列表
 for %%a in (rar,7z,cab) do if "%type.editor%"=="%%a" "!path.editor.%%a!" l "%path.Archive%" | find /v "" >"%listzip.txt%" %iferror%
 
-::找到列出压缩档内容的位置
+:: 找到列出压缩档内容的位置
 set "listzip.FileLineStart="
 set "listzip.FileLineEnd="
 for /f "tokens=1 delims=:" %%i in ('findstr /n "%listzip.FileBoundary%" "%listzip.txt%"') do (
 	if "!listzip.FileLineStart!"=="" (set "listzip.FileLineStart=%%i" ) else ( set listzip.FileLineEnd=%%i )
 )
-set /a "listzip.FileLineStart+=0"
-set /a "listzip.FileLineEnd-=2"
-set /a "listzip.TitleLine=%listzip.FileLineStart%-2"
+set /a "listzip.FileLineStart+=0","listzip.FileLineEnd-=2","listzip.TitleLine=listzip.FileLineStart-2"
 
 ::设定显示行首行数
-if not defined listzip.ViewLineStart set "listzip.ViewLineStart=%listzip.FileLineStart%"
-if %listzip.ViewLineStart% LSS %listzip.FileLineStart% set "listzip.ViewLineStart=%listzip.FileLineStart%"
-if %listzip.ViewLineStart% GTR %listzip.FileLineEnd% set /a "listzip.ViewLineStart-=%listzip.ViewLineBlock%"
+if not defined listzip.ViewLineStart set /a "listzip.ViewLineStart=listzip.FileLineStart"
+if %listzip.ViewLineStart% LSS %listzip.FileLineStart% set /a "listzip.ViewLineStart=listzip.FileLineStart"
+if %listzip.ViewLineStart% GTR %listzip.FileLineEnd% set /a "listzip.ViewLineStart-=listzip.ViewLineBlock"
 
 ::设定显示行末行数
-set /a "listzip.ViewLineEnd=%listzip.ViewLineStart%+%listzip.ViewLineBlock%-1"
-if %listzip.ViewLineEnd% GTR %listzip.FileLineEnd% set "listzip.ViewLineEnd=%listzip.FileLineEnd%"
+set /a "listzip.ViewLineEnd=listzip.ViewLineStart+listzip.ViewLineBlock-1"
+if %listzip.ViewLineEnd% GTR %listzip.FileLineEnd% set /a "listzip.ViewLineEnd=listzip.FileLineEnd"
 
 ::计算文件项数和显示页数
-set /a "listzip.FileLineTotal=%listzip.FileLineEnd%-%listzip.FileLineStart%+1"
-set /a "listzip.ViewPageNow=((%listzip.ViewLineStart%-%listzip.FileLineStart%)/%listzip.ViewLineBlock%)+1"
-set /a "listzip.ViewPageTotal=(%listzip.FileLineTotal%-1)/%listzip.ViewLineBlock%+1"
+set /a "listzip.FileLineTotal=listzip.FileLineEnd-listzip.FileLineStart+1"
+set /a "listzip.ViewPageNow=((listzip.ViewLineStart-listzip.FileLineStart)/listzip.ViewLineBlock)+1"
+set /a "listzip.ViewPageTotal=(listzip.FileLineTotal-1)/listzip.ViewLineBlock+1"
 
 ::UI--------------------------------------------------
 
@@ -59,14 +63,17 @@ if "%ui.Archive.writeable%"=="y" (
 echo.
 call :输出一行内容 %listzip.TitleLine%
 
-::显示指定行并读至变量 listzip.FileLine.x，if 判断排除空压缩档
+::分析指定行读至变量 listzip.FileLine.x 判断行宽，然后输出到屏幕，if 判断排除空压缩档
 if %listzip.FileLineStart% LEQ %listzip.FileLineEnd% (
-	for /l %%a in (%listzip.ViewLineStart%,1,%listzip.ViewLineEnd%) do call :输出一行内容 %%a
+	for /l %%a in (%listzip.ViewLineStart%,1,%listzip.ViewLineEnd%) do call :分析一行内容 %%a
+	for /l %%a in (%listzip.ViewLineStart%,1,%listzip.ViewLineEnd%) do (
+		for %%d in (!Window.Wide!) do echo,!listzip.FileLine.%%a:~0,%%d!
+	)
 )
 
 ::补充空行
-set /a "listzip.ViewEchoEnd=%listzip.ViewLineStart%+%listzip.ViewLineBlock%"
-set /a "listzip.ViewEchoSpace=%listzip.ViewEchoEnd%-%listzip.FileLineEnd%-2"
+set /a "listzip.ViewEchoEnd=listzip.ViewLineStart+listzip.ViewLineBlock"
+set /a "listzip.ViewEchoSpace=listzip.ViewEchoEnd-listzip.FileLineEnd-2"
 if %listzip.ViewLineEnd% LSS %listzip.ViewEchoEnd% (
 	for /l %%a in (0,1,!listzip.ViewEchoSpace!) do echo.
 )
@@ -124,13 +131,14 @@ if "%key%"=="1" ( call "%dir.jzip%\Parts\Arc_Open.cmd"
 goto :Menu
 
 
+:分析一行内容
+for /f "skip=%1 delims=" %%a in (%listzip.txt%) do set "listzip.FileLine.%1=%%a" & goto :EOF
+goto :EOF
+
+
 :输出一行内容
-for /f "skip=%1 delims=" %%a in (%listzip.txt%) do (
-	set "listzip.FileLine.%1=%%a"
-	echo,!listzip.FileLine.%1:~0,109!
-	goto :eof
-)
-goto :eof
+for /f "skip=%1 delims=" %%a in (%listzip.txt%) do echo,%%a & goto :EOF
+goto :EOF
 
 
 :menu-more
