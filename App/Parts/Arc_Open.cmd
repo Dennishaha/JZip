@@ -11,7 +11,10 @@ if "%~1"=="" (
 
 echo.%Archive.file% | findstr "* ?" >nul && (mshta "vbscript:msgbox("通配符不可用。",64,"提示")(window.close)" & goto :EOF)
 
-set "Archive.file=%Archive.file:"=%"
+for /f "delims=" %%c in ("!Archive.file!") do (
+	set "Archive.file=%%~c"
+	set "Archive.file.dir=!Archive.file:%%~nxc=!"
+)
 
 cls
 if "%Archive.file:~-4%"==".exe" (
@@ -21,8 +24,8 @@ if "%Archive.file:~-4%"==".exe" (
 	if "%type.editor%"=="rar" "%path.editor.rar%" x -y "%path.Archive%" "%Archive.file%" %dir.jzip.temp%\%random1%\ %iferror%
 	if "%type.editor%"=="7z" "%path.editor.7z%" x -o%dir.jzip.temp%\%random1% -y "%path.Archive%" "%Archive.file%" %iferror%
 )
-
+echo.%Archive.file.dir%
 start /i "" "%dir.jzip.temp%\%random1%\%Archive.file%"
-if errorlevel 1 start "" "%dir.jzip.temp%\%random1%"
+if errorlevel 1 start "" "%dir.jzip.temp%\%random1%\%Archive.file.dir%"
 
 goto :EOF

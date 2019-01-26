@@ -5,12 +5,16 @@ chcp 936 >nul
 mode 80, 25
 
 ::快速编辑模式检测
-reg query "HKCU\Console" /t REG_DWORD /v "QuickEdit" | findstr "0x0" >nul || (
+reg query "HKCU\Console\%SystemRoot%_system32_cmd.exe" /t REG_DWORD /v "QuickEdit" 2>nul | findstr "0x1" >nul && (
+	reg delete "HKCU\Console\%SystemRoot%_system32_cmd.exe" /v "QuickEdit" /f >nul
+	start "" cmd /c "%~0" & exit /b
+)
+reg query "HKCU\Console" /t REG_DWORD /v "QuickEdit" 2>nul | findstr "0x0" >nul || (
 	reg add "HKCU\Console" /t REG_DWORD /v "QuickEdit" /d "0x0000000" /f >nul
 	start "" cmd /c "%~0" & exit /b
 )
 ::控制台字体检测
-reg query "HKCU\Console" /t REG_SZ /v "FaceName" | findstr "黑体" >nul || (
+reg query "HKCU\Console" /t REG_SZ /v "FaceName" 2>nul | findstr "黑体" >nul || (
 	reg add "HKCU\Console" /t REG_SZ /v "FaceName" /d "黑体" /f >nul
 	start "" cmd /c "%~0" & exit /b
 )
@@ -20,7 +24,7 @@ set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 set "path.jzip.launcher=%~0"
 set "dir.jzip.temp=%temp%\JFsoft.Jzip"
 
-set "jzip.ver=3.0.1"
+set "jzip.ver=3.0.2"
 set "title=-- Jzip"
 
 set "界面颜色=f0"
@@ -44,7 +48,7 @@ dir "%dir.jzip.temp%" /a:d /b 1>nul 2>nul || md "%dir.jzip.temp%" || (set dir.jz
 :: 配置组件
 color %界面颜色%
 
-set "iferror=|| (mshta vbscript:execute^("msgbox(""抱歉，Jzip 组件中断。"",64,""提示"")(window.close)"^) & goto :EOF)"
+set "iferror=|| (call "%dir.jzip%\Parts\Arc_ErrorCode.cmd" & goto :EOF)"
 choice /? >nul 2>nul && set "choice=choice" || set "choice="%dir.jzip%\Components\x86\choice.exe""
 set "key.request=set "key=" & for /f "usebackq delims=" %%a in (`xcopy /l /w "%~f0" "%~f0" 2^^>nul`) do if not defined key set "key=%%a" & set "key=^^!key:~-1%^^!""
 
