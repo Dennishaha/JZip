@@ -24,7 +24,7 @@ set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 set "path.jzip.launcher=%~0"
 set "dir.jzip.temp=%temp%\JFsoft.Jzip"
 
-set "jzip.ver=3.0.2"
+set "jzip.ver=3.0.3"
 set "title=-- Jzip"
 
 set "ΩÁ√Ê—’…´=f0"
@@ -197,7 +197,7 @@ for %%a in (list,unzip) do if "%~1"=="%%a" (
 					if defined path.raw.2 start "!path.raw.%%b! %title%" cmd /c ""%dir.jzip%\Parts\Arc.cmd""
 					if not defined path.raw.2 "%dir.jzip%\Parts\Arc.cmd" & exit 0
 					)
-				if "%~1"=="unzip" call "%dir.jzip%\Parts\Arc_Unzip.cmd"
+				if "%~1"=="unzip" call "%dir.jzip%\Parts\Arc_Expan.cmd" Unzip /all
 				set "type.editor="
 			) else (
 				set "ui.nospt=!ui.nospt!^&vbCrLf^&""%%~nxc"""
