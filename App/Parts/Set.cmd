@@ -66,12 +66,13 @@ goto :more
 
 
 :清除Temp
-if defined dir.jzip.temp rd /q /s "%dir.jzip.temp%" >nul
-if defined dir.jzip.temp md "%dir.jzip.temp%" >nul
-(
-	if errorlevel 1 mshta "vbscript:msgbox("清除临时文件出现问题。",64,"提示")(window.close)"
-) & (
-	if errorlevel 0 mshta "vbscript:msgbox("临时文件清除完成。",64,"提示")(window.close)"
+if defined dir.jzip.temp >nul (
+	rd /q /s "%dir.jzip.temp%"
+	md "%dir.jzip.temp%"
+) && (
+	mshta "vbscript:msgbox("临时文件清除完成。",64,"提示")(window.close)" 
+) || (
+	mshta "vbscript:msgbox("清除临时文件出现问题，请稍后重试。",64,"提示")(window.close)"
 )
 goto :EOF
 

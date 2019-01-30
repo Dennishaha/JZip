@@ -24,7 +24,7 @@ set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 set "path.jzip.launcher=%~0"
 set "dir.jzip.temp=%temp%\JFsoft.Jzip"
 
-set "jzip.ver=3.0.3"
+set "jzip.ver=3.0.4"
 set "title=-- Jzip"
 
 set "界面颜色=f0"
@@ -205,14 +205,10 @@ for %%a in (list,unzip) do if "%~1"=="%%a" (
 		)
 	)
 )
-
 if not "!ui.nospt!"=="""""" start /b "" mshta vbscript:execute^("msgbox(""以下项不是压缩文件。""^&vbCrLf^&!ui.nospt!,64+4096,""提示"")(window.close)"^)
-
 goto :EOF
 
 
-
-:: 以下为函数
 
 :su
 ::当前权限判断
