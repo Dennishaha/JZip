@@ -20,10 +20,8 @@ for %%a in (rar,7z,cab) do if "%type.editor%"=="%%a" >nul "!path.editor.%%a!" l 
 cls
 
 :: 动态调整窗口大小，调试时需注释以禁用
-for /f "tokens=1-2 delims= " %%i in ('mode') do (
-	if "%%i"=="行:　" set "Window.Height=%%~j"
-	if "%%i"=="列:　　" set "Window.Wide=%%~j"
-)
+for /f "tokens=2 delims= " %%a in ('mode ^| findstr "列: Columns:"') do set "Window.Wide=%%~a"
+for /f "tokens=2 delims= " %%a in ('mode ^| findstr "行: Lines:"') do set "Window.Height=%%~a"
 set /a "listzip.LineViewBlock=Window.Height-5"
 
 :: 生成压缩档文件列表
@@ -134,6 +132,7 @@ if defined mouse.x if defined mouse.y (
 					if %mouse.x% GEQ 41 if %mouse.x% LEQ 42 (
 						if defined listzip.LineFileSel.%%a (set "listzip.LineFileSel.%%a=") else (set "listzip.LineFileSel.%%a=%%a")
 						set "listzip.LineFileSel="
+						goto :Menu
 					)
 					if %mouse.x% GEQ 45 (
 						call :全不选
@@ -146,6 +145,7 @@ if defined mouse.x if defined mouse.y (
 					if %mouse.x% GEQ 53 if %mouse.x% LEQ 54 (
 						if defined listzip.LineFileSel.%%a (set "listzip.LineFileSel.%%a=") else (set "listzip.LineFileSel.%%a=%%a")
 						set "listzip.LineFileSel="
+						goto :Menu
 					)
 					if %mouse.x% GEQ 57 (
 						call :全不选
@@ -196,26 +196,27 @@ for %%A in (
 )
 
 if "%key%"=="1" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Open
-) else if "%key%"=="2" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" UnPart
-) else if "%key%"=="3" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Unzip
-) else if "%key%"=="4" ( if "%ui.Archive.writeable%"=="y" call "%dir.jzip%\Parts\Arc_Add.cmd"
+) else if "%key%"=="2" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" UnPart & goto :Menu
+) else if "%key%"=="3" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Unzip & goto :Menu
+) else if "%key%"=="4" ( if "%ui.Archive.writeable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" Add
 ) else if "%key%"=="5" ( if "%ui.Archive.writeable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" Delete
 ) else if "%key%"=="6" ( if "%ui.Archive.writeable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" ReName
-) else if "%key%"=="7" ( set "listzip.Menu=advance"
-) else if "%key%"=="8" ( set /a "listzip.LineViewStart-=%listzip.LineViewBlock%"
-) else if "%key%"=="9" ( set /a "listzip.LineViewStart+=%listzip.LineViewBlock%"
+) else if "%key%"=="7" ( set "listzip.Menu=advance" & goto :Menu
+) else if "%key%"=="8" ( set /a "listzip.LineViewStart-=%listzip.LineViewBlock%" & goto :Menu
+) else if "%key%"=="9" ( set /a "listzip.LineViewStart+=%listzip.LineViewBlock%" & goto :Menu
 ) else if "%key%"=="10" ( call :进入
 ) else if "%key%"=="11" ( call :进入 ..
-) else if "%key%"=="a1" ( set "listzip.Menu=basic"
+) else if "%key%"=="a1" ( set "listzip.Menu=basic" & goto :Menu
 ) else if "%key%"=="a2" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Check
 ) else if "%key%"=="a3" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Expan.cmd" Repair
 ) else if "%key%"=="a4" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Expan.cmd" Lock
 ) else if "%key%"=="a5" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Expan.cmd" Note
 ) else if "%key%"=="a6" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Sfx.cmd"
-) else if "%key%"=="s1" ( if "%type.editor%"=="rar" call :全选切换
-) else if "%key%"=="s2" ( if "%type.editor%"=="7z" call :全选切换
+) else if "%key%"=="s1" ( if "%type.editor%"=="rar" call :全选切换 & goto :Menu
+) else if "%key%"=="s2" ( if "%type.editor%"=="7z" call :全选切换 & goto :Menu
 ) else if "%key%"=="e" ( start /i "" cmd /c "%path.jzip.launcher%" & goto :EOF
 )
+call :全不选
 goto :Menu
 
 
@@ -278,7 +279,6 @@ if defined listzip.Dir (
 )
 
 set "listzip.LineViewStart="
-call :全不选
 goto :EOF
 
 

@@ -78,7 +78,7 @@ goto :EOF
 
 
 :自定义Temp
-call "%dir.jzip%\Parts\Select_Folder.cmd"
+call "%dir.jzip%\Parts\Select_Folder.cmd" key
 if not defined key goto :EOF
 dir /a /b "!key!" | findstr .* >nul && (
 	mshta "vbscript:msgbox("请选择个空的文件夹，再试一次。",64,"提示")(window.close)"

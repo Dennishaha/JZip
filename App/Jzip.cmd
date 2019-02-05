@@ -24,7 +24,7 @@ set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 set "path.jzip.launcher=%~0"
 set "dir.jzip.temp=%temp%\JFsoft.Jzip"
 
-set "jzip.ver=3.0.4"
+set "jzip.ver=3.0.5"
 set "title=-- Jzip"
 
 set "ΩÁ√Ê—’…´=f0"
@@ -132,7 +132,7 @@ goto :BASIC
 
 
 :SetPath
-call "%dir.jzip%\Parts\Select_File.cmd"
+call "%dir.jzip%\Parts\Select_File.cmd" key
 if defined key call :Set_Info %~1 "!key!"
 goto :EOF
 

@@ -1,11 +1,4 @@
 
-if /i "%~1"=="" (
-	set "path.File="
-	call "%dir.jzip%\Parts\Select_File.cmd"
-	set "path.File=!key!"
-	if not defined path.File goto :EOF
-)
-
 :Archive_Setting
 for /f "delims=" %%a in ("!path.Archive!") do (
 	set "dir.File=%%~dpa" && set "dir.File=!dir.File:~0,-1!"
@@ -160,5 +153,6 @@ if "%type.editor%"=="7z" "%path.editor.7z%" a %btn.压缩加密% %btn.压缩级别% %btn
 
 if "%type.editor%"=="cab" "%path.editor.cab%" -r %btn.压缩级别% n "%path.Archive%" %path.File% %iferror%
 
-set "path.File=" & goto :EOF
+set "path.File="
+goto :EOF
 

@@ -1,7 +1,7 @@
 <!-- :
-@echo off
-set "key="
-for /f "delims=" %%a in ('mshta "%~f0"') do set "key=%%~a"
+if "%~1"=="" echo,È±ÉÙ²ÎÊý%%1¡£& pause
+set "%~1="
+for /f "delims=" %%a in ('mshta "%~f0"') do set "%~1=%%~a"
 goto :EOF
 -->
 
