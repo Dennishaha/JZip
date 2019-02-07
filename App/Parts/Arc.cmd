@@ -120,7 +120,7 @@ if not "%listzip.Dir%"=="" echo.  %listzip.ViewPageNow%/%listzip.ViewPageTotal% 
 ::坐标判断
 %tmouse% /d 0 -1 1
 %tmouse.process%
-::ping localhost -n 2 >nul
+::%tmouse.test%
 
 ::压缩档文件列表坐标判断
 set /a listzip.ButtonLine=3
@@ -250,10 +250,7 @@ goto :EOF
 
 :进入
 if "%~1"=="" (
-	set "listzip.Dir="
-	for /f "delims=" %%a in (' mshta "vbscript:CreateObject("Scripting.Filesystemobject").GetStandardStream(1).Write(inputbox("进入的文件夹：","提示"))(window.close)"') do (
-		set "listzip.Dir=%%a"
-	)
+	call "%dir.jzip%\Parts\VbsBox" InputBox listzip.Dir "进入的文件夹："
 	if not defined listzip.Dir goto :EOF
 	if "!listzip.Dir:~0,1!"=="\" set "listzip.Dir=!listzip.Dir:~1!"
 ) else if "%~1"==".." (

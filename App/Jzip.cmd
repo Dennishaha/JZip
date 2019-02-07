@@ -24,7 +24,7 @@ set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 set "path.jzip.launcher=%~0"
 set "dir.jzip.temp=%temp%\JFsoft.Jzip"
 
-set "jzip.ver=3.0.5"
+set "jzip.ver=3.1"
 set "title=-- Jzip"
 
 set "界面颜色=f0"
@@ -34,16 +34,17 @@ set "右键捷径=y"
 
 :: Jzip 文件支持类型
 set "jzip.spt.rar=rar"
-set "jzip.spt.7z=7z,zip,bz2,gz,tgz,tar,wim,xz,001,cab,iso,dll,msi,chm,cpio,deb,dmg,lzh,lzma,rpm,udf,vhd,xar"
+set "jzip.spt.7z=7z zip bz2 gz tgz tar wim xz 001 cab iso dll msi chm cpio deb dmg lzh lzma rpm udf vhd xar"
 set "jzip.spt.exe=exe"
-set "jzip.spt.write=exe,rar,7z,zip,tar,wim"
-set "jzip.spt.open=%jzip.spt.rar%,%jzip.spt.7z%"
+set "jzip.spt.write=exe rar 7z zip tar wim"
+set "jzip.spt.write.noadd=bz2 gz xz cab"
+set "jzip.spt.open=%jzip.spt.rar% %jzip.spt.7z%"
 
 :: 加载用户配置信息及临时文件夹
 for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip" 2^>nul') do if /i "%%b"=="REG_SZ" set "%%a=%%c"
 set "最近运行=%date:~0,10% %time%"
 for %%a in (dir.jzip.temp,界面颜色,文件关联,桌面捷径,右键捷径,最近运行) do reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "%%a" /d "!%%a!" /f >nul
-dir "%dir.jzip.temp%" /a:d /b 1>nul 2>nul || md "%dir.jzip.temp%" || (set dir.jzip.temp=%temp%\JFsoft\Jzip & md "!dir.jzip.temp!")
+dir "%dir.jzip.temp%" /a:d /b >nul 2>nul || md "%dir.jzip.temp%" || (set dir.jzip.temp=%temp%\JFsoft\Jzip & md "!dir.jzip.temp!")
 
 :: 配置组件
 color %界面颜色%
@@ -53,8 +54,8 @@ choice /? >nul 2>nul && set "choice=choice" || set "choice="%dir.jzip%\Component
 set "key.request=set "key=" & for /f "usebackq delims=" %%a in (`xcopy /l /w "%~f0" "%~f0" 2^^>nul`) do if not defined key set "key=%%a" & set "key=^^!key:~-1%^^!""
 
 set "tmouse="%dir.jzip%\Components\x86\tmouse.exe""
-set "tmouse.echo=off"
-set "tmouse.process=set "mouse=^^!errorlevel^^!" & (if "^^!mouse:~0,1^^!"=="-" set "mouse=^^!mouse:~1^^!" ) & set /a "mouse.x=^^!mouse:~0,-3^^!" & set /a "mouse.y=^^!mouse^^!-1000*^^!mouse.x^^!" & ( if "^^!tmouse.echo^^!"=="on" echo,[^!mouse.x^!,^!mouse.y^!] ) & set "key=" "
+set "tmouse.process= set "mouse=^^!errorlevel^^!" & (if "^^!mouse:~0,1^^!"=="-" set "mouse=^^!mouse:~1^^!" ) & set /a "mouse.x=^^!mouse:~0,-3^^!" & set /a "mouse.y=^^!mouse^^!-1000*^^!mouse.x^^!" & set "key=" "
+set "tmouse.test= echo,[^!mouse.x^!,^!mouse.y^!] & ping localhost -n 2 >nul "
 set "tcurs="%dir.jzip%\Components\x86\tcurs.exe""
 %tcurs% /crv 0
 
@@ -76,6 +77,9 @@ if /i "%~1"=="-setting" call "%dir.jzip%\Parts\Set.cmd"
 :BASIC
 title JFsoft Zip 压缩
 cls
+
+::UI--------------------------------------------------
+
 echo.
 echo.
 echo.
@@ -106,8 +110,11 @@ echo.
 echo.
 echo.
 
+::UI--------------------------------------------------
+
 %tmouse% /d 0 -1 1
 %tmouse.process%
+::%tmouse.test%
 
 for %%A in (
 	18}38}6}12}1}
@@ -140,32 +147,38 @@ goto :EOF
 :Set_Info
 for %%a in (list,unzip,add,add-7z) do if "%~1"=="%%a" set "ArchiveOrder=%%a"
 set "raw.num=1"
-set "ui.nospt="""""
+set "ui.nospt="
 
 :Set_Info_Cycle
 if not "%~2"=="" (
-	dir "%~2" /b 1>nul 2>nul && set "path.raw.!raw.num!=%~2"
+	dir "%~2" /b >nul 2>nul && set "path.raw.!raw.num!=%~2"
 	set /a "raw.num+=1"
 	shift /2
 	goto :Set_Info_Cycle
 )
 
 for %%a in (add,add-7z) do if "%~1"=="%%a" (
-	set "Archive.exten=.7z"
+	
+	for /f "usebackq delims== tokens=1,*" %%a in (`set "path.raw."`) do (
+		set "path.File=!path.File! "%%~b""
+	)
+
+	dir "!path.raw.1!" /a:d /b >nul 2>nul && set "File.Single=n"
+	if defined path.raw.2 dir "!path.raw.2!" /b >nul 2>nul && set "File.Single=n"
+	
+	for /f "delims=" %%i in ("!path.raw.1!") do (
+	set "Archive.dir=%%~dpi"
+	set "Archive.name=%%~ni"
+	)
+
 	if "%~1"=="add" (
 		for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip\Record" 2^>nul') do (
 			if /i "%%b"=="REG_SZ" set "%%a=%%c"
 		)
 	)
-	for /f "usebackq delims== tokens=1,*" %%a in (`set "path.raw."`) do (
-		set "path.File=!path.File! "%%~b""
-	)
-
-	dir "!path.raw.1!" /a:d /b 1>nul 2>nul && set "File.Single=n"
-	if defined path.raw.2 dir "!path.raw.2!" /b >nul 2>nul && set "File.Single=n"
+	if not defined Archive.exten set "Archive.exten=.7z"
 	
-	set "path.Archive=!path.raw.1!%Archive.exten%"	
-	if defined path.File call "%dir.jzip%\Parts\Arc_Add.cmd" new
+	if defined path.File call "%dir.jzip%\Parts\Arc_Add.cmd"
 	
 	if "%~1"=="add" (
 	for %%a in (Archive.exten,压缩级别,固实文件) do (
@@ -177,13 +190,14 @@ for %%a in (add,add-7z) do if "%~1"=="%%a" (
 for %%a in (list,unzip) do if "%~1"=="%%a" (
 	for /l %%b in (1,1,%raw.num%) do (
 		for /f "delims=" %%c in ("!path.raw.%%b!") do (
+			
 			set "path.Archive=%%~c"
 			set "dir.Archive=%%~dpc" & set "dir.Archive=!dir.Archive:~0,-1!"
 			set "Archive.name=%%~nc"
 			set "Archive.exten=%%~xc"
 			title %%~c %title%
 	
-			dir "!path.Archive!" /a:-d /b 1>nul 2>nul && (
+			dir "!path.Archive!" /a:-d /b >nul 2>nul && (
 			for %%A in (%jzip.spt.7z%) do if /i "!Archive.exten!"==".%%A" set "type.editor=7z"
 			for %%A in (%jzip.spt.rar%) do if /i "!Archive.exten!"==".%%A" set "type.editor=rar"
 			for %%A in (%jzip.spt.exe%) do if /i "!Archive.exten!"==".%%A" (
@@ -200,12 +214,12 @@ for %%a in (list,unzip) do if "%~1"=="%%a" (
 				if "%~1"=="unzip" call "%dir.jzip%\Parts\Arc_Expan.cmd" Unzip /all
 				set "type.editor="
 			) else (
-				set "ui.nospt=!ui.nospt!^&vbCrLf^&""%%~nxc"""
+				set "ui.nospt=!ui.nospt! "%%~nxc""
 			)
 		)
 	)
 )
-if not "!ui.nospt!"=="""""" start /b "" mshta vbscript:execute^("msgbox(""以下项不是压缩文件。""^&vbCrLf^&!ui.nospt!,64+4096,""提示"")(window.close)"^)
+if defined ui.nospt start /min "" cmd  /q /v:on /c call "%dir.jzip%\Parts\VbsBox" MsgBox "以下项不是压缩文件。" " " %ui.nospt%
 goto :EOF
 
 

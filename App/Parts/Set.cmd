@@ -70,9 +70,9 @@ if defined dir.jzip.temp >nul (
 	rd /q /s "%dir.jzip.temp%"
 	md "%dir.jzip.temp%"
 ) && (
-	mshta "vbscript:msgbox("临时文件清除完成。",64,"提示")(window.close)" 
+	call "%dir.jzip%\Parts\VbsBox" msgbox "临时文件清除完成。"
 ) || (
-	mshta "vbscript:msgbox("清除临时文件出现问题，请稍后重试。",64,"提示")(window.close)"
+	call "%dir.jzip%\Parts\VbsBox" msgbox "清除临时文件出现问题，请稍后重试。"
 )
 goto :EOF
 
@@ -81,7 +81,7 @@ goto :EOF
 call "%dir.jzip%\Parts\Select_Folder.cmd" key
 if not defined key goto :EOF
 dir /a /b "!key!" | findstr .* >nul && (
-	mshta "vbscript:msgbox("请选择个空的文件夹，再试一次。",64,"提示")(window.close)"
+	call "%dir.jzip%\Parts\VbsBox" msgbox "请选择个空的文件夹，再试一次。"
 	goto :临时文件夹
 )
 dir /a /b "!key!" | findstr .* >nul || (

@@ -3,6 +3,7 @@
 set "Archive.file="
 
 :: 文件夹选择检测
+
 for %%i in (Unzip) do if /i "%~1"=="%%i" (
 	if "%~2"=="" (
 		call "%dir.jzip%\Parts\Select_Folder.cmd" dir.release
@@ -10,7 +11,12 @@ for %%i in (Unzip) do if /i "%~1"=="%%i" (
 		dir /a:d /b "!dir.release!" || goto :EOF
 	)
 	if "%~2"=="/all" (
-		set "dir.release=%dir.Archive%\%Archive.name%_unzip"
+		set "dir.release=%dir.Archive%\%Archive.name%"
+		:dir.release_cycle
+		dir "!dir.release!" /a /b >nul 2>nul && (
+			set "dir.release=!dir.release! (1)"
+			goto :dir.release_cycle
+		)
 	)
 )
 
@@ -33,7 +39,7 @@ for %%i in (Open) do if /i "%~1"=="%%i" (
 ) do for /f "usebackq tokens=1-4 delims=\" %%a in ('%%i') do (
 	if /i "%~1"=="%%~a" (
 		if /i not "%%~b"=="" (
-			call :InputBox Archive.file "%%~b" "%%~c" "%%~d"
+			call "%dir.jzip%\Parts\VbsBox" InputBox Archive.file "%%~b" "" "%%~c" "%%~d"
 			if not defined Archive.file goto :EOF
 			set "ui.Archive.file=!Archive.file!"
 			if defined listzip.Dir set "Archive.file=!listzip.Dir!\!Archive.file!"
@@ -90,7 +96,7 @@ goto :EOF
 :Open
 cls
 set "key1="
-if /i "%Archive.file:~-4%"==".exe" call :msgbox2 key1 "应用程序运行可能需要其附带的文件。提取全部文件吗？"
+if /i "%Archive.file:~-4%"==".exe" call "%dir.jzip%\Parts\VbsBox" MsgBox-s key1 "应用程序运行可能需要其附带的文件。提取全部文件吗？"
 if "%key1%"=="1" (
 	if "%type.editor%"=="rar" "%path.editor.rar%" x -y "%path.Archive%" %dir.jzip.temp%\%random1%\ %iferror%
 	if "%type.editor%"=="7z" "%path.editor.7z%" x -o"%dir.jzip.temp%\%random1%" -y "%path.Archive%" %iferror%
@@ -131,12 +137,13 @@ if defined listzip.Dir (
 	if "%type.editor%"=="rar" "%path.editor.rar%" x "%path.Archive%" "%Archive.file%" "%dir.release%\" %iferror%
 	if "%type.editor%"=="7z" "%path.editor.7z%" x -o"%dir.release%\" "%path.Archive%" "%Archive.file%" %iferror%
 )
+pause
 goto :EOF
 
 
 ::删除文件
 :Delete
-call :msgbox2 key1 "确实要删除!ui.Archive.file: =!吗？"
+call "%dir.jzip%\Parts\VbsBox" MsgBox-s key1 "确实要删除 %ui.Archive.file% 吗？"
 if "%key1%"=="1" (
 	cls
 	for %%a in (rar,7z) do if "%type.editor%"=="%%a" "!path.editor.%%a!" d -w"%dir.jzip.temp%" "%path.Archive%" "%Archive.file%" %iferror%
@@ -147,7 +154,7 @@ goto :EOF
 
 ::重命名文件
 :ReName
-call :InputBox Archive.file.rn "请键入!ui.Archive.file: =!的新名字：" "可以使用通配符。"
+call "%dir.jzip%\Parts\VbsBox" InputBox Archive.file.rn "请键入 %ui.Archive.file% 的新名字：" "可以使用通配符。"
 if not defined Archive.file.rn goto :EOF
 if defined listzip.Dir set "Archive.file.rn=!listzip.Dir!\!Archive.file.rn!"
 
@@ -181,32 +188,11 @@ goto :EOF
 
 ::压缩档锁定
 :Lock
-call :msgbox2 key "锁定压缩文件后不可修改，确认锁定？"
+call "%dir.jzip%\Parts\VbsBox" MsgBox-s key "锁定压缩文件后不可修改，确认锁定？"
 if "%key%"=="1" (
 	cls
 	if "%type.editor%"=="rar" "%path.editor.rar%" k -w"%dir.jzip.temp%" "%path.Archive%" %iferror%
 	pause
-)
-goto :EOF
-
-
-
-::调用组件
-:InputBox
-set "%~1="
-for /f "delims=" %%a in (' mshta "vbscript:CreateObject("Scripting.Filesystemobject").GetStandardStream(1).Write(inputbox("%~2"&vbCrLf&vbCrLf&"%~3"&vbCrLf&"%~4","提示"))(window.close)" ') do (
-	set "%~1=%%~a"
-)
-goto :EOF
-
-:msgbox
-mshta vbscript:execute^("msgbox(""%~1"",64,""提示"")(window.close)"^)
-goto :EOF
-
-:msgbox2
-set "%~1="
-for /f "delims=" %%a in (' mshta "vbscript:CreateObject("Scripting.Filesystemobject").GetStandardStream(1).Write(msgbox("%~2",1+64,"提示"))(window.close)" ') do (
-	set "%~1=%%a"
 )
 goto :EOF
 

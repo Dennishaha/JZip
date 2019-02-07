@@ -13,6 +13,6 @@ for %%A in (
 	2/"发生一般错误。"
 	1/"发生严重错误。"
 ) do for /f "tokens=1-2 delims=/" %%a in ("%%A") do (
-	if errorlevel %%a mshta vbscript:execute^("msgbox(""%%~b"",64,""提示"")(window.close)"^)
+	if errorlevel %%a call "%dir.jzip%\Parts\VbsBox" msgbox "%%~b"
 )
 goto :EOF
