@@ -20,8 +20,9 @@ for %%a in (rar,7z,cab) do if "%type.editor%"=="%%a" >nul "!path.editor.%%a!" l 
 cls
 
 :: 动态调整窗口大小，调试时需注释以禁用
-for /f "tokens=2 delims= " %%a in ('mode ^| findstr "列: Columns:"') do set "Window.Wide=%%~a"
-for /f "tokens=2 delims= " %%a in ('mode ^| findstr "行: Lines:"') do set "Window.Height=%%~a"
+for /f "tokens=2 delims= " %%a in ('mode ^| findstr /r "列: Columns:"') do set "Window.Wide=%%~a"
+for /f "tokens=2 delims= " %%a in ('mode ^| findstr /r "行: Lines:"') do set "Window.Height=%%~a"
+set /a "Window.Wide-=1"
 set /a "listzip.LineViewBlock=Window.Height-5"
 
 :: 生成压缩档文件列表
@@ -37,7 +38,11 @@ for %%a in (rar,7z,cab) do if "%type.editor%"=="%%a" >"%listzip.txt%" (
 :: 找到列出压缩档内容的位置
 set /a listzip.LineFileStart=0, listzip.LineFileEnd=0
 for /f "tokens=1 delims=:" %%i in ('findstr /n "^-----------" "%listzip.txt%" ') do (
-	if "!listzip.LineFileStart!"=="0" (set "listzip.LineFileStart=%%i") else (set /a "listzip.LineFileEnd=%%i-2")
+	if "!listzip.LineFileStart!"=="0" (
+		set "listzip.LineFileStart=%%i"
+	) else (
+		if "!listzip.LineFileEnd!"=="0" set /a "listzip.LineFileEnd=%%i-2"
+	)
 )
 
 ::设定显示行首行数
@@ -57,13 +62,13 @@ set /a "listzip.ViewPageTotal=(listzip.LineFileTotal-1)/listzip.LineViewBlock+1"
 ::配置压缩参数栏
 if "%listzip.Dir%"=="" (
 	if "%type.editor%"=="rar" (
-		for /f "tokens=2* delims=:" %%i in ('findstr "^详情:" "%listzip.txt%"') do (
+		for /f "tokens=2* delims=:" %%i in ('findstr /r "^详情:" "%listzip.txt%"') do (
 			set "listzip.Info=%%i"
 		)
 	)
 	if "%type.editor%"=="7z" (
 		set "listzip.Info="
-		for /f "tokens=1-2* delims==" %%i in ('findstr "^Type ^Offset ^Method ^Solid " "%listzip.txt%"') do (
+		for /f "tokens=1-2* delims==" %%i in ('findstr /r "^Type ^Offset ^Method ^Solid " "%listzip.txt%"') do (
 			if "%%i"=="Type " set "listzip.Info=!listzip.Info!%%j"
 			if "%%i"=="Offset " set "listzip.Info=!listzip.Info!, 自解压"
 			if "%%i"=="Method " set "listzip.Info=!listzip.Info!,%%j"

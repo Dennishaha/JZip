@@ -15,8 +15,6 @@ title 添加到 %ui.Archive.ne% %title%
 ::快速压缩时前往压缩执行
 if "%ArchiveOrder%"=="add-7z" goto :Add_Process
 
-for %%a in (固实文件 压缩加密) do if "!%%a!"=="y" ( set "ui.%%a=●" ) else ( set "ui.%%a=○" )
-
 ::UI--------------------------------------------------
 
 cls
@@ -54,15 +52,16 @@ for %%A in (
 
 if "%ArchiveOrder%"=="add" (
 	for %%a in (rar 7z xz) do if /i "%Archive.exten%"==".%%a" (
-		echo.              固实文件           %ui.固实文件%
+		if "%固实文件%"=="y" echo.              固实文件           ●
+		if not "%固实文件%"=="y" echo.              固实文件           ○
 	)
-	echo."rar 7z xz" | findstr "%Archive.exten%" >nul || echo.
+	echo."rar 7z xz" | find "%Archive.exten:~1%" >nul || echo.
 ) else echo.
 
 if "%ArchiveOrder%"=="add" (
 	for %%a in (rar 7z zip tar bz2 gz xz wim) do if /i "%Archive.exten%"==".%%a" (
-		if "%分卷压缩%"=="" echo.              分卷               ○
-		if not "%分卷压缩%"=="" echo.              分卷               ● %分卷压缩%
+		if not defined 分卷压缩 echo.              分卷               ○
+		if defined 分卷压缩 echo.              分卷               ● %分卷压缩%
 	)
 	echo."rar 7z zip tar bz2 gz xz wim" | find "%Archive.exten:~1%" >nul || echo.
 ) else echo.
@@ -86,7 +85,10 @@ if "%ArchiveOrder%"=="add" (
 
 echo.
 for %%a in (rar 7z zip) do if /i "%Archive.exten%"==".%%a" (
-	echo.              加密               %ui.压缩加密% %压缩密码%
+	for %%a in (rar 7z zip tar bz2 gz xz wim) do if /i "%Archive.exten%"==".%%a" (
+		if not defined 压缩密码 echo.              加密               ○
+		if defined 压缩密码 echo.              加密               ● %压缩密码%
+	)
 )
 echo."rar 7z zip" | find "%Archive.exten:~1%" >nul || echo.
 
@@ -95,12 +97,12 @@ if "%ArchiveOrder%"=="add" (
 	if /i "%Archive.exten%"==".rar" (
 		if not defined 压缩版本.rar set "压缩版本.rar=5"
 		for %%A in (
-			"4"/"●","5"/"○"
+			4/●,5/○
 		) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
 			if "!压缩版本.rar!"=="%%~a" echo.              兼容早期版本       %%~b
 		)
 		for %%A in (
-			""/"○","3"/"● 默认","6"/"● 强"
+			""/○,3/"● 默认",6/"● 强"
 		) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
 			if "%压缩恢复记录%"=="%%~a" echo.              恢复记录           %%~b
 		)
@@ -133,13 +135,24 @@ for %%A in (
 	55}66}2}2}a}
 	68}75}2}2}b}
 	14}71}4}5}c}
-	33}42}9}9}d}
+
+	30}48}9}9}d0}
+	33}34}9}9}d1}
+	35}36}9}9}d2}
+	37}38}9}9}d3}
+	39}40}9}9}d4}
+	41}42}9}9}d5}
+
 	33}34}10}10}e}
 	33}34}11}11}f}
-	33}50}13}13}g}
+	35}50}11}11}fs}
+	33}34}13}13}g}
+	35}50}13}13}gs}
 	33}34}15}15}h}
+	35}50}15}15}hs}
 	33}34}17}17}i}
-	33}39}18}18}j}
+	33}34}18}18}j}
+	35}40}18}18}js}
 
 	50}61}21}23}next}
 	64}75}21}23}back}
@@ -147,22 +160,24 @@ for %%A in (
 	if %mouse.x% GEQ %%a if %mouse.x% LEQ %%b if %mouse.y% GEQ %%c if %mouse.y% LEQ %%d set "key=%%e"
 )
 
+if not defined key goto :Archive_Setting
+
 if "%ArchiveOrder%"=="add" (
 	for %%a in (7z rar zip tar bz2 gz xz wim cab) do (
-		if /i "%key%"=="%%a" set "Archive.exten=.%%a" & call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :压缩格式切换
+		if /i "%key%"=="%%a" call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :压缩格式切换 %%a
 	)
 )
 
 if "%key%"=="a" ( if "%ArchiveOrder%"=="add" call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :更改路径
 ) else if "%key%"=="b" ( if "%ArchiveOrder%"=="add" call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :浏览
 ) else if "%key%"=="c" ( if "%ArchiveOrder%"=="add" call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :更改名称
-) else if "%key%"=="d" ( for %%a in (rar 7z zip bz2 gz xz cab) do if /i "%Archive.exten%"==".%%a" call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :压缩级别
+) else if "%key:~0,1%"=="d" ( for %%a in (rar 7z zip bz2 gz xz cab) do if /i "%Archive.exten%"==".%%a" call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :压缩级别 %key:~1%
 ) else if "%key%"=="e" ( if "%ArchiveOrder%"=="add" for %%a in (rar 7z xz) do if /i "%Archive.exten%"==".%%a" call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :固实文件
-) else if "%key%"=="f" ( for %%a in (rar 7z zip tar bz2 gz xz wim) do if "%Archive.exten%"==".%%a" call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :分卷压缩
-) else if "%key%"=="g" ( if "%ArchiveOrder%"=="add" for %%a in (rar 7z) do if /i "%Archive.exten%"==".%%a" call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :自解压
-) else if "%key%"=="h" ( for %%a in (rar 7z zip) do if /i "%Archive.exten%"==".%%a" call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :压缩加密
-) else if "%key%"=="i" ( if "%ArchiveOrder%"=="add" for %%a in (rar) do if /i "%Archive.exten%"==".%%a" call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :压缩版本.rar
-) else if "%key%"=="j" ( if "%ArchiveOrder%"=="add" for %%a in (rar) do if /i "%Archive.exten%"==".%%a" call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :压缩恢复记录
+) else if "%key:~0,1%"=="f" ( for %%a in (rar 7z zip tar bz2 gz xz wim) do if /i "%Archive.exten%"==".%%a" call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :分卷压缩 %key:~1%
+) else if "%key:~0,1%"=="g" ( if "%ArchiveOrder%"=="add" for %%a in (rar 7z) do if /i "%Archive.exten%"==".%%a" call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :自解压  %key:~1%
+) else if "%key:~0,1%"=="h" ( for %%a in (rar 7z zip) do if /i "%Archive.exten%"==".%%a" call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :压缩加密 %key:~1%
+) else if "%key%"=="i" ( if "%ArchiveOrder%"=="add" if /i "%Archive.exten%"==".rar" call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :压缩版本.rar
+) else if "%key:~0,1%"=="j" ( if "%ArchiveOrder%"=="add" if /i "%Archive.exten%"==".rar" call "%dir.jzip%\Parts\Arc_Add_Set.cmd" :压缩恢复记录 %key:~1%
 ) else if "%key%"=="next"  ( goto :Add_Process
 ) else if "%key%"=="back" ( goto :EOF
 )
@@ -172,12 +187,16 @@ goto :Archive_Setting
 :Add_Process
 cls
 
-:: 新建压缩时，配置编辑器
+:: 新建压缩时
 if not "%ArchiveOrder%"=="list" (
 
+	:: 配置编辑器
 	for %%i in (7z zip tar bz2 gz xz wim) do if /i "%Archive.exten%"==".%%i" set "type.editor=7z"
 	if /i "%Archive.exten%"==".rar" set "type.editor=rar"
 	if /i "%Archive.exten%"==".cab" set "type.editor=cab"
+
+	:: 配置压缩路径
+	set "path.Archive=%Archive.dir%%Archive.name%!Archive.exten.out!"
 )
 
 ::配置压缩参数
@@ -191,8 +210,8 @@ if defined 压缩级别 (
 		if "%type.editor%"=="cab" if "%压缩级别%"=="%%a" set "btn.压缩级别=-m %%d"
 	)
 )
-if "%压缩加密%"=="y" set "btn.压缩加密=-p%压缩密码%"
-if "%固实文件%"=="y" set "btn.固实文件=-s"
+if defined 固实文件 set "btn.固实文件=-s"
+if defined 压缩密码 set "btn.压缩密码=-p%压缩密码%"
 if defined 分卷压缩 set "btn.分卷压缩= -v%分卷压缩%"
 if defined 压缩版本.rar set "btn.压缩版本.rar=-ma%压缩版本.rar%"
 if defined 压缩恢复记录 set "btn.压缩恢复记录=-rr%压缩恢复记录%"
@@ -209,13 +228,7 @@ if defined 自解压 (
 	)
 )
 
-:: 新建压缩时，配置压缩路径
-if not "%ArchiveOrder%"=="list" (
-	if defined 自解压 set "Archive.exten=.exe"
-	set "path.Archive=%Archive.dir%%Archive.name%!Archive.exten!"
-)
-
-if "%type.editor%"=="rar" "%path.editor.rar%" a %btn.压缩加密% %btn.压缩级别% %btn.固实文件% %btn.分卷压缩% %btn.压缩版本.rar% -ep1 %btn.压缩恢复记录% %btn.自解压% -w"%dir.jzip.temp%" "%path.Archive%" %path.File% %iferror%
+if "%type.editor%"=="rar" "%path.editor.rar%" a %btn.压缩密码% %btn.压缩级别% %btn.固实文件% %btn.分卷压缩% %btn.压缩版本.rar% -ep1 %btn.压缩恢复记录% %btn.自解压% -w"%dir.jzip.temp%" "%path.Archive%" %path.File% %iferror%
 
 if "%File.Single%"=="n" for %%a in (bz2 gz xz) do if "%Archive.exten%"==".%%a" (
 	"%path.editor.7z%" a -w"%dir.jzip.temp%" "%dir.jzip.temp%\%Archive.name%.tar" %path.File% %iferror%
@@ -223,7 +236,7 @@ if "%File.Single%"=="n" for %%a in (bz2 gz xz) do if "%Archive.exten%"==".%%a" (
 	set "path.File=%dir.jzip.temp%\%Archive.name%.tar"
 )
 
-if "%type.editor%"=="7z" "%path.editor.7z%" a %btn.压缩加密% %btn.压缩级别% %btn.分卷压缩% -w"%dir.jzip.temp%" %btn.自解压% "%path.Archive%" %path.File% %iferror%
+if "%type.editor%"=="7z" "%path.editor.7z%" a %btn.压缩密码% %btn.压缩级别% %btn.分卷压缩% -w"%dir.jzip.temp%" %btn.自解压% "%path.Archive%" %path.File% %iferror%
 
 if "%type.editor%"=="cab" "%path.editor.cab%" -r %btn.压缩级别% n "%path.Archive%" %path.File% %iferror%
 

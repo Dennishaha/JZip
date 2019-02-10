@@ -8,7 +8,7 @@ for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\Microsoft\Windows
 
 ::被调用
 if /i "%1"=="-info" call :Lnk %1 all 
-for %%A in (-on,-off) do if /i "%1"=="%%A" call :Lnk %1 %2
+for %%A in (-on -off) do if /i "%1"=="%%A" call :Lnk %1 %2
 if /i "%1"=="-reon" (
 	call :Lnk -on Programs
 	if "%桌面捷径%"=="y" call :Lnk -on Desktop
@@ -36,7 +36,7 @@ goto :EOF
 
 :Lnk
 if /i not "%2"=="all" call :Lnk2 %1 %2
-if /i "%2"=="all" for %%a in (Desktop,Programs,SendTo) do call :Lnk2 %1 %%a
+if /i "%2"=="all" for %%a in (Desktop Programs SendTo) do call :Lnk2 %1 %%a
 goto :EOF
 
 :Lnk2

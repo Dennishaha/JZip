@@ -24,7 +24,7 @@ set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 set "path.jzip.launcher=%~0"
 set "dir.jzip.temp=%temp%\JFsoft.Jzip"
 
-set "jzip.ver=3.1"
+set "jzip.ver=3.1.1"
 set "title=-- Jzip"
 
 set "界面颜色=f0"
@@ -201,8 +201,8 @@ for %%a in (list,unzip) do if "%~1"=="%%a" (
 			for %%A in (%jzip.spt.7z%) do if /i "!Archive.exten!"==".%%A" set "type.editor=7z"
 			for %%A in (%jzip.spt.rar%) do if /i "!Archive.exten!"==".%%A" set "type.editor=rar"
 			for %%A in (%jzip.spt.exe%) do if /i "!Archive.exten!"==".%%A" (
-				"%path.editor.7z%" l "!path.Archive!" | findstr "^   Date" >nul && set "type.editor=7z"
-				"%path.editor.rar%" l "!path.Archive!" | findstr "^详情:" >nul && set "type.editor=rar"
+				"%path.editor.7z%" l "!path.Archive!" | findstr /r "^   Date" >nul && set "type.editor=7z"
+				"%path.editor.rar%" l "!path.Archive!" | findstr /r "^Details: ^详情:" >nul && set "type.editor=rar"
 				)
 			)
 	
