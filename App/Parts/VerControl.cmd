@@ -24,7 +24,7 @@ set "if.error.4=|| ( call :MsgBox "È±Ê§ Bitsadmin ×é¼þ£¬ÔÚÔçÆÚ°æ±¾ Windows ÖÐ²»´
 :: °²×°Ê±£¬ÅäÖÃÂ·¾¶ºÍ´°¿Ú
 if "%1"=="Install" (
 	set "dir.jzip=%appdata%\JFsoft\JZip\App"
-	set "dir.jzip.temp=%temp%\JFsoft\JZip"
+	set "dir.jzip.temp=%temp%\JFsoft.JZip"
 	>nul 2>nul md !dir.jzip.temp!
 	mode 80, 25
 	color f0
