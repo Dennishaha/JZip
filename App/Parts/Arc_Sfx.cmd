@@ -18,31 +18,31 @@ if /i "%Archive.exten%"==".rar" echo.                                    创建含 
 if /i "%Archive.exten%"==".exe" echo.                                  更新自解压文件的 Windows 自解压模块
 echo.
 echo.
-echo.                              ┌-----------------------┐ ┌-------------┐
-echo.                              │                       │ │     64位    │
-echo.                              │                       │ └-------------┘
-echo.                              │                       │ ┌-------------┐
-echo.                              │       自解压文件      │ │    控制台   │
-echo.                              │                       │ └-------------┘
-echo.                              │                       │ ┌-------------┐
-echo.                              │                       │ │ 控制台，64位│
-echo.                              └-----------------------┘ └-------------┘
+%echo%.                              ┌───────────┐┌──────┐
+%echo%.                              │                      ││    64位    │
+%echo%.                              │                      │└──────┘
+%echo%.                              │                      │┌──────┐
+%echo%.                              │      自解压文件      ││   控制台   │
+%echo%.                              │                      │└──────┘
+%echo%.                              │                      │┌──────┐
+%echo%.                              │                      ││控制台，64位│
+%echo%.                              └───────────┘└──────┘
 echo.
 echo.
 if /i "%Archive.exten%"==".exe" (
-echo.                                   ┌-----------------------------┐
-echo.                                   │                             │
-echo.                                   │   创建不含自解压模块的副本  │
-echo.                                   │                             │
-echo.                                   └-----------------------------┘
-) else echo.&echo.&echo.&echo.&echo.
+%echo%.                                   ┌──────────────┐
+%echo%.                                   │                            │
+%echo%.                                   │  创建不含自解压模块的副本  │
+%echo%.                                   │                            │
+%echo%.                                   └──────────────┘
+) else echo.& echo.& echo.& echo.& echo.
 echo.
 echo.
 echo.
 echo.
-echo.                                                                                          ┌---------┐
-echo.                                                                                          │   取消  │
-echo.                                                                                          └---------┘
+%echo%.                                                                                          ┌────┐
+%echo%.                                                                                          │  取消  │
+%echo%.                                                                                          └────┘
 
 ::UI--------------------------------------------------
 
@@ -77,5 +77,5 @@ md "%dir.jzip.temp%\%random1%" >nul
 
 if "%type.editor%"=="rar" "%path.editor.rar%" %SfxOrder% -w%dir.jzip.temp%\%random1% "%path.Archive%" %iferror%
 
-call "%dir.jzip%\Parts\VbsBox" MsgBox "转换完成。" " " "路径：%path.Archive%"
+call "%dir.jzip%\Function\VbsBox" MsgBox "转换完成。" " " "路径：%path.Archive%"
 goto :EOF

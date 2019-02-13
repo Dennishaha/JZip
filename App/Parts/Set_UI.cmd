@@ -26,14 +26,14 @@ echo.
 echo.
 echo.
 if "%ui.mouse%"=="paper" (
-echo.                                                    ┌-----------┐
-echo.                 点击下方颜色设定   ^< 背景色 ^>      │  设定文字 │
-echo.                                                    └-----------┘
+%echo%.                                                    ┌─────┐
+%echo%.                 点击下方颜色设定   ^< 背景色 ^>      │ 设定文字 │
+%echo%.                                                    └─────┘
 )
 if "%ui.mouse%"=="word" (
-echo.                                                    ┌-----------┐
-echo.                 点击下方颜色设定   [ 文字色 ]      │  设定背景 │
-echo.                                                    └-----------┘
+%echo%.                                                    ┌─────┐
+%echo%.                 点击下方颜色设定   [ 文字色 ]      │ 设定背景 │
+%echo%.                                                    └─────┘
 )
 echo.
 echo.
@@ -63,9 +63,9 @@ echo.             !ui.colorselect!
 echo.
 echo.
 echo.
-echo.                                                               ┌-----------┐
-echo.                                                               │    完成   │
-echo.                                                               └-----------┘
+%echo%.                                                               ┌─────┐
+%echo%.                                                               │   完成   │
+%echo%.                                                               └─────┘
 
 %tmouse% /d 0 -1 1
 %tmouse.process%

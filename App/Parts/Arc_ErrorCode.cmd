@@ -13,6 +13,6 @@ for %%A in (
 	2/"发生一般错误。"
 	1/"发生严重错误。"
 ) do for /f "tokens=1-2 delims=/" %%a in ("%%A") do (
-	if errorlevel %%a call "%dir.jzip%\Parts\VbsBox" msgbox "%%~b"
+	if errorlevel %%a call "%dir.jzip%\Function\VbsBox" msgbox "%%~b"
 )
 goto :EOF

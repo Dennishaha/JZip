@@ -1,30 +1,32 @@
+
+@if not "%~1"==":s" >nul (
+	
+	:: 检测快速编辑模式
+	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "QuickEdit" /d "0x0" /f
+	
+	:: 检测控制台字体，使用新版控制台时。
+	reg query "HKCU\Console" /t REG_DWORD /v "ForceV2" | findstr "0x1" && (
+		reg add "HKCU\Console\JFsoft.Jzip" /t REG_SZ /v "FaceName" /d "黑体" /f
+	)
+	start "JFsoft.Jzip" cmd /c call "%~0" :s %* & goto :EOF
+)
+
+:: 预配置 Jzip 环境
+
 @echo off
 setlocal EnableExtensions
 setlocal enabledelayedexpansion
 chcp 936 >nul
 mode 80, 25
 
-::快速编辑模式检测
-reg query "HKCU\Console\%SystemRoot%_system32_cmd.exe" /t REG_DWORD /v "QuickEdit" 2>nul | findstr "0x1" >nul && (
-	reg delete "HKCU\Console\%SystemRoot%_system32_cmd.exe" /v "QuickEdit" /f >nul
-	start "" cmd /c "%~0" & exit /b
-)
-reg query "HKCU\Console" /t REG_DWORD /v "QuickEdit" 2>nul | findstr "0x0" >nul || (
-	reg add "HKCU\Console" /t REG_DWORD /v "QuickEdit" /d "0x0000000" /f >nul
-	start "" cmd /c "%~0" & exit /b
-)
-::控制台字体检测
-reg query "HKCU\Console" /t REG_SZ /v "FaceName" 2>nul | findstr "黑体" >nul || (
-	reg add "HKCU\Console" /t REG_SZ /v "FaceName" /d "黑体" /f >nul
-	start "" cmd /c "%~0" & exit /b
-)
-
-:: 预配置 Jzip 环境
 set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 set "path.jzip.launcher=%~0"
 set "dir.jzip.temp=%temp%\JFsoft.Jzip"
 
-set "jzip.ver=3.1.2"
+call %* & exit /b
+:s
+
+set "jzip.ver=3.1.3"
 set "title=-- Jzip"
 
 set "界面颜色=f0"
@@ -48,8 +50,12 @@ dir "%dir.jzip.temp%" /a:d /b >nul 2>nul || md "%dir.jzip.temp%" || (set dir.jzi
 
 :: 配置组件
 color %界面颜色%
-
 set "iferror=|| (call "%dir.jzip%\Parts\Arc_ErrorCode.cmd" & goto :EOF)"
+
+:: 检测新版控制台，以修复制表符错位bug
+reg query "HKCU\Console" /t REG_DWORD /v "ForceV2" 2>nul | findstr "0x1" >nul && set "echo=call "%dir.jzip%\Function\Echo_v2.cmd" " || set "echo=echo"
+
+:: 输入器
 choice /? >nul 2>nul && set "choice=choice" || set "choice="%dir.jzip%\Components\x86\choice.exe""
 set "key.request=set "key=" & for /f "usebackq delims=" %%a in (`xcopy /l /w "%~f0" "%~f0" 2^^>nul`) do if not defined key set "key=%%a" & set "key=^^!key:~-1%^^!""
 
@@ -69,9 +75,10 @@ set "path.editor.cab=%dir.jzip%\Components\x86\cabarc.exe"
 ::被调用
 if exist "%~1" call :Set_Info list %* & goto :EOF
 if exist "%~2" call :Set_Info %* & goto :EOF
-if /i "%~1"=="-su" call :su "%*" & goto :EOF
+if /i "%~1"=="-su" call :%* & goto :EOF
+if /i "%~1"=="-help" call :%* & goto :EOF
 if /i "%~1"=="-install" call "%dir.jzip%\Parts\Set_Lnk.cmd" -reon & call "%dir.jzip%\Parts\Set_Assoc.cmd" -reon & call "%dir.jzip%\Parts\Set.cmd"
-if /i "%~1"=="-setting" call "%dir.jzip%\Parts\Set.cmd"
+if /i "%~1"=="-setting" call "%dir.jzip%\Parts\Set.cmd"	
 
 
 :BASIC
@@ -80,35 +87,37 @@ cls
 
 ::UI--------------------------------------------------
 
+(
 echo.
 echo.
 echo.
 echo.
 echo.
 echo.
-echo.                 ┌--------------------┐ ┌--------------------┐
-echo.                 │                    │ │                    │
-echo.                 │                    │ │                    │
-echo.                 │    打开压缩文件    │ │    新建压缩文件    │
-echo.                 │                    │ │                    │
-echo.                 │                    │ │                    │
-echo.                 └--------------------┘ └--------------------┘
+%echo%.                ┌──────────┐┌──────────┐
+%echo%.                │                    ││                    │
+%echo%.                │                    ││                    │
+%echo%.                │    打开压缩文件    ││    新建压缩文件    │
+%echo%.                │                    ││                    │
+%echo%.                │                    ││                    │
+%echo%.                └──────────┘└──────────┘
 net session >nul 2>nul && (
-echo.                                        ┌--------------------┐
-echo.                                        │                    │
-echo.                                        │        设置        │
+%echo%.                                        ┌──────────┐
+%echo%.                                        │                    │
+%echo%.                                        │        设置        │
 ) || (
-echo.                 ┌--------------------┐ ┌--------------------┐
-echo.                 │      提升权限      │ │                    │
-echo.                 └--------------------┘ │        设置        │
+%echo%.                ┌──────────┐┌──────────┐
+%echo%.                │      提升权限      ││                    │
+%echo%.                └──────────┘│        设置        │
 )
-echo.                                        │                    │
-echo.                                        └--------------------┘
+%echo%.                                        │                    │
+%echo%.                                        └──────────┘
 echo.
 echo.
 echo.
 echo.
 echo.
+)
 
 ::UI--------------------------------------------------
 
@@ -129,7 +138,7 @@ for %%A in (
 
 if "%key%"== "1" ( call :SetPath list
 ) else if "%key%"== "2" ( call :SetPath add
-) else if "%key%"== "3" ( net session >nul 2>nul || ( call :su & goto :EOF )
+) else if "%key%"== "3" ( net session >nul 2>nul || ( call :-su & goto :EOF )
 ) else if "%key%"== "4" ( call "%dir.jzip%\Parts\Set.cmd"
 )
 
@@ -139,13 +148,13 @@ goto :BASIC
 
 
 :SetPath
-call "%dir.jzip%\Parts\Select_File.cmd" key
+call "%dir.jzip%\Function\Select_File.cmd" key
 if defined key call :Set_Info %~1 "!key!"
 goto :EOF
 
 
 :Set_Info
-for %%a in (list,unzip,add,add-7z) do if "%~1"=="%%a" set "ArchiveOrder=%%a"
+for %%a in (list unzip add add-7z) do if "%~1"=="%%a" set "ArchiveOrder=%%a"
 set "raw.num=1"
 set "ui.nospt="
 
@@ -157,7 +166,7 @@ if not "%~2"=="" (
 	goto :Set_Info_Cycle
 )
 
-for %%a in (add,add-7z) do if "%~1"=="%%a" (
+for %%a in (add add-7z) do if "%~1"=="%%a" (
 	
 	for /f "usebackq delims== tokens=1,*" %%a in (`set "path.raw."`) do (
 		set "path.File=!path.File! "%%~b""
@@ -187,7 +196,7 @@ for %%a in (add,add-7z) do if "%~1"=="%%a" (
 	)
 )
 
-for %%a in (list,unzip) do if "%~1"=="%%a" (
+for %%a in (list unzip) do if "%~1"=="%%a" (
 	for /l %%b in (1,1,%raw.num%) do (
 		for /f "delims=" %%c in ("!path.raw.%%b!") do (
 			
@@ -195,7 +204,6 @@ for %%a in (list,unzip) do if "%~1"=="%%a" (
 			set "dir.Archive=%%~dpc" & set "dir.Archive=!dir.Archive:~0,-1!"
 			set "Archive.name=%%~nc"
 			set "Archive.exten=%%~xc"
-			title %%~c %title%
 	
 			dir "!path.Archive!" /a:-d /b >nul 2>nul && (
 			for %%A in (%jzip.spt.7z%) do if /i "!Archive.exten!"==".%%A" set "type.editor=7z"
@@ -208,7 +216,7 @@ for %%a in (list,unzip) do if "%~1"=="%%a" (
 	
 			if defined type.editor (
 				if "%~1"=="list" (
-					if defined path.raw.2 start "!path.raw.%%b! %title%" cmd /c ""%dir.jzip%\Parts\Arc.cmd""
+					if defined path.raw.2 start "JFsoft.Jzip" cmd /c "%dir.jzip%\Parts\Arc.cmd"
 					if not defined path.raw.2 "%dir.jzip%\Parts\Arc.cmd" & exit 0
 					)
 				if "%~1"=="unzip" call "%dir.jzip%\Parts\Arc_Expan.cmd" Unzip /all
@@ -219,24 +227,40 @@ for %%a in (list,unzip) do if "%~1"=="%%a" (
 		)
 	)
 )
-if defined ui.nospt start /min "" cmd  /q /v:on /c call "%dir.jzip%\Parts\VbsBox" MsgBox "以下项不是压缩文件。" " " %ui.nospt%
+if defined ui.nospt start /min "" cmd  /q /v:on /c call "%dir.jzip%\Function\VbsBox" MsgBox "以下项不是压缩文件。" " " %ui.nospt%
 goto :EOF
 
 
-
-:su
+:-su
 ::当前权限判断
 net session >nul 2>nul || (
+
 	::处理传入参数以适应 vbs
-	set "params=%*"
-	if defined params (
-		set "params=!params:~5,-1!"
-		set "params=!params:"=""!"
-		)
-	)
+	set params=%*
+	if defined params set "params=!params:"=""!"
+
 	::取得管理员权限
 	mshta vbscript:CreateObject^("Shell.Application"^).ShellExecute^("cmd.exe","/c call ""%~s0"" !params!","","runas",1^)^(window.close^)
 )
 goto :EOF
 
 
+:-help
+echo.
+echo. JFsoft JZip %jzip.ver%   2012-2019 (c) Dennishaha  保留所有权利
+echo.
+echo. 用法： Jzip ^<开关^> ^<命令^> ^<文件^|压缩档^>
+echo.
+echo.   ^<开关^>
+echo.	-help		查看帮助
+echo.	-su		以管理员权限运行 Jzip
+echo.	-install	安装模式启动 Jzip
+echo.	-setting	启动 Jzip 并转到设置页
+echo.
+echo.   ^<命令^>
+echo.	""		默认缺省查看压缩档
+echo.	add		添加文件到压缩档
+echo.	unzip		解压压缩档至子文件夹
+echo.	
+>nul pause
+goto :EOF

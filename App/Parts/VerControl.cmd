@@ -114,7 +114,10 @@ for %%a in (Install Upgrade) do if "%1"=="%%a" (
 
 :: 删除 JZip 目录
 if "%1"=="UnInstall" (
-	reg delete "HKCU\Software\JFsoft.Jzip" /f >nul
+	>nul (
+		reg delete "HKCU\Console\JFsoft.Jzip" /f
+		reg delete "HKCU\Software\JFsoft.Jzip" /f
+	)
 	cmd /q /c "rd /q /s "%dir.jzip%"  >nul 2>nul"
 )
 goto :EOF
@@ -123,23 +126,23 @@ goto :EOF
 
 :: 插件
 :MsgBox
-mshta vbscript:execute^("msgbox(""%~1""&vbCrLf&vbCrLf&""%~2"",64,""提示"")(window.close)"^)
+mshta vbscript:execute^("msgbox(""%~1""&vbCrLf&vbCrLf&""%~2"",64+4096,""提示"")(window.close)"^)
 goto :EOF
 
 :MsgBox-s
-set "ui.msgbox="""
+set "msgbox.t1="""
 :MsgBox-s_c
 if not "%~2"=="" (
-	set "ui.msgbox.t=%~2"
-	set "ui.msgbox.t=!ui.msgbox.t:&=?&Chr(38)&?!"
-	set "ui.msgbox.t=!ui.msgbox.t: =?&Chr(32)&?!"
-	set "ui.msgbox.t=!ui.msgbox.t:,=?&Chr(44)&?!"
+	set "msgbox.t2=%~2"
+	set "msgbox.t2=!msgbox.t2:&=?&Chr(38)&?!"
+	set "msgbox.t2=!msgbox.t2: =?&Chr(32)&?!"
+	set "msgbox.t2=!msgbox.t2:,=?&Chr(44)&?!"
 
-	set "ui.msgbox=!ui.msgbox!&"!ui.msgbox.t!"&vbCrLf"
+	set "msgbox.t1=!msgbox.t1!&"!msgbox.t2!"&vbCrLf"
 	shift /2
 	goto MsgBox-s_c
 )
-for /f "delims=" %%a in (' mshta "vbscript:CreateObject("Scripting.Filesystemobject").GetStandardStream(1).Write(msgbox(%ui.msgbox:?="%,1+64,"提示"))(window.close)" ') do (
+for /f "delims=" %%a in (' mshta "vbscript:CreateObject("Scripting.Filesystemobject").GetStandardStream(1).Write(msgbox(%msgbox.t1:?="%,1+64+4096,"提示"))(window.close)" ') do (
 	set "%~1=%%a"
 )
 goto :EOF

@@ -3,12 +3,13 @@ setlocal EnableExtensions
 setlocal enabledelayedexpansion
 chcp 936 >nul
 color %界面颜色%
+title %path.Archive% %title%
 
 ::初始变量设定
 set /a Window.Wide=110, Window.Height=35
 mode %Window.Wide%, %Window.Height%
 for %%a in (%jzip.spt.write%) do if /i "%Archive.exten%"==".%%a" set "ui.Archive.writeable=y"
-for /f "delims=" %%a in ('cscript //nologo "%dir.jzip%\Parts\Create_GUID.vbs"') do set "random1=%%a"
+for /f "delims=" %%a in ('cscript //nologo "%dir.jzip%\Function\Create_GUID.vbs"') do set "random1=%%a"
 set "listzip.txt=%dir.jzip.temp%\%random1%.tmp"
 set "listzip.Dir="
 set "listzip.Menu=basic"
@@ -20,9 +21,8 @@ for %%a in (rar 7z cab) do if "%type.editor%"=="%%a" >nul "!path.editor.%%a!" l 
 cls
 
 :: 动态调整窗口大小，调试时需注释以禁用
-for /f "tokens=2 delims= " %%a in ('mode ^| findstr /r "列: Columns:"') do set "Window.Wide=%%~a"
+for /f "tokens=2 delims= " %%a in ('mode ^| findstr /r "列: Columns:"') do set /a "Window.Wide=%%~a-1"
 for /f "tokens=2 delims= " %%a in ('mode ^| findstr /r "行: Lines:"') do set "Window.Height=%%~a"
-set /a "Window.Wide-=1"
 set /a "listzip.LineViewBlock=Window.Height-5"
 
 :: 生成压缩档文件列表
@@ -84,12 +84,12 @@ if "%listzip.Dir%"=="" (
 
 ::显示压缩档操作选项
 if "%listzip.Menu%"=="basic" (
-	if "%ui.Archive.writeable%"=="y" echo.  主页 │  打开 提取 解压到 添加 删除 重命名 高级 上页 下页 进入 上级
-	if "%ui.Archive.writeable%"==""  echo.  主页 │  打开 提取 解压到                  高级 上页 下页 进入 上级
+	if "%ui.Archive.writeable%"=="y" %echo%.  主页 │ 打开 提取 解压到 添加 删除 重命名 高级 上页 下页 进入 上级
+	if "%ui.Archive.writeable%"==""  %echo%.  主页 │ 打开 提取 解压到                  高级 上页 下页 进入 上级
 )
 if "%listzip.Menu%"=="advance" (
-	if "%type.editor%"=="7z"  echo.  主页 │  基本 测试
-	if "%type.editor%"=="rar" echo.  主页 │  基本 测试 修复 锁定 添加注释 自解压转换
+	if "%type.editor%"=="7z"  %echo%.  主页 │ 基本 测试
+	if "%type.editor%"=="rar" %echo%.  主页 │ 基本 测试 修复 锁定 添加注释 自解压转换
 )
 echo.
 if "%type.editor%"=="7z" (	
@@ -222,7 +222,7 @@ if "%key%"=="1" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Open
 ) else if "%key%"=="a6" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Sfx.cmd"
 ) else if "%key%"=="s1" ( if "%type.editor%"=="rar" call :全选切换 & goto :Menu
 ) else if "%key%"=="s2" ( if "%type.editor%"=="7z" call :全选切换 & goto :Menu
-) else if "%key%"=="e" ( start /i "" cmd /c "%path.jzip.launcher%" & goto :EOF
+) else if "%key%"=="e" ( start /i cmd /c call "%path.jzip.launcher%" & goto :EOF
 )
 call :全不选
 goto :Menu
@@ -258,7 +258,7 @@ goto :EOF
 
 :进入
 if "%~1"=="" (
-	call "%dir.jzip%\Parts\VbsBox" InputBox listzip.Dir "进入的文件夹："
+	call "%dir.jzip%\Function\VbsBox" InputBox listzip.Dir "进入的文件夹："
 	if not defined listzip.Dir goto :EOF
 	if "!listzip.Dir:~0,1!"=="\" set "listzip.Dir=!listzip.Dir:~1!"
 ) else if "%~1"==".." (

@@ -6,7 +6,7 @@ set "Archive.file="
 
 for %%i in (Unzip) do if /i "%~1"=="%%i" (
 	if "%~2"=="" (
-		call "%dir.jzip%\Parts\Select_Folder.cmd" dir.release
+		call "%dir.jzip%\Function\Select_Folder.cmd" dir.release
 		if not defined dir.release goto :EOF
 		dir /a:d /b "!dir.release!" || goto :EOF
 	)
@@ -39,7 +39,7 @@ for %%i in (Open) do if /i "%~1"=="%%i" (
 ) do for /f "usebackq tokens=1-4 delims=\" %%a in ('%%i') do (
 	if /i "%~1"=="%%~a" (
 		if /i not "%%~b"=="" (
-			call "%dir.jzip%\Parts\VbsBox" InputBox Archive.file "%%~b" "" "%%~c" "%%~d"
+			call "%dir.jzip%\Function\VbsBox" InputBox Archive.file "%%~b" "" "%%~c" "%%~d"
 			if not defined Archive.file goto :EOF
 			set "ui.Archive.file=!Archive.file!"
 			if defined listzip.Dir set "Archive.file=!listzip.Dir!\!Archive.file!"
@@ -73,13 +73,13 @@ goto :EOF
 
 ::添加文件
 :Add
-call "%dir.jzip%\Parts\Select_File.cmd" key
+call "%dir.jzip%\Function\Select_File.cmd" key
 set "path.File=!key!"
 if not defined path.File goto :EOF
 
 for %%a in (rar,7z) do if "%type.editor%"=="%%a" (
 	if defined listzip.Dir (
-		for /f "delims=" %%i in ('cscript //nologo "%dir.jzip%\Parts\Create_GUID.vbs"') do (
+		for /f "delims=" %%i in ('cscript //nologo "%dir.jzip%\Function\Create_GUID.vbs"') do (
 			>nul md "%dir.jzip.temp%\%%i\%listzip.Dir%"
 			xcopy "!path.File!" "%dir.jzip.temp%\%%i\%listzip.Dir%" /e /q /h /k
 			"!path.editor.%%a!" a -w"%dir.jzip.temp%" "%path.Archive%" "%dir.jzip.temp%\%%i\%listzip.Dir%" %iferror%
@@ -96,7 +96,9 @@ goto :EOF
 :Open
 cls
 set "key1="
-if /i "%Archive.file:~-4%"==".exe" call "%dir.jzip%\Parts\VbsBox" MsgBox-s key1 "应用程序运行可能需要其附带的文件。提取全部文件吗？"
+
+:: EXE 类型询问
+if /i "%Archive.file:~-4%"==".exe" call "%dir.jzip%\Function\VbsBox" MsgBox-s key1 "应用程序运行可能需要其附带的文件。提取全部文件吗？"
 if "%key1%"=="1" (
 	if "%type.editor%"=="rar" "%path.editor.rar%" x -y "%path.Archive%" %dir.jzip.temp%\%random1%\ %iferror%
 	if "%type.editor%"=="7z" "%path.editor.7z%" x -o"%dir.jzip.temp%\%random1%" -y "%path.Archive%" %iferror%
@@ -104,6 +106,13 @@ if "%key1%"=="1" (
 	if "%type.editor%"=="rar" "%path.editor.rar%" x -y "%path.Archive%" "%Archive.file%" %dir.jzip.temp%\%random1%\ %iferror%
 	if "%type.editor%"=="7z" "%path.editor.7z%" x -o"%dir.jzip.temp%\%random1%" -y "%path.Archive%" "%Archive.file%" %iferror%
 )
+
+:: 批处理 类型判断
+for %%i in (cmd bat) do if /i "%Archive.file:~-4%"==".%%i" (
+	start /i cmd /c call "%dir.jzip.temp%\%random1%\%Archive.file%"
+	goto :EOF
+)
+
 start /i "" "%dir.jzip.temp%\%random1%\%Archive.file%"
 if errorlevel 1 start "" "%dir.jzip.temp%\%random1%\%listzip.Dir%"
 goto :EOF
@@ -126,7 +135,7 @@ if not defined Archive.file (
 	set "Archive.file=*"
 )
 if defined listzip.Dir (
-	for /f "delims=" %%i in ('cscript //nologo "%dir.jzip%\Parts\Create_GUID.vbs"') do (
+	for /f "delims=" %%i in ('cscript //nologo "%dir.jzip%\Function\Create_GUID.vbs"') do (
 		>nul md "%dir.jzip.temp%\%%i"
 		if "%type.editor%"=="rar" "%path.editor.rar%" x "%path.Archive%" "%Archive.file%" "%dir.jzip.temp%\%%i\" %iferror%
 		if "%type.editor%"=="7z" "%path.editor.7z%" x -o"%dir.jzip.temp%\%%i\" "%path.Archive%" "%Archive.file%" %iferror%
@@ -142,7 +151,7 @@ goto :EOF
 
 ::删除文件
 :Delete
-call "%dir.jzip%\Parts\VbsBox" MsgBox-s key1 "确实要删除 %ui.Archive.file% 吗？"
+call "%dir.jzip%\Function\VbsBox" MsgBox-s key1 "确实要删除 %ui.Archive.file% 吗？"
 if "%key1%"=="1" (
 	cls
 	for %%a in (rar,7z) do if "%type.editor%"=="%%a" "!path.editor.%%a!" d -w"%dir.jzip.temp%" "%path.Archive%" "%Archive.file%" %iferror%
@@ -153,7 +162,7 @@ goto :EOF
 
 ::重命名文件
 :ReName
-call "%dir.jzip%\Parts\VbsBox" InputBox Archive.file.rn "请键入 %ui.Archive.file% 的新名字：" "可以使用通配符。"
+call "%dir.jzip%\Function\VbsBox" InputBox Archive.file.rn "请键入 %ui.Archive.file% 的新名字：" "可以使用通配符。"
 if not defined Archive.file.rn goto :EOF
 if defined listzip.Dir set "Archive.file.rn=!listzip.Dir!\!Archive.file.rn!"
 
@@ -187,7 +196,7 @@ goto :EOF
 
 ::压缩档锁定
 :Lock
-call "%dir.jzip%\Parts\VbsBox" MsgBox-s key "锁定压缩文件后不可修改，确认锁定？"
+call "%dir.jzip%\Function\VbsBox" MsgBox-s key "锁定压缩文件后不可修改，确认锁定？"
 if "%key%"=="1" (
 	cls
 	if "%type.editor%"=="rar" "%path.editor.rar%" k -w"%dir.jzip.temp%" "%path.Archive%" %iferror%

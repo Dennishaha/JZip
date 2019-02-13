@@ -13,10 +13,10 @@ if "%~1"=="" (
 	if defined 压缩密码 (
 		set "压缩密码=" 
 	) else (
-		call "%dir.jzip%\Parts\VbsBox" InputBox 压缩密码 "设定压缩密码："
+		call "%dir.jzip%\Function\VbsBox" InputBox 压缩密码 "设定压缩密码："
 	)
 ) else (
-	if defined 压缩密码 call "%dir.jzip%\Parts\VbsBox" InputBox 压缩密码 "设定压缩密码："
+	if defined 压缩密码 call "%dir.jzip%\Function\VbsBox" InputBox 压缩密码 "设定压缩密码："
 )
 goto :EOF
 
@@ -37,10 +37,10 @@ if "%~1"=="" (
 	if defined 分卷压缩 (
 		set "分卷压缩="
 	) else (
-		call "%dir.jzip%\Parts\VbsBox" InputBox 分卷压缩 "设定分卷压缩大小：" " " "[大小/单位] k/m/g"
+		call "%dir.jzip%\Function\VbsBox" InputBox 分卷压缩 "设定分卷压缩大小：" " " "[大小/单位] k/m/g"
 	)
 ) else (
-	if defined 分卷压缩 call "%dir.jzip%\Parts\VbsBox" InputBox 分卷压缩 "设定分卷压缩大小：" " " "[大小/单位] k/m/g"
+	if defined 分卷压缩 call "%dir.jzip%\Function\VbsBox" InputBox 分卷压缩 "设定分卷压缩大小：" " " "[大小/单位] k/m/g"
 )
 goto :EOF
 
@@ -83,7 +83,7 @@ if "%~1"=="" (
 goto :EOF
 
 :更改名称
-call "%dir.jzip%\Parts\VbsBox" InputBox key1 "设定压缩档名称："
+call "%dir.jzip%\Function\VbsBox" InputBox key1 "设定压缩档名称："
 if not defined key1 goto :EOF
 set "Archive.name=%key1%"
 for /f "delims=" %%i in ("%Archive.name%") do (
@@ -92,14 +92,14 @@ for /f "delims=" %%i in ("%Archive.name%") do (
 goto :EOF
 
 :浏览
-call "%dir.jzip%\Parts\Select_File.cmd" key1
+call "%dir.jzip%\Function\Select_File.cmd" key1
 if not defined key1 goto :EOF
 for /f "delims=" %%i in ("%key1%") do (
 	for %%a in (%jzip.spt.write%) do if /i "%%~xi"==".%%a" (
 		if /i "%%~xi"==".exe" (
 			"%path.editor.7z%" l "%%~i" | findstr /r /c:"^Type = 7z.*" >nul && ( set "Archive.exten=.7z" & set "自解压=y" )
 			"%path.editor.rar%" l "%%~i" | findstr /r /c:"^详情: RAR.*" >nul && ( set "Archive.exten=.rar" & set "自解压=y" )
-			if not "!自解压!"=="y" call "%dir.jzip%\Parts\VbsBox" MsgBox "以下项不是压缩文件。" " " "%%~i" & goto :EOF
+			if not "!自解压!"=="y" call "%dir.jzip%\Function\VbsBox" MsgBox "以下项不是压缩文件。" " " "%%~i" & goto :EOF
 		) else (
 			set "Archive.exten=%%~xi"
 		)
@@ -108,14 +108,14 @@ for /f "delims=" %%i in ("%key1%") do (
 		goto :EOF
 	)
 	for %%a in (%jzip.spt.write.noadd%) do if /i "%%~xi"==".%%a" (
-		call "%dir.jzip%\Parts\VbsBox" MsgBox "不可添加到以下压缩文件。" " " "%%~i" & goto :EOF
+		call "%dir.jzip%\Function\VbsBox" MsgBox "不可添加到以下压缩文件。" " " "%%~i" & goto :EOF
 	)
-	call "%dir.jzip%\Parts\VbsBox" MsgBox "以下项不是压缩文件。" " " "%%~i"
+	call "%dir.jzip%\Function\VbsBox" MsgBox "以下项不是压缩文件。" " " "%%~i"
 )
 goto :EOF
 
 :更改路径
-call "%dir.jzip%\Parts\Select_Folder.cmd" key1
+call "%dir.jzip%\Function\Select_Folder.cmd" key1
 if not defined key1 goto :EOF
 set "Archive.dir=%key1%"
 goto :EOF
