@@ -1,6 +1,5 @@
 
 ::初始变量设定
-chcp 936 >nul
 color %界面颜色%
 title %path.Archive% %title%
 

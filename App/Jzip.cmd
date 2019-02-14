@@ -1,23 +1,19 @@
-@set "jzip.ver=3.1.4"
+
+@set "jzip.ver=3.1.4 "
 
 @if /i "%~1"=="-su" call :%* & goto :EOF
 @if /i "%~1"=="-help" call :%* & goto :EOF
 
 @if not "%~1"==":s" >nul (
-	
-	:: 检测快速编辑模式
+	:: 检测代码页/字体/字体大小/快速编辑
+	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "CodePage" /d "0x3a8" /f
+	reg add "HKCU\Console\JFsoft.Jzip" /t REG_SZ /v "FaceName" /d "黑体" /f
+	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "FontSize" /d "0x100008" /f
 	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "QuickEdit" /d "0x0" /f
-	
-	:: 检测控制台字体，使用新版控制台时。
-	reg query "HKCU\Console" /t REG_DWORD /v "ForceV2" | findstr "0x1" && (
-		reg add "HKCU\Console\JFsoft.Jzip" /t REG_SZ /v "FaceName" /d "黑体" /f
-	)
 	start "JFsoft.Jzip" cmd /q /e:on /v:on /c call "%~0" :s %* & goto :EOF
 )
 
 :: 预配置 Jzip 环境
-
-chcp 936 >nul
 mode 80, 25
 
 set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
@@ -54,10 +50,7 @@ set "iferror=|| (call "%dir.jzip%\Parts\Arc_ErrorCode.cmd" & goto :EOF)"
 :: 检测新版控制台，以修复制表符错位bug
 reg query "HKCU\Console" /t REG_DWORD /v "ForceV2" 2>nul | findstr "0x1" >nul && set "echo=call "%dir.jzip%\Function\Echo_v2.cmd" " || set "echo=echo"
 
-:: 输入器
-choice /? >nul 2>nul && set "choice=choice" || set "choice="%dir.jzip%\Components\x86\choice.exe""
-set "key.request=set "key=" & for /f "usebackq delims=" %%a in (`xcopy /l /w "%~f0" "%~f0" 2^^>nul`) do if not defined key set "key=%%a" & set "key=^^!key:~-1%^^!""
-
+:: Ttool 配置
 set "tmouse="%dir.jzip%\Components\x86\tmouse.exe""
 set "tmouse.process= set "mouse=^^!errorlevel^^!" & (if "^^!mouse:~0,1^^!"=="-" set "mouse=^^!mouse:~1^^!" ) & set /a "mouse.x=^^!mouse:~0,-3^^!" & set /a "mouse.y=^^!mouse^^!-1000*^^!mouse.x^^!" & set "key=" "
 set "tmouse.test= echo,[^!mouse.x^!,^!mouse.y^!] & ping localhost -n 2 >nul "

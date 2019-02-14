@@ -1,7 +1,8 @@
+
 @echo off
+chcp 936 >nul
 setlocal EnableExtensions
 setlocal enabledelayedexpansion
-chcp 936 >nul
 
 ::调用
 if /i "%1"=="" call :Wizard Install
@@ -120,10 +121,9 @@ for %%a in (Upgrade UnInstall) do if "%1"=="%%a" (
 for %%a in (Install Upgrade) do if "%1"=="%%a" (
 
 	:: Jzip 便携版判断 
-	set "key="
 	if defined jzip.Portable call :MsgBox-s key "您正使用 JZip 便携版，更新前将清空 JZip 所在文件夹。" " " "%dir.jzip%" "请确保路径不含个人文件。" " " "确定吗？"
-
-	if not "!key!"=="2" cmd /q /c "rd /q /s "%dir.jzip%" >nul 2>nul & md "%dir.jzip%" >nul 2>nul & "%jzip.newver.page%" x -o"%dir.jzip%\" & "%dir.jzip%\%jzip.newver.installer%" -install"
+	if not defined jzip.Portable set "key=1"
+	if "!key!"=="1" cmd /q /c "rd /q /s "%dir.jzip%" >nul 2>nul & md "%dir.jzip%" >nul 2>nul & "%jzip.newver.page%" x -o"%dir.jzip%\" & "%dir.jzip%\%jzip.newver.installer%" -install"
 	exit
 )
 
@@ -135,10 +135,9 @@ if "%1"=="UnInstall" (
 	)
 
 	:: Jzip 便携版判断
-	set "key="
 	if defined jzip.Portable call :MsgBox-s key "已完成 Jzip 便携版解除安装。" " " "移除 JZip 所在路径吗？" " " "%dir.jzip%" "请确保路径不含个人文件。" " " "确定吗？"
-	
-	if not "!key!"=="2" start "" /min cmd /q /c ">nul rd /q /s "%dir.jzip%""
+	if not defined jzip.Portable set "key=1"
+	if "!key!"=="1" start "" /min cmd /q /c ">nul rd /q /s "%dir.jzip%""
 )
 goto :EOF
 
