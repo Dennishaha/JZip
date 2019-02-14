@@ -1,3 +1,7 @@
+@set "jzip.ver=3.1.4"
+
+@if /i "%~1"=="-su" call :%* & goto :EOF
+@if /i "%~1"=="-help" call :%* & goto :EOF
 
 @if not "%~1"==":s" >nul (
 	
@@ -8,14 +12,11 @@
 	reg query "HKCU\Console" /t REG_DWORD /v "ForceV2" | findstr "0x1" && (
 		reg add "HKCU\Console\JFsoft.Jzip" /t REG_SZ /v "FaceName" /d "黑体" /f
 	)
-	start "JFsoft.Jzip" cmd /c call "%~0" :s %* & goto :EOF
+	start "JFsoft.Jzip" cmd /q /e:on /v:on /c call "%~0" :s %* & goto :EOF
 )
 
 :: 预配置 Jzip 环境
 
-@echo off
-setlocal EnableExtensions
-setlocal enabledelayedexpansion
 chcp 936 >nul
 mode 80, 25
 
@@ -26,9 +27,7 @@ set "dir.jzip.temp=%temp%\JFsoft.Jzip"
 call %* & exit /b
 :s
 
-set "jzip.ver=3.1.3"
 set "title=-- Jzip"
-
 set "界面颜色=f0"
 set "文件关联="
 set "桌面捷径=y"
@@ -75,8 +74,6 @@ set "path.editor.cab=%dir.jzip%\Components\x86\cabarc.exe"
 ::被调用
 if exist "%~1" call :Set_Info list %* & goto :EOF
 if exist "%~2" call :Set_Info %* & goto :EOF
-if /i "%~1"=="-su" call :%* & goto :EOF
-if /i "%~1"=="-help" call :%* & goto :EOF
 if /i "%~1"=="-install" call "%dir.jzip%\Parts\Set_Lnk.cmd" -reon & call "%dir.jzip%\Parts\Set_Assoc.cmd" -reon & call "%dir.jzip%\Parts\Set.cmd"
 if /i "%~1"=="-setting" call "%dir.jzip%\Parts\Set.cmd"	
 
@@ -216,7 +213,7 @@ for %%a in (list unzip) do if "%~1"=="%%a" (
 	
 			if defined type.editor (
 				if "%~1"=="list" (
-					if defined path.raw.2 start "JFsoft.Jzip" cmd /c "%dir.jzip%\Parts\Arc.cmd"
+					if defined path.raw.2 start "JFsoft.Jzip" cmd /q /e:on /v:on /c "%dir.jzip%\Parts\Arc.cmd"
 					if not defined path.raw.2 "%dir.jzip%\Parts\Arc.cmd" & exit 0
 					)
 				if "%~1"=="unzip" call "%dir.jzip%\Parts\Arc_Expan.cmd" Unzip /all
@@ -233,34 +230,36 @@ goto :EOF
 
 :-su
 ::当前权限判断
-net session >nul 2>nul || (
+@net session >nul 2>nul || (
 
 	::处理传入参数以适应 vbs
+	setlocal enabledelayedexpansion
 	set params=%*
 	if defined params set "params=!params:"=""!"
 
 	::取得管理员权限
 	mshta vbscript:CreateObject^("Shell.Application"^).ShellExecute^("cmd.exe","/c call ""%~s0"" !params!","","runas",1^)^(window.close^)
+
+	endlocal
 )
-goto :EOF
+@goto :EOF
 
 
 :-help
-echo.
-echo. JFsoft JZip %jzip.ver%   2012-2019 (c) Dennishaha  保留所有权利
-echo.
-echo. 用法： Jzip ^<开关^> ^<命令^> ^<文件^|压缩档^>
-echo.
-echo.   ^<开关^>
-echo.	-help		查看帮助
-echo.	-su		以管理员权限运行 Jzip
-echo.	-install	安装模式启动 Jzip
-echo.	-setting	启动 Jzip 并转到设置页
-echo.
-echo.   ^<命令^>
-echo.	""		默认缺省查看压缩档
-echo.	add		添加文件到压缩档
-echo.	unzip		解压压缩档至子文件夹
-echo.	
->nul pause
-goto :EOF
+@echo.
+@echo. JFsoft JZip %jzip.ver%   2012-2019 (c) Dennishaha  保留所有权利
+@echo.
+@echo. 用法： Jzip ^<开关^> ^<命令^> ^<文件^|压缩档^>
+@echo.
+@echo.   ^<开关^>
+@echo.	-help		查看帮助
+@echo.	-su		以管理员权限运行 Jzip
+@echo.	-install	安装模式启动 Jzip
+@echo.	-setting	启动 Jzip 并转到设置页
+@echo.
+@echo.   ^<命令^>
+@echo.	""		默认缺省查看压缩档
+@echo.	add		添加文件到压缩档
+@echo.	unzip		解压压缩档至子文件夹
+@echo.
+@goto :EOF

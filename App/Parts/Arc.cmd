@@ -1,11 +1,9 @@
-@echo off
-setlocal EnableExtensions
-setlocal enabledelayedexpansion
+
+::初始变量设定
 chcp 936 >nul
 color %界面颜色%
 title %path.Archive% %title%
 
-::初始变量设定
 set /a Window.Wide=110, Window.Height=35
 mode %Window.Wide%, %Window.Height%
 for %%a in (%jzip.spt.write%) do if /i "%Archive.exten%"==".%%a" set "ui.Archive.writeable=y"
@@ -28,7 +26,7 @@ set /a "listzip.LineViewBlock=Window.Height-5"
 :: 生成压缩档文件列表
 for %%i in (
 	rar}"^    ...D... "}"^    ..A\.... "
-	7z}"^....-..-.. ..:..:.. D.... "}"^....-..-.. ..:..:.. \..... "
+	7z}"^.......... ........ D.... "}"^.......... ........ \..... "
 ) do for /f "tokens=1-3 delims=}" %%a in ("%%i") do (
 	if "%type.editor%"=="%%a" >"%listzip.txt%" (
 		echo.-----------
