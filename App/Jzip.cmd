@@ -48,7 +48,7 @@ color %界面颜色%
 set "iferror=|| (call "%dir.jzip%\Parts\Arc_ErrorCode.cmd" & goto :EOF)"
 
 :: 检测新版控制台，以修复制表符错位bug
-reg query "HKCU\Console" /t REG_DWORD /v "ForceV2" 2>nul | findstr "0x1" >nul && set "echo=call "%dir.jzip%\Function\Echo_v2.cmd" " || set "echo=echo"
+reg query "HKCU\Console" /t REG_DWORD /v "ForceV2" 2>nul | findstr "0x1" >nul && set "echo=call "%dir.jzip%\Function\Echo_v2.cmd" ;" || set "echo=echo"
 
 :: Ttool 配置
 set "tmouse="%dir.jzip%\Components\x86\tmouse.exe""
