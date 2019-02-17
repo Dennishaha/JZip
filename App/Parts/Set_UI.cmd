@@ -20,52 +20,52 @@ goto :EOF
 if not defined ui.mouse set "ui.mouse=word"
 color %界面颜色%
 cls
-echo.
-echo.   Jzip 界面颜色设置
-echo.
-echo.
-echo.
+echo;
+echo    Jzip 界面颜色设置
+echo;
+echo;
+echo;
 if "%ui.mouse%"=="paper" (
-%echo%.                                                    ┌─────┐
-%echo%.                 点击下方颜色设定   ^< 背景色 ^>      │ 设定文字 │
-%echo%.                                                    └─────┘
+%echo%                                                     ┌─────┐
+%echo%                  点击下方颜色设定   ^< 背景色 ^>      │ 设定文字 │
+%echo%                                                     └─────┘
 )
 if "%ui.mouse%"=="word" (
-%echo%.                                                    ┌─────┐
-%echo%.                 点击下方颜色设定   [ 文字色 ]      │ 设定背景 │
-%echo%.                                                    └─────┘
+%echo%                                                     ┌─────┐
+%echo%                  点击下方颜色设定   [ 文字色 ]      │ 设定背景 │
+%echo%                                                     └─────┘
 )
-echo.
-echo.
-echo.
+echo;
+echo;
+echo;
 set "ui.colorselect=   黑     深灰    浅灰     白   "
 for %%A in (!color.list!) do for /f "tokens=1-2 delims=/" %%a in ("%%A") do (
 	if "%界面颜色:~1,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =[ %%~b ]!"
 	if "%界面颜色:~0,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =< %%~b >!"
 )
-echo.                     !ui.colorselect!
-echo.
-echo.
+echo                      !ui.colorselect!
+echo;
+echo;
 set "ui.colorselect=   红      黄      绿      青      蓝      紫   "
 for %%A in (!color.list!) do for /f "tokens=1-2 delims=/" %%a in ("%%A") do (
 	if "%界面颜色:~1,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =[ %%~b ]!"
 	if "%界面颜色:~0,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =< %%~b >!"
 )
-echo.             !ui.colorselect!
-echo.
-echo.
+echo              !ui.colorselect!
+echo;
+echo;
 set "ui.colorselect=  浅红    浅黄    浅绿    浅青    浅蓝    浅紫  "
 for %%A in (!color.list!) do for /f "tokens=1-2 delims=/" %%a in ("%%A") do (
 	if "%界面颜色:~1,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =[ %%~b ]!"
 	if "%界面颜色:~0,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =< %%~b >!"
 )
-echo.             !ui.colorselect!
-echo.
-echo.
-echo.
-%echo%.                                                               ┌─────┐
-%echo%.                                                               │   完成   │
-%echo%.                                                               └─────┘
+echo              !ui.colorselect!
+echo;
+echo;
+echo;
+%echo%                                                                ┌─────┐
+%echo%                                                                │   完成   │
+%echo%                                                                └─────┘
 
 %tmouse% /d 0 -1 1
 %tmouse.process%

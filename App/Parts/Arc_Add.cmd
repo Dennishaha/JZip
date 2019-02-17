@@ -18,20 +18,20 @@ if "%ArchiveOrder%"=="add-7z" goto :Add_Process
 ::UI--------------------------------------------------
 
 cls
-echo.
-echo.   添加文件到压缩包
-echo.                                                       [ 更改路径 ] [ 浏览 ]
-echo.
-echo.              压缩包名称  %ui.Archive.ne:~0,40%
-echo.                          %ui.Archive.ne:~40,80%
-echo.
+echo;
+echo    添加文件到压缩包
+echo                                                        [ 更改路径 ] [ 浏览 ]
+echo;
+echo               压缩包名称  %ui.Archive.ne:~0,40%
+echo                           %ui.Archive.ne:~40,80%
+echo;
 if "%ArchiveOrder%"=="add" (
 	set "ui.Arc.exten= 7z  rar  zip  tar  bz2  gz  xz  wim  cab "
 	for %%a in (7z rar zip tar bz2 gz xz wim cab) do (
-		if "%Archive.exten%"==".%%a" echo.              格式    !ui.Arc.exten: %%a =[%%a]!
+		if "%Archive.exten%"==".%%a" echo               格式    !ui.Arc.exten: %%a =[%%a]!
 	)
-) else echo.
-echo.
+) else echo;
+echo;
 
 if not defined 压缩级别 set "压缩级别=3"
 for %%A in (
@@ -39,34 +39,34 @@ for %%A in (
 	1/"●○○○○ 最快"
 	2/"●●○○○ 很快"
 	3/"●●●○○ 默认"
-	4/"●●●●○ 很好"	
+	4/"●●●●○ 很好"
 	5/"●●●●● 最好"
 ) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
 	if "%%~a"=="!压缩级别!" for %%a in (rar 7z zip bz2 gz xz cab) do if "%Archive.exten%"==".%%a" (
-		echo.              压缩效率           %%~b
+		echo               压缩效率           %%~b
 	)
 	if "%%~a"=="0" for %%a in (tar wim) do if "%Archive.exten%"==".%%a" (
-		echo.              压缩效率           %%~b
+		echo               压缩效率           %%~b
 	)
 )
 
 if "%ArchiveOrder%"=="add" (
 	for %%a in (rar 7z xz) do if /i "%Archive.exten%"==".%%a" (
-		if "%固实文件%"=="y" echo.              固实文件           ●
-		if not "%固实文件%"=="y" echo.              固实文件           ○
+		if "%固实文件%"=="y" echo               固实文件           ●
+		if not "%固实文件%"=="y" echo               固实文件           ○
 	)
-	echo."rar 7z xz" | find "%Archive.exten:~1%" >nul || echo.
-) else echo.
+	echo "rar 7z xz" | find "%Archive.exten:~1%" >nul || echo;
+) else echo;
 
 if "%ArchiveOrder%"=="add" (
 	for %%a in (rar 7z zip tar bz2 gz xz wim) do if /i "%Archive.exten%"==".%%a" (
-		if not defined 分卷压缩 echo.              分卷               ○
-		if defined 分卷压缩 echo.              分卷               ● %分卷压缩%
+		if not defined 分卷压缩 echo               分卷               ○
+		if defined 分卷压缩 echo               分卷               ● %分卷压缩%
 	)
-	echo."rar 7z zip tar bz2 gz xz wim" | find "%Archive.exten:~1%" >nul || echo.
-) else echo.
+	echo "rar 7z zip tar bz2 gz xz wim" | find "%Archive.exten:~1%" >nul || echo;
+) else echo;
 
-echo.
+echo;
 if "%ArchiveOrder%"=="add" (
 	for %%a in (rar 7z) do if /i "%Archive.exten%"==".%%a" (
 		for %%A in (
@@ -77,43 +77,43 @@ if "%ArchiveOrder%"=="add" (
 			b32/"● 控制台界面"
 			b64/"● 控制台界面（64位）"
 		) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
-			if "%自解压%"=="%%~a" echo.              创建自释放程序     %%~b
+			if "%自解压%"=="%%~a" echo               创建自释放程序     %%~b
 		)
 	)
-	echo."rar 7z" | find "%Archive.exten:~1%" >nul || echo.
-) else echo.
+	echo "rar 7z" | find "%Archive.exten:~1%" >nul || echo;
+) else echo;
 
-echo.
+echo;
 for %%a in (rar 7z zip) do if /i "%Archive.exten%"==".%%a" (
 	for %%a in (rar 7z zip tar bz2 gz xz wim) do if /i "%Archive.exten%"==".%%a" (
-		if not defined 压缩密码 echo.              加密               ○
-		if defined 压缩密码 echo.              加密               ● %压缩密码%
+		if not defined 压缩密码 echo               加密               ○
+		if defined 压缩密码 echo               加密               ● %压缩密码%
 	)
 )
-echo."rar 7z zip" | find "%Archive.exten:~1%" >nul || echo.
+echo "rar 7z zip" | find "%Archive.exten:~1%" >nul || echo;
 
-echo.
+echo;
 if "%ArchiveOrder%"=="add" (
 	if /i "%Archive.exten%"==".rar" (
 		if not defined 压缩版本.rar set "压缩版本.rar=5"
 		for %%A in (
 			4/●,5/○
 		) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
-			if "!压缩版本.rar!"=="%%~a" echo.              兼容早期版本       %%~b
+			if "!压缩版本.rar!"=="%%~a" echo               兼容早期版本       %%~b
 		)
 		for %%A in (
 			""/○,3/"● 默认",6/"● 强"
 		) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
-			if "%压缩恢复记录%"=="%%~a" echo.              恢复记录           %%~b
+			if "%压缩恢复记录%"=="%%~a" echo               恢复记录           %%~b
 		)
 	)
-	echo."rar" | find "%Archive.exten:~1%" >nul || (echo. & echo.)
+	echo "rar" | find "%Archive.exten:~1%" >nul || (echo  & echo )
 )
-echo.
-echo.
-%echo%.                                                 ┌─────┐┌─────┐
-%echo%.                                                 │   确定   ││   取消   │
-%echo%.                                                 └─────┘└─────┘
+echo;
+echo;
+%echo%                                                  ┌─────┐┌─────┐
+%echo%                                                  │   确定   ││   取消   │
+%echo%                                                  └─────┘└─────┘
 
 ::UI--------------------------------------------------
 ::坐标判断

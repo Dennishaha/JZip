@@ -68,7 +68,7 @@ set "path.editor.cab=%dir.jzip%\Components\x86\cabarc.exe"
 if exist "%~1" call :Set_Info list %* & goto :EOF
 if exist "%~2" call :Set_Info %* & goto :EOF
 if /i "%~1"=="-install" call "%dir.jzip%\Parts\Set_Lnk.cmd" -reon & call "%dir.jzip%\Parts\Set_Assoc.cmd" -reon & call "%dir.jzip%\Parts\Set.cmd"
-if /i "%~1"=="-setting" call "%dir.jzip%\Parts\Set.cmd"	
+if /i "%~1"=="-setting" call "%dir.jzip%\Parts\Set.cmd"
 
 
 :BASIC
@@ -78,35 +78,35 @@ cls
 ::UI--------------------------------------------------
 
 (
-echo.
-echo.
-echo.
-echo.
-echo.
-echo.
-%echo%.                ┌──────────┐┌──────────┐
-%echo%.                │                    ││                    │
-%echo%.                │                    ││                    │
-%echo%.                │    打开压缩文件    ││    新建压缩文件    │
-%echo%.                │                    ││                    │
-%echo%.                │                    ││                    │
-%echo%.                └──────────┘└──────────┘
+echo;
+echo;
+echo;
+echo;
+echo;
+echo;
+%echo%                 ┌──────────┐┌──────────┐
+%echo%                 │                    ││                    │
+%echo%                 │                    ││                    │
+%echo%                 │    打开压缩文件    ││    新建压缩文件    │
+%echo%                 │                    ││                    │
+%echo%                 │                    ││                    │
+%echo%                 └──────────┘└──────────┘
 net session >nul 2>nul && (
-%echo%.                                        ┌──────────┐
-%echo%.                                        │                    │
-%echo%.                                        │        设置        │
+%echo%                                         ┌──────────┐
+%echo%                                         │                    │
+%echo%                                         │        设置        │
 ) || (
-%echo%.                ┌──────────┐┌──────────┐
-%echo%.                │      提升权限      ││                    │
-%echo%.                └──────────┘│        设置        │
+%echo%                 ┌──────────┐┌──────────┐
+%echo%                 │      提升权限      ││                    │
+%echo%                 └──────────┘│        设置        │
 )
-%echo%.                                        │                    │
-%echo%.                                        └──────────┘
-echo.
-echo.
-echo.
-echo.
-echo.
+%echo%                                         │                    │
+%echo%                                         └──────────┘
+echo;
+echo;
+echo;
+echo;
+echo;
 )
 
 ::UI--------------------------------------------------
@@ -157,14 +157,14 @@ if not "%~2"=="" (
 )
 
 for %%a in (add add-7z) do if "%~1"=="%%a" (
-	
+
 	for /f "usebackq delims== tokens=1,*" %%a in (`set "path.raw."`) do (
 		set "path.File=!path.File! "%%~b""
 	)
 
 	dir "!path.raw.1!" /a:d /b >nul 2>nul && set "File.Single=n"
 	if defined path.raw.2 dir "!path.raw.2!" /b >nul 2>nul && set "File.Single=n"
-	
+
 	for /f "delims=" %%i in ("!path.raw.1!") do (
 	set "Archive.dir=%%~dpi"
 	set "Archive.name=%%~ni"
@@ -176,9 +176,9 @@ for %%a in (add add-7z) do if "%~1"=="%%a" (
 		)
 	)
 	if not defined Archive.exten set "Archive.exten=.7z"
-	
+
 	if defined path.File call "%dir.jzip%\Parts\Arc_Add.cmd"
-	
+
 	if "%~1"=="add" (
 	for %%a in (Archive.exten,压缩级别,固实文件) do (
 		reg add "HKCU\Software\JFsoft.Jzip\Record" /t REG_SZ /v "%%a" /d "!%%a!" /f >nul %iferror%
@@ -189,12 +189,12 @@ for %%a in (add add-7z) do if "%~1"=="%%a" (
 for %%a in (list unzip) do if "%~1"=="%%a" (
 	for /l %%b in (1,1,%raw.num%) do (
 		for /f "delims=" %%c in ("!path.raw.%%b!") do (
-			
+
 			set "path.Archive=%%~c"
 			set "dir.Archive=%%~dpc" & set "dir.Archive=!dir.Archive:~0,-1!"
 			set "Archive.name=%%~nc"
 			set "Archive.exten=%%~xc"
-	
+
 			dir "!path.Archive!" /a:-d /b >nul 2>nul && (
 			for %%A in (%jzip.spt.7z%) do if /i "!Archive.exten!"==".%%A" set "type.editor=7z"
 			for %%A in (%jzip.spt.rar%) do if /i "!Archive.exten!"==".%%A" set "type.editor=rar"
@@ -203,7 +203,7 @@ for %%a in (list unzip) do if "%~1"=="%%a" (
 				"%path.editor.rar%" l "!path.Archive!" | findstr /r "^Details: ^详情:" >nul && set "type.editor=rar"
 				)
 			)
-	
+
 			if defined type.editor (
 				if "%~1"=="list" (
 					if defined path.raw.2 start "JFsoft.Jzip" cmd /q /e:on /v:on /c "%dir.jzip%\Parts\Arc.cmd"
@@ -239,20 +239,20 @@ goto :EOF
 
 
 :-help
-@echo.
-@echo. JFsoft JZip %jzip.ver%   2012-2019 (c) Dennishaha  保留所有权利
-@echo.
-@echo. 用法： Jzip ^<开关^> ^<命令^> ^<文件^|压缩档^>
-@echo.
-@echo.   ^<开关^>
-@echo.	-help		查看帮助
-@echo.	-su		以管理员权限运行 Jzip
-@echo.	-install	安装模式启动 Jzip
-@echo.	-setting	启动 Jzip 并转到设置页
-@echo.
-@echo.   ^<命令^>
-@echo.	""		默认缺省查看压缩档
-@echo.	add		添加文件到压缩档
-@echo.	unzip		解压压缩档至子文件夹
-@echo.
+@echo;
+@echo  JFsoft JZip %jzip.ver%   2012-2019 (c) Dennishaha  保留所有权利
+@echo;
+@echo  用法： Jzip ^<开关^> ^<命令^> ^<文件^|压缩档^>
+@echo;
+@echo    ^<开关^>
+@echo 	-help		查看帮助
+@echo 	-su		以管理员权限运行 Jzip
+@echo 	-install	安装模式启动 Jzip
+@echo 	-setting	启动 Jzip 并转到设置页
+@echo;
+@echo    ^<命令^>
+@echo 	""		默认缺省查看压缩档
+@echo 	add		添加文件到压缩档
+@echo 	unzip		解压压缩档至子文件夹
+@echo;
 @goto :EOF

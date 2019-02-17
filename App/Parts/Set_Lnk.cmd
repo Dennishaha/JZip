@@ -7,7 +7,7 @@ for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\Microsoft\Windows
 )
 
 ::±»µ÷ÓÃ
-if /i "%1"=="-info" call :Lnk %1 all 
+if /i "%1"=="-info" call :Lnk %1 all
 for %%A in (-on -off) do if /i "%1"=="%%A" call :Lnk %1 %2
 if /i "%1"=="-reon" (
 	call :Lnk -on Programs
@@ -58,15 +58,15 @@ goto :EOF
 
 :CreateLnk
 1>"%dir.jzip.temp%\ink.vbs" (
-	echo.Set WshShell = WScript.CreateObject^("WScript.Shell"^)
-	echo.Set Ink = WshShell.CreateShortcut^("!dir.%~1!\%~2"^)
-	echo.Ink.TargetPath = "%~3"
-	echo.Ink.Arguments = "%~4"
-	echo.Ink.WindowStyle = "1"
-	echo.Ink.IconLocation = "%dir.jzip%\Components\Icon\%~5"
-	echo.Ink.Description = ""
-	echo.Ink.WorkingDirectory = "!dir.Desktop!"
-	echo.Ink.Save
+	echo Set WshShell = WScript.CreateObject^("WScript.Shell"^)
+	echo Set Ink = WshShell.CreateShortcut^("!dir.%~1!\%~2"^)
+	echo Ink.TargetPath = "%~3"
+	echo Ink.Arguments = "%~4"
+	echo Ink.WindowStyle = "1"
+	echo Ink.IconLocation = "%dir.jzip%\Components\Icon\%~5"
+	echo Ink.Description = ""
+	echo Ink.WorkingDirectory = "!dir.Desktop!"
+	echo Ink.Save
 )
 cscript //nologo "%dir.jzip.temp%\ink.vbs"
 goto :EOF

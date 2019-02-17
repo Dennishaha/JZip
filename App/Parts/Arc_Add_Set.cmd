@@ -11,7 +11,7 @@ goto :EOF
 :Ñ¹Ëõ¼ÓÃÜ
 if "%~1"=="" (
 	if defined Ñ¹ËõÃÜÂë (
-		set "Ñ¹ËõÃÜÂë=" 
+		set "Ñ¹ËõÃÜÂë="
 	) else (
 		call "%dir.jzip%\Function\VbsBox" InputBox Ñ¹ËõÃÜÂë "Éè¶¨Ñ¹ËõÃÜÂë£º"
 	)

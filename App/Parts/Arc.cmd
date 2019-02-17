@@ -28,7 +28,7 @@ for %%i in (
 	7z}"^.......... ........ D.... "}"^.......... ........ \..... "
 ) do for /f "tokens=1-3 delims=}" %%a in ("%%i") do (
 	if "%type.editor%"=="%%a" >"%listzip.txt%" (
-		echo.-----------
+		echo -----------
 		if defined listzip.Dir (
 			"!path.editor.%%a!" l "%path.Archive%" | find " %listzip.Dir%\" | findstr /v "\<%listzip.Dir.p%\\.*\\.*" | findstr /r /c:"%%~b"
 			"!path.editor.%%a!" l "%path.Archive%" | find " %listzip.Dir%\" | findstr /v "\<%listzip.Dir.p%\\.*\\.*" | findstr /r /c:"%%~c"
@@ -81,21 +81,21 @@ if "%listzip.Dir%"=="" (
 
 ::显示压缩档操作选项
 if "%listzip.Menu%"=="basic" (
-	if "%ui.Archive.writeable%"=="y" %echo%.  主页 │ 打开 提取 解压到 添加 删除 重命名 高级 上页 下页 进入 上级
-	if "%ui.Archive.writeable%"==""  %echo%.  主页 │ 打开 提取 解压到                  高级 上页 下页 进入 上级
+	if "%ui.Archive.writeable%"=="y" %echo%   主页 │ 打开 提取 解压到 添加 删除 重命名 高级 上页 下页 进入 上级
+	if "%ui.Archive.writeable%"==""  %echo%   主页 │ 打开 提取 解压到                  高级 上页 下页 进入 上级
 )
 if "%listzip.Menu%"=="advance" (
-	if "%type.editor%"=="7z"  %echo%.  主页 │ 基本 测试
-	if "%type.editor%"=="rar" %echo%.  主页 │ 基本 测试 修复 锁定 添加注释 自解压转换
+	if "%type.editor%"=="7z"  %echo%   主页 │ 基本 测试
+	if "%type.editor%"=="rar" %echo%   主页 │ 基本 测试 修复 锁定 添加注释 自解压转换
 )
-echo.
-if "%type.editor%"=="7z" (	
-	if not defined listzip.LineFileSel echo.   日期      时间    属性         大小       压缩后  □ 名称
-	if defined listzip.LineFileSel echo.   日期      时间    属性         大小       压缩后  ■ 名称
+echo;
+if "%type.editor%"=="7z" (
+	if not defined listzip.LineFileSel echo    日期      时间    属性         大小       压缩后  □ 名称
+	if defined listzip.LineFileSel echo    日期      时间    属性         大小       压缩后  ■ 名称
 )
 if "%type.editor%"=="rar" (
-	if not defined listzip.LineFileSel echo.     属性        大小     日期     时间  □ 名称
-	if defined listzip.LineFileSel echo.     属性        大小     日期     时间  ■ 名称
+	if not defined listzip.LineFileSel echo      属性        大小     日期     时间  □ 名称
+	if defined listzip.LineFileSel echo      属性        大小     日期     时间  ■ 名称
 )
 
 :: if 判断排除空压缩档。输出压缩档内容到屏幕，读至变量
@@ -110,16 +110,16 @@ if %listzip.LineFileStart% LEQ %listzip.LineFileEnd% (
 set /a "listzip.ViewEchoEnd=listzip.LineViewStart+listzip.LineViewBlock"
 set /a "listzip.ViewEchoSpace=listzip.ViewEchoEnd-listzip.LineFileEnd-2"
 if %listzip.LineViewEnd% LSS %listzip.ViewEchoEnd% (
-	for /l %%a in (0,1,!listzip.ViewEchoSpace!) do echo.
+	for /l %%a in (0,1,!listzip.ViewEchoSpace!) do echo;
 )
 
 ::调试注释，常闭
-::echo. File {%listzip.LineFileStart%:%listzip.LineFileEnd%} View [%listzip.LineViewStart%:%listzip.LineViewEnd%]
+::echo  File {%listzip.LineFileStart%:%listzip.LineFileEnd%} View [%listzip.LineViewStart%:%listzip.LineViewEnd%]
 ::echo,!listzip.Dir!  !listzip.Dir.p!
 
 ::下方提示
-if "%listzip.Dir%"=="" echo.  %listzip.ViewPageNow%/%listzip.ViewPageTotal% 页  %listzip.LineFileTotal% 个项目 %listzip.Info%
-if not "%listzip.Dir%"=="" echo.  %listzip.ViewPageNow%/%listzip.ViewPageTotal% 页  %listzip.LineFileTotal% 个项目  %listzip.Dir:\= ^> %
+if "%listzip.Dir%"=="" echo   %listzip.ViewPageNow%/%listzip.ViewPageTotal% 页  %listzip.LineFileTotal% 个项目 %listzip.Info%
+if not "%listzip.Dir%"=="" echo   %listzip.ViewPageNow%/%listzip.ViewPageTotal% 页  %listzip.LineFileTotal% 个项目  %listzip.Dir:\= ^> %
 
 ::UI--------------------------------------------------
 ::坐标判断

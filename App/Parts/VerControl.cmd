@@ -37,7 +37,7 @@ if "%1"=="Install" (
 if /i "%dir.jzip%"=="%dir.jzip.default%" (set "jzip.Portable=") else (set "jzip.Portable=1")
 
 :: Mshta 可用性判断
-mshta /? || ( echo.Mshta 不可用，无法安装 JZip。 & echo.%if.error.lm% & pause >nul )
+mshta /? || ( echo Mshta 不可用，无法安装 JZip。 & echo %if.error.lm% & pause >nul )
 
 :: 检测 Bits 组件
 for %%i in (Install Upgrade) do if "%1"=="%%i" (
@@ -76,19 +76,19 @@ for %%i in (Install Upgrade) do if "%1"=="%%i" (
 ::UI--------------------------------------------------
 
 cls
-echo.
-echo.
-echo.
+echo;
+echo;
+echo;
 
-if "%1"=="Install" echo.      现在可以安装 Jzip %jzip.newver%
-if "%1"=="Upgrade" if /i not "%jzip.ver%"=="%jzip.newver%" echo.      现在可以获取新版本 JZip %jzip.newver%
+if "%1"=="Install" echo       现在可以安装 Jzip %jzip.newver%
+if "%1"=="Upgrade" if /i not "%jzip.ver%"=="%jzip.newver%" echo       现在可以获取新版本 JZip %jzip.newver%
 
 for %%a in (Install Upgrade) do if "%1"=="%%a" if /i not "%jzip.ver%"=="%jzip.newver%" (
-	echo. & echo.
+	echo  & echo;
 	:describe_split
 	for /f "tokens=1,* delims=;" %%a in ("!jzip.newver.describe!") do (
 		set "jzip.newver.describe=%%b"
-		echo.      %%~a
+		echo       %%~a
 	)
 	if not "!jzip.newver.describe!"=="" goto :describe_split
 )
@@ -120,7 +120,7 @@ for %%a in (Upgrade UnInstall) do if "%1"=="%%a" (
 :: 安装
 for %%a in (Install Upgrade) do if "%1"=="%%a" (
 
-	:: Jzip 便携版判断 
+	:: Jzip 便携版判断
 	if defined jzip.Portable call :MsgBox-s key "您正使用 JZip 便携版，更新前将清空 JZip 所在文件夹。" " " "%dir.jzip%" "请确保路径不含个人文件。" " " "确定吗？"
 	if not defined jzip.Portable set "key=1"
 	if "!key!"=="1" cmd /q /c "rd /q /s "%dir.jzip%" >nul 2>nul & md "%dir.jzip%" >nul 2>nul & "%jzip.newver.page%" x -o"%dir.jzip%\" & "%dir.jzip%\%jzip.newver.installer%" -install"

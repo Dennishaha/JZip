@@ -5,28 +5,28 @@ call "%dir.jzip%\Parts\Set_Lnk.cmd" -info
 call "%dir.jzip%\Parts\Set_Assoc.cmd" -info
 call "%dir.jzip%\Parts\Set_UI.cmd" -info
 cls
-echo.
-echo.  《 设置
-echo.
-echo.
-echo.                    %tips.FileAssoc% 压缩文件关联
-echo.                    %tips.Lnk.SendTo% 右键菜单扩展
-echo.                    %tips.Lnk.Desktop% 在桌面建立捷径
-echo.
-echo.                    设定颜色 ^>       %ui.word%(%ui.paper%)
-echo.
-echo.                    工作目录
-echo.                      %dir.jzip.temp%
-%echo%.                    ┌───┐┌───┐┌───┐┌───┐
-%echo%.                    │ 打开 ││ 清除 ││自定义││ 默认 │
-%echo%.                    └───┘└───┘└───┘└───┘
-echo.
-echo.                    版本 %jzip.ver%
-%echo%.                    ┌────┐┌────┐
-%echo%.                    │检查更新││前往官网│ 卸载
-%echo%.                    └────┘└────┘
-echo.
-echo.
+echo;
+echo   《 设置
+echo;
+echo;
+echo                     %tips.FileAssoc% 压缩文件关联
+echo                     %tips.Lnk.SendTo% 右键菜单扩展
+echo                     %tips.Lnk.Desktop% 在桌面建立捷径
+echo;
+echo                     设定颜色 ^>       %ui.word%(%ui.paper%)
+echo;
+echo                     工作目录
+echo                       %dir.jzip.temp%
+%echo%                     ┌───┐┌───┐┌───┐┌───┐
+%echo%                     │ 打开 ││ 清除 ││自定义││ 默认 │
+%echo%                     └───┘└───┘└───┘└───┘
+echo;
+echo                     版本 %jzip.ver%
+%echo%                     ┌────┐┌────┐
+%echo%                     │检查更新││前往官网│ 卸载
+%echo%                     └────┘└────┘
+echo;
+echo;
 %tmouse% /d 0 -1 1
 %tmouse.process%
 ::%tmouse.test%
