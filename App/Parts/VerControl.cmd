@@ -84,7 +84,7 @@ if "%1"=="Install" echo       现在可以安装 Jzip %jzip.newver%
 if "%1"=="Upgrade" if /i not "%jzip.ver%"=="%jzip.newver%" echo       现在可以获取新版本 JZip %jzip.newver%
 
 for %%a in (Install Upgrade) do if "%1"=="%%a" if /i not "%jzip.ver%"=="%jzip.newver%" (
-	echo  & echo;
+	echo; & echo;
 	:describe_split
 	for /f "tokens=1,* delims=;" %%a in ("!jzip.newver.describe!") do (
 		set "jzip.newver.describe=%%b"
