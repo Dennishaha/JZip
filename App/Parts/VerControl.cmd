@@ -1,8 +1,7 @@
 
 @echo off
 chcp 936 >nul
-setlocal EnableExtensions
-setlocal enabledelayedexpansion
+setlocal enableextensions enabledelayedexpansion
 
 ::µ÷ÓÃ
 if /i "%1"=="" call :Wizard Install
@@ -18,9 +17,8 @@ cls
 :: Ô¤Éè´íÎó´úÂë
 set "if.error.lm=Äú¿ÉÒÔÔÚ https://github.com/Dennishaha/JZip ÉÏÁË½â¸ü¶àÐÅÏ¢¡£"
 set "if.error.1=|| ( call :MsgBox "È¡µÃ °²×°ÐÅÏ¢ Ê§°Ü¡£" "%if.error.lm%" & goto :EOF )"
-set "if.error.2=|| ( call :MsgBox "ÏÂÔØµÄÎÄ¼þ²»´æÔÚ£¬ÇëÖØÐÂ³¢ÊÔ¡£" "%if.error.lm%" & goto :EOF )"
+set "if.error.2=   ( call :MsgBox "ÏÂÔØµÄÎÄ¼þ²»´æÔÚ£¬ÇëÖØÐÂ³¢ÊÔ¡£" "%if.error.lm%" & goto :EOF )"
 set "if.error.3=|| ( call :MsgBox "¸üÐÂ°ü³öÏÖ´íÎó£¬ÇëÖØÐÂ³¢ÊÔ¡£" "%if.error.lm%" & goto :EOF )"
-set "if.error.4=|| ( call :MsgBox "È±Ê§ Bitsadmin ×é¼þ£¬ÔÚÔçÆÚ°æ±¾ Windows ÖÐ²»´æÔÚ¡£" "%if.error.lm%" & goto :EOF )"
 
 :: ÅäÖÃÂ·¾¶ºÍ´°¿Ú
 set "dir.jzip.default=%appdata%\JFsoft\JZip\App"
@@ -28,7 +26,7 @@ set "dir.jzip.default=%appdata%\JFsoft\JZip\App"
 if "%1"=="Install" (
 	set "dir.jzip=%dir.jzip.default%"
 	set "dir.jzip.temp=%temp%\JFsoft.JZip"
-	>nul 2>nul md !dir.jzip.temp!
+	md "!dir.jzip.temp!"
 	mode 80, 25
 	color f0
 )
@@ -37,60 +35,46 @@ if "%1"=="Install" (
 if /i "%dir.jzip%"=="%dir.jzip.default%" (set "jzip.Portable=") else (set "jzip.Portable=1")
 
 :: Mshta ¿ÉÓÃÐÔÅÐ¶Ï
-mshta /? || ( echo.Mshta ²»¿ÉÓÃ£¬ÎÞ·¨°²×° JZip¡£ & echo.%if.error.lm% & pause >nul )
-
-:: ¼ì²â Bits ×é¼þ
-for %%i in (Install Upgrade) do if "%1"=="%%i" (
-	bitsadmin /? >nul 2>nul %if.error.4%
-
-	:: Èô Bits ·þÎñ±»½ûÓÃ£¬Ñ¯ÎÊ¿ªÆô
-	sc qc bits | findstr /i "DISABLED" >nul && (
-		if "%1"=="Install" call :MsgBox-s key "Jzip °²×°¹ý³ÌÐèÒª Bits ·þÎñ¡£" " ÄúÊÇ·ñÔÊÐí Jzip ÆôÓÃ·þÎñ£¿"
-		if "%1"=="Upgrade" call :MsgBox-s key "Jzip ¸üÐÂ¹ý³ÌÐèÒª Bits ·þÎñ¡£" "ÄúÊÇ·ñÔÊÐí Jzip ÆôÓÃ·þÎñ£¿"
-
-		if "!key!"=="1" (
-			:: ÆôÓÃ Bits ·þÎñ
-			net session >nul 2>nul && (sc config bits start= demand >nul)
-			net session >nul 2>nul || (
-				mshta vbscript:CreateObject^("Shell.Application"^).ShellExecute^("cmd.exe","/c sc config bits start= demand >nul","","runas",1^)^(window.close^)
-			)
-			ping localhost -n 2 >nul
-		) else (
-			call :MsgBox "±§Ç¸£¬ÎÞ·¨°²×° JZip¡£" "%if.error.lm%"
-			goto :EOF
-		)
-	)
-)
+mshta || ( echo Mshta ²»¿ÉÓÃ£¬ÎÞ·¨°²×° JZip¡£ & echo %if.error.lm% & pause >nul )
 
 :: »ñÈ¡ Github ÉÏµÄ JZip °²×°ÐÅÏ¢
 for %%i in (Install Upgrade) do if "%1"=="%%i" (
-	>nul 2>nul ( dir "%dir.jzip.temp%\ver.ini" /a:-d /b && del /q /f /s "%dir.jzip.temp%\ver.ini" )
-	bitsadmin /transfer !random! /download /priority foreground https://raw.githubusercontent.com/Dennishaha/JZip/master/Server/ver.ini "%dir.jzip.temp%\ver.ini" %if.error.1%
-	cls
-	>nul 2>nul dir "%dir.jzip.temp%\ver.ini" /a:-d /b %if.error.2%
-
-	for /f "eol=[ usebackq tokens=1,2* delims==" %%a in (`type "%dir.jzip.temp%\ver.ini"`) do set "%%a=%%b"
+	REM Éú³ÉvbsÏÂÔØ´úÂë
+	(
+		echo Set H=CreateObject("Microsoft.XMLHTTP"^)
+		echo H.Open "GET", WSH.Arguments(1^), FALSE
+		echo H.Send(^)
+		echo Set S=CreateObject("ADODB.Stream"^)
+		echo S.Mode=3
+		echo S.Type=1
+		echo S.Open(^)
+		echo S.Write(post.responseBody^)
+		echo S.SaveToFile WSH.Arguments(2^),2
+	)>DownLoad.vbs
+	if exist "%dir.jzip.temp%\ver.ini" del "%dir.jzip.temp%\ver.ini"
+	cscript /nologo DownLoad.vbs "https://raw.githubusercontent.com/Dennishaha/JZip/master/Server/ver.ini" "%dir.jzip.temp%\ver.ini" %if.error.1%
+	if not exist "%dir.jzip.temp%\ver.ini" %if.error.2%
+	for /f "eol=[ usebackq tokens=1* delims==" %%a in ("%dir.jzip.temp%\ver.ini") do set "%%a=%%b"
 	set "jzip.newver.page=%dir.jzip.temp%\full.!jzip.newver!.exe"
 )
 
 ::UI--------------------------------------------------
 
 cls
-echo.
-echo.
-echo.
+echo;
+echo;
+echo;
 
-if "%1"=="Install" echo.      ÏÖÔÚ¿ÉÒÔ°²×° Jzip %jzip.newver%
-if "%1"=="Upgrade" if /i not "%jzip.ver%"=="%jzip.newver%" echo.      ÏÖÔÚ¿ÉÒÔ»ñÈ¡ÐÂ°æ±¾ JZip %jzip.newver%
+if "%1"=="Install" echo       ÏÖÔÚ¿ÉÒÔ°²×° Jzip %jzip.newver%
+if "%1"=="Upgrade" if /i not "%jzip.ver%"=="%jzip.newver%" echo       ÏÖÔÚ¿ÉÒÔ»ñÈ¡ÐÂ°æ±¾ JZip %jzip.newver%
 
-for %%a in (Install Upgrade) do if "%1"=="%%a" if /i not "%jzip.ver%"=="%jzip.newver%" (
-	echo. & echo.
-	:describe_split
-	for /f "tokens=1,* delims=;" %%a in ("!jzip.newver.describe!") do (
-		set "jzip.newver.describe=%%b"
-		echo.      %%~a
+for %%a in (Install Upgrade) do if "%1"=="%%a" (
+	if /i not "%jzip.ver%"=="%jzip.newver%" (
+		echo;
+		echo;
+		rem ÌýËµ×÷ÕßÏ²»¶ÍæÅªÅú´¦ÀíµÄthick?
+		for %%a in (!jzip.newver.describe!) do echo       %%~a
 	)
-	if not "!jzip.newver.describe!"=="" goto :describe_split
 )
 
 ::UI--------------------------------------------------
@@ -103,28 +87,28 @@ if "%1"=="Upgrade" if /i not "%jzip.ver%"=="%jzip.newver%" call :MsgBox-s key "Ï
 if not "%key%"=="1" goto :EOF
 
 :: »ñÈ¡ JZip °²×°°ü
-for %%a in (Install Upgrade) do  if "%1"=="%%a" (
-	>nul 2>nul ( dir "%jzip.newver.page%" /a:-d /b && del /q /f /s "%jzip.newver.page%" )
-	bitsadmin /transfer %random% /download /priority foreground %jzip.newver.url% "%jzip.newver.page%" %if.error.1%
-	cls
-	>nul 2>nul dir "%jzip.newver.page%" /a:-d /b %if.error.2%
-	"%jzip.newver.page%" t | findstr "^Everything is Ok" >nul 2>nul %if.error.3%
+for %%a in (Install Upgrade) do if "%1"=="%%a" (
+	if not exist "%jzip.newver.page%" del "%jzip.newver.page%" )
+	cscript /nologo DownLoad.vbs "%jzip.newver.url%" "%jzip.newver.page%" %if.error.1%
+	if not exist "%jzip.newver.page%" %if.error.2%
+	"%jzip.newver.page%" t | find "Everything is Ok" >nul 2>nul %if.error.3%
 )
 
 :: ½â³ý°²×°
 for %%a in (Upgrade UnInstall) do if "%1"=="%%a" (
 	call "%dir.jzip%\Parts\Set_Lnk.cmd" -off all
-	call "%dir.jzip%\Parts\Set_Assoc.cmd" & if "!tips.FileAssoc!"=="¡ñ" call "%dir.jzip%\Parts\Set_Assoc.cmd" -off
+	call "%dir.jzip%\Parts\Set_Assoc.cmd"
+	if "!tips.FileAssoc!"=="¡ñ" call "%dir.jzip%\Parts\Set_Assoc.cmd" -off
 )
 
 :: °²×°
 for %%a in (Install Upgrade) do if "%1"=="%%a" (
 
-	:: Jzip ±ãÐ¯°æÅÐ¶Ï 
+	:: Jzip ±ãÐ¯°æÅÐ¶Ï
+	set key=1
 	if defined jzip.Portable call :MsgBox-s key "ÄúÕýÊ¹ÓÃ JZip ±ãÐ¯°æ£¬¸üÐÂÇ°½«Çå¿Õ JZip ËùÔÚÎÄ¼þ¼Ð¡£" " " "%dir.jzip%" "ÇëÈ·±£Â·¾¶²»º¬¸öÈËÎÄ¼þ¡£" " " "È·¶¨Âð£¿"
-	if not defined jzip.Portable set "key=1"
-	if "!key!"=="1" cmd /q /c "rd /q /s "%dir.jzip%" >nul 2>nul & md "%dir.jzip%" >nul 2>nul & "%jzip.newver.page%" x -o"%dir.jzip%\" & "%dir.jzip%\%jzip.newver.installer%" -install"
-	exit
+	if "!key!"=="1" cmd /q /c "rd /q /s "%dir.jzip%" & md "%dir.jzip%" & "%jzip.newver.page%" x -o"%dir.jzip%\" & "%dir.jzip%\%jzip.newver.installer%" -install" >nul 2>nul
+	exit /b
 )
 
 :: É¾³ý JZip ×¢²á±íÏîºÍÄ¿Â¼
@@ -135,8 +119,8 @@ if "%1"=="UnInstall" (
 	)
 
 	:: Jzip ±ãÐ¯°æÅÐ¶Ï
+	set key=1
 	if defined jzip.Portable call :MsgBox-s key "ÒÑÍê³É Jzip ±ãÐ¯°æ½â³ý°²×°¡£" " " "ÒÆ³ý JZip ËùÔÚÂ·¾¶Âð£¿" " " "%dir.jzip%" "ÇëÈ·±£Â·¾¶²»º¬¸öÈËÎÄ¼þ¡£" " " "È·¶¨Âð£¿"
-	if not defined jzip.Portable set "key=1"
 	if "!key!"=="1" start "" /min cmd /q /c ">nul rd /q /s "%dir.jzip%""
 )
 goto :EOF
