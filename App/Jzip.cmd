@@ -1,33 +1,64 @@
 
-@set "jzip.ver=3.1.4 "
+@setlocal EnableExtensions EnableDelayedExpansion
+
+@set "jzip.ver=3.2"
 
 @if /i "%~1"=="-su" call :%* & goto :EOF
 @if /i "%~1"=="-help" call :%* & goto :EOF
 
 @if not "%~1"==":s" >nul (
-	:: 检测代码页/字体/字体大小/快速编辑
-	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "CodePage" /d "0x3a8" /f
-	reg add "HKCU\Console\JFsoft.Jzip" /t REG_SZ /v "FaceName" /d "黑体" /f
-	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "FontSize" /d "0x100008" /f
+
+	:: 检测注册表中 Jzip 语言设定
+	for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip" /v "Language" ^|^| echo,') do (
+
+		:: 由 Jzip 安装器启动时，不采用注册表变量
+		if not defined Language if /i "%%b"=="REG_SZ" set "%%a=%%c"
+
+		:: 注册表无语言设定时，则依据目前代码页设定
+		if "%%c"=="" for /f "tokens=2 delims=: " %%i in ('chcp') do (
+			if "%%i"=="936" (
+				reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "Language" /d "chs" /f
+				set "Language=chs"
+			) else ( 
+				reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "Language" /d "en" /f
+				set "Language=en"
+			)
+		)
+	)
+
+	:: Jzip 语言判断，设定代码页/字体
+	if /i "!Language!"=="chs" (
+		reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "CodePage" /d "936" /f
+		reg add "HKCU\Console\JFsoft.Jzip" /t REG_SZ /v "FaceName" /d "黑体" /f
+	) else (
+		reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "CodePage" /d "437" /f
+		reg add "HKCU\Console\JFsoft.Jzip" /t REG_SZ /v "FaceName" /d "Consolas" /f
+	)
+
+	:: 设定快速编辑/字体大小
 	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "QuickEdit" /d "0x0" /f
-	start "JFsoft.Jzip" cmd /q /e:on /v:on /c call "%~0" :s %* & goto :EOF
+	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "FontSize" /d "0x100008" /f
+
+	start /i "JFsoft.Jzip" cmd /c call "%~0" :s %*
+	goto :EOF
 )
 
 :: 预配置 Jzip 环境
+
+@echo off
 mode 80, 25
 
-set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 set "path.jzip.launcher=%~0"
+set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 set "dir.jzip.temp=%temp%\JFsoft.Jzip"
 
 call %* & exit /b
 :s
-
 set "title=-- Jzip"
-set "界面颜色=f0"
-set "文件关联="
-set "桌面捷径=y"
-set "右键捷径=y"
+set "Color=f0"
+set "FileAssoc="
+set "ShortCut=y"
+set "RightMenu=y"
 
 :: Jzip 文件支持类型
 set "jzip.spt.rar=rar"
@@ -39,16 +70,24 @@ set "jzip.spt.open=%jzip.spt.rar% %jzip.spt.7z%"
 
 :: 加载用户配置信息及临时文件夹
 for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip" 2^>nul') do if /i "%%b"=="REG_SZ" set "%%a=%%c"
-set "最近运行=%date:~0,10% %time%"
-for %%a in (dir.jzip.temp,界面颜色,文件关联,桌面捷径,右键捷径,最近运行) do reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "%%a" /d "!%%a!" /f >nul
+for %%a in (Dir.Jzip.Temp Color FileAssoc ShortCut RightMenu RecentTime) do >nul reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "%%a" /d "!%%a!" /f 
+>nul reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "RecentTime" /d "%date:~0,10% %time%" /f
 dir "%dir.jzip.temp%" /a:d /b >nul 2>nul || md "%dir.jzip.temp%" || (set dir.jzip.temp=%temp%\JFsoft\Jzip & md "!dir.jzip.temp!")
 
-:: 配置组件
-color %界面颜色%
-set "iferror=|| (call "%dir.jzip%\Parts\Arc_ErrorCode.cmd" & goto :EOF)"
+:: 加载语言配置
+if /i "%Language%"=="chs" (
+	for /f "eol=[ tokens=1,*" %%a in (' type "%dir.jzip%\Langs\Chs.ini" ') do set "%%a%%b"
+) else (
+	for /f "eol=[ tokens=1,*" %%a in (' type "%dir.jzip%\Langs\En.ini" ') do set "%%a%%b"
+)
 
 :: 检测新版控制台，以修复制表符错位bug
 reg query "HKCU\Console" /t REG_DWORD /v "ForceV2" 2>nul | findstr "0x1" >nul && set "echo=call "%dir.jzip%\Function\Echo_v2.cmd" " || set "echo=echo"
+
+:: 配置组件
+color %Color%
+set "iferror=|| ( call "%dir.jzip%\Function\EdCode.cmd" & goto :EOF )"
+call "%dir.jzip%\Function\VbsBox.cmd" import
 
 :: Ttool 配置
 set "tmouse="%dir.jzip%\Components\x86\tmouse.exe""
@@ -57,10 +96,14 @@ set "tmouse.test= echo,[^!mouse.x^!,^!mouse.y^!] & ping localhost -n 2 >nul "
 set "tcurs="%dir.jzip%\Components\x86\tcurs.exe""
 %tcurs% /crv 0
 
-if "%processor_architecture%"=="x86" set "path.editor.7z=%dir.jzip%\Components\x86\7z.exe"
-if "%processor_architecture%"=="x86" set "path.editor.rar=%dir.jzip%\Components\x86\rar.exe"
-if "%processor_architecture%"=="AMD64" set "path.editor.7z=%dir.jzip%\Components\x64\7z.exe"
-if "%processor_architecture%"=="AMD64" set "path.editor.rar=%dir.jzip%\Components\x64\rar.exe"
+:: 压缩编辑器配置
+if "%processor_architecture%"=="AMD64" (
+	set "path.editor.7z=%dir.jzip%\Components\x64\7z.exe"
+	set "path.editor.rar=%dir.jzip%\Components\x64\rar.exe"
+) else (
+	set "path.editor.7z=%dir.jzip%\Components\x86\7z.exe"
+	set "path.editor.rar=%dir.jzip%\Components\x86\rar.exe"
+)
 set "path.editor.cab=%dir.jzip%\Components\x86\cabarc.exe"
 
 
@@ -72,41 +115,41 @@ if /i "%~1"=="-setting" call "%dir.jzip%\Parts\Set.cmd"
 
 
 :BASIC
-title JFsoft Zip 压缩
+title %txt_title%
 cls
 
 ::UI--------------------------------------------------
 
 (
-echo.
-echo.
-echo.
-echo.
-echo.
-echo.
-%echo%.                ┌──────────┐┌──────────┐
-%echo%.                │                    ││                    │
-%echo%.                │                    ││                    │
-%echo%.                │    打开压缩文件    ││    新建压缩文件    │
-%echo%.                │                    ││                    │
-%echo%.                │                    ││                    │
-%echo%.                └──────────┘└──────────┘
+echo,
+echo,
+echo,
+echo,
+echo,
+echo,
+%echo%.                %txt_b12.top%%txt_b12.top%
+%echo%.                %txt_b12.emp%%txt_b12.emp%
+%echo%.                %txt_b12.emp%%txt_b12.emp%
+%echo%.                %txt_m.open%%txt_m.add%
+%echo%.                %txt_b12.emp%%txt_b12.emp%
+%echo%.                %txt_b12.emp%%txt_b12.emp%
+%echo%.                %txt_b12.bot%%txt_b12.bot%
 net session >nul 2>nul && (
-%echo%.                                        ┌──────────┐
-%echo%.                                        │                    │
-%echo%.                                        │        设置        │
+%echo%.                                        %txt_b12.top%
+%echo%.                                        %txt_b12.emp%
+%echo%.                                        %txt_m.set%
 ) || (
-%echo%.                ┌──────────┐┌──────────┐
-%echo%.                │      提升权限      ││                    │
-%echo%.                └──────────┘│        设置        │
+%echo%.                %txt_b12.top%%txt_b12.top%
+%echo%.                %txt_m.right%%txt_b12.emp%
+%echo%.                %txt_b12.bot%%txt_m.set%
 )
-%echo%.                                        │                    │
-%echo%.                                        └──────────┘
-echo.
-echo.
-echo.
-echo.
-echo.
+%echo%.                                        %txt_b12.emp%
+%echo%.                                        %txt_b12.bot%
+echo,
+echo,
+echo,
+echo,
+echo,
 )
 
 ::UI--------------------------------------------------
@@ -177,10 +220,10 @@ for %%a in (add add-7z) do if "%~1"=="%%a" (
 	)
 	if not defined Archive.exten set "Archive.exten=.7z"
 	
-	if defined path.File call "%dir.jzip%\Parts\Arc_Add.cmd"
+	if defined path.File call "%dir.jzip%\Parts\Add.cmd"
 	
 	if "%~1"=="add" (
-	for %%a in (Archive.exten,压缩级别,固实文件) do (
+	for %%a in (Archive.exten 压缩级别 固实文件) do (
 		reg add "HKCU\Software\JFsoft.Jzip\Record" /t REG_SZ /v "%%a" /d "!%%a!" /f >nul %iferror%
 		)
 	)
@@ -200,13 +243,13 @@ for %%a in (list unzip) do if "%~1"=="%%a" (
 			for %%A in (%jzip.spt.rar%) do if /i "!Archive.exten!"==".%%A" set "type.editor=rar"
 			for %%A in (%jzip.spt.exe%) do if /i "!Archive.exten!"==".%%A" (
 				"%path.editor.7z%" l "!path.Archive!" | findstr /r "^   Date" >nul && set "type.editor=7z"
-				"%path.editor.rar%" l "!path.Archive!" | findstr /r "^Details: ^详情:" >nul && set "type.editor=rar"
+				"%path.editor.rar%" l "!path.Archive!" | findstr /r "^Details:" >nul && set "type.editor=rar"
 				)
 			)
 	
 			if defined type.editor (
 				if "%~1"=="list" (
-					if defined path.raw.2 start "JFsoft.Jzip" cmd /q /e:on /v:on /c "%dir.jzip%\Parts\Arc.cmd"
+					if defined path.raw.2 start "JFsoft.Jzip" cmd /e:on /v:on /c "%dir.jzip%\Parts\Arc.cmd"
 					if not defined path.raw.2 "%dir.jzip%\Parts\Arc.cmd" & exit 0
 					)
 				if "%~1"=="unzip" call "%dir.jzip%\Parts\Arc_Expan.cmd" Unzip /all
@@ -217,7 +260,7 @@ for %%a in (list unzip) do if "%~1"=="%%a" (
 		)
 	)
 )
-if defined ui.nospt start /min "" cmd  /q /v:on /c call "%dir.jzip%\Function\VbsBox" MsgBox "以下项不是压缩文件。" " " %ui.nospt%
+if defined ui.nospt start /min "" cmd  /q /v:on /c %MsgBox% "%txt_notzip%" " " %ui.nospt%
 goto :EOF
 
 
@@ -239,20 +282,20 @@ goto :EOF
 
 
 :-help
-@echo.
-@echo. JFsoft JZip %jzip.ver%   2012-2019 (c) Dennishaha  保留所有权利
-@echo.
-@echo. 用法： Jzip ^<开关^> ^<命令^> ^<文件^|压缩档^>
-@echo.
-@echo.   ^<开关^>
-@echo.	-help		查看帮助
-@echo.	-su		以管理员权限运行 Jzip
-@echo.	-install	安装模式启动 Jzip
-@echo.	-setting	启动 Jzip 并转到设置页
-@echo.
-@echo.   ^<命令^>
-@echo.	""		默认缺省查看压缩档
-@echo.	add		添加文件到压缩档
-@echo.	unzip		解压压缩档至子文件夹
-@echo.
+@echo,
+@echo, JFsoft JZip %jzip.ver%   2012-2019 (c) Dennishaha  保留所有权利
+@echo,
+@echo, 用法： Jzip ^<开关^> ^<命令^> ^<文件^|压缩档^>
+@echo,
+@echo,   ^<开关^>
+@echo,	-help		查看帮助
+@echo,	-su		以管理员权限运行 Jzip
+@echo,	-install	安装模式启动 Jzip
+@echo,	-setting	启动 Jzip 并转到设置页
+@echo,
+@echo,   ^<命令^>
+@echo,	""		默认缺省查看压缩档
+@echo,	add		添加文件到压缩档
+@echo,	unzip		解压压缩档至子文件夹
+@echo,
 @goto :EOF

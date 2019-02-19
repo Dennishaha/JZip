@@ -9,15 +9,13 @@ if /i not "%自解压%"=="" call :自解压 -default
 goto :EOF
 
 :压缩加密
+set "key="
 if "%~1"=="" (
-	if defined 压缩密码 (
-		set "压缩密码=" 
-	) else (
-		call "%dir.jzip%\Function\VbsBox" InputBox 压缩密码 "设定压缩密码："
-	)
+	if defined 压缩密码 ( set "压缩密码=" ) else ( set "key=1" )
 ) else (
-	if defined 压缩密码 call "%dir.jzip%\Function\VbsBox" InputBox 压缩密码 "设定压缩密码："
+	if defined 压缩密码 set "key=1"
 )
+if "%key%"=="1" %InputBox% 压缩密码 "%txt_aas.passwd%"
 goto :EOF
 
 :压缩级别
@@ -33,15 +31,13 @@ if /i "%固实文件%"=="" set "固实文件=y" & goto :EOF
 set "固实文件=" & goto :EOF
 
 :分卷压缩
+set "key="
 if "%~1"=="" (
-	if defined 分卷压缩 (
-		set "分卷压缩="
-	) else (
-		call "%dir.jzip%\Function\VbsBox" InputBox 分卷压缩 "设定分卷压缩大小：" " " "[大小/单位] k/m/g"
-	)
+	if defined 分卷压缩 ( set "分卷压缩=" ) else ( set "key=1" )
 ) else (
-	if defined 分卷压缩 call "%dir.jzip%\Function\VbsBox" InputBox 分卷压缩 "设定分卷压缩大小：" " " "[大小/单位] k/m/g"
+	if defined 分卷压缩 set "key=1"
 )
+if "%key%"=="1" %InputBox% 分卷压缩 "%txt_aas.split%" " " "%txt_aas.unit%"
 goto :EOF
 
 :压缩版本.rar
@@ -53,7 +49,7 @@ set "压缩版本.rar=5" & goto :EOF
 if "%~1"=="" (
 	if defined 压缩恢复记录 ( set "压缩恢复记录=" ) else ( set "压缩恢复记录=3" )
 ) else (
-	for %%A in (3/6 6/3) do (
+	for %%A in (3/6 6/9 9/3) do (
 		for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
 			if "%压缩恢复记录%"=="%%~a" set "压缩恢复记录=%%~b" & goto :EOF
 		)
@@ -83,7 +79,7 @@ if "%~1"=="" (
 goto :EOF
 
 :更改名称
-call "%dir.jzip%\Function\VbsBox" InputBox key1 "设定压缩档名称："
+%InputBox% key1 "%txt_aas.zipname%"
 if not defined key1 goto :EOF
 set "Archive.name=%key1%"
 for /f "delims=" %%i in ("%Archive.name%") do (
@@ -98,8 +94,8 @@ for /f "delims=" %%i in ("%key1%") do (
 	for %%a in (%jzip.spt.write%) do if /i "%%~xi"==".%%a" (
 		if /i "%%~xi"==".exe" (
 			"%path.editor.7z%" l "%%~i" | findstr /r /c:"^Type = 7z.*" >nul && ( set "Archive.exten=.7z" & set "自解压=y" )
-			"%path.editor.rar%" l "%%~i" | findstr /r /c:"^详情: RAR.*" >nul && ( set "Archive.exten=.rar" & set "自解压=y" )
-			if not "!自解压!"=="y" call "%dir.jzip%\Function\VbsBox" MsgBox "以下项不是压缩文件。" " " "%%~i" & goto :EOF
+			"%path.editor.rar%" l "%%~i" | findstr /r /c:"^Details: RAR.*" >nul && ( set "Archive.exten=.rar" & set "自解压=y" )
+			if not "!自解压!"=="y" %MsgBox% "%txt_notzip%" " " "%%~i" & goto :EOF
 		) else (
 			set "Archive.exten=%%~xi"
 		)
@@ -108,14 +104,14 @@ for /f "delims=" %%i in ("%key1%") do (
 		goto :EOF
 	)
 	for %%a in (%jzip.spt.write.noadd%) do if /i "%%~xi"==".%%a" (
-		call "%dir.jzip%\Function\VbsBox" MsgBox "不可添加到以下压缩文件。" " " "%%~i" & goto :EOF
+		%MsgBox% "%txt_cantadd%" " " "%%~i" & goto :EOF
 	)
-	call "%dir.jzip%\Function\VbsBox" MsgBox "以下项不是压缩文件。" " " "%%~i"
+	%MsgBox% "%txt_notzip%" " " "%%~i"
 )
 goto :EOF
 
 :更改路径
 call "%dir.jzip%\Function\Select_Folder.cmd" key1
 if not defined key1 goto :EOF
-set "Archive.dir=%key1%"
+set "Archive.dir=%key1%\"
 goto :EOF

@@ -31,15 +31,16 @@ for %%i in (Open) do if /i "%~1"=="%%i" (
 
 :: 空选检测
 >nul 2>nul set "listzip.LineFileSel." || for %%i in (
-	Open\"请输入打开的文件名："
-	UnPart\"请键入要取出的文件/夹："\"可以使用通配符。"\"提取的文件将置于临时文件夹。"
+	Open\"%txt_x.type.open%"
+	Extr\"%txt_x.type.extr%"\"%txt_x.wildcard%"\"%txt_x.totmp%"
 	Unzip
-	Delete\"请键入要删除的文件/夹："\"可以使用通配符。"
-	ReName\"请键入要重命名的文件/夹："\"可以使用通配符。"
+	Delete\"%txt_x.type.del%"\"%txt_x.wildcard%"
+	ReName\"%txt_x.type.rn%"\"%txt_x.wildcard%"
 ) do for /f "usebackq tokens=1-4 delims=\" %%a in ('%%i') do (
 	if /i "%~1"=="%%~a" (
 		if /i not "%%~b"=="" (
-			call "%dir.jzip%\Function\VbsBox" InputBox Archive.file "%%~b" "" "%%~c" "%%~d"
+			%InputBox% Archive.file "%%~b" " " "%%~c" "%%~d"
+			echo=%InputBox% Archive.file "%%~b" " " "%%~c" "%%~d"
 			if not defined Archive.file goto :EOF
 			set "ui.Archive.file=!Archive.file!"
 			if defined listzip.Dir set "Archive.file=!listzip.Dir!\!Archive.file!"
@@ -51,7 +52,7 @@ for %%i in (Open) do if /i "%~1"=="%%i" (
 
 :: 多项检测
 >nul 2>nul set "listzip.LineFileSel." && (
-	for %%i in (Open UnPart UnZip Delete ReName) do if /i "%~1"=="%%i" (
+	for %%i in (Open Extr UnZip Delete ReName) do if /i "%~1"=="%%i" (
 		for /f "tokens=2 delims==" %%a in ('2^>nul set "listzip.LineFileSel."') do (
 			if "%type.editor%"=="7z" set "listzip.File.%%a=!listzip.LineFile.%%a:~53!"
 			if "%type.editor%"=="rar" set "listzip.File.%%a=!listzip.LineFile.%%a:~41!"
@@ -98,7 +99,7 @@ cls
 set "key1="
 
 :: EXE 类型询问
-if /i "%Archive.file:~-4%"==".exe" call "%dir.jzip%\Function\VbsBox" MsgBox-s key1 "应用程序运行可能需要其附带的文件。提取全部文件吗？"
+if /i "%Archive.file:~-4%"==".exe" %MsgBox-s% key1 "%txt_x.exetakeall%"
 if "%key1%"=="1" (
 	if "%type.editor%"=="rar" "%path.editor.rar%" x -y "%path.Archive%" %dir.jzip.temp%\%random1%\ %iferror%
 	if "%type.editor%"=="7z" "%path.editor.7z%" x -o"%dir.jzip.temp%\%random1%" -y "%path.Archive%" %iferror%
@@ -119,7 +120,7 @@ goto :EOF
 
 
 ::提取文件
-:UnPart
+:Extr
 cls
 if "%type.editor%"=="rar"  "%path.editor.rar%" x -y "%path.Archive%" "%Archive.file%" %dir.jzip.temp%\%random1%\ %iferror%
 if "%type.editor%"=="7z"  "%path.editor.7z%" x -o"%dir.jzip.temp%\%random1%" -y "%path.Archive%" "%Archive.file%" %iferror%
@@ -151,18 +152,18 @@ goto :EOF
 
 ::删除文件
 :Delete
-call "%dir.jzip%\Function\VbsBox" MsgBox-s key1 "确实要删除 %ui.Archive.file% 吗？"
+%MsgBox-s% key1 "%txt_x.del.confirm%" " " "%ui.Archive.file%"
 if "%key1%"=="1" (
 	cls
 	for %%a in (rar,7z) do if "%type.editor%"=="%%a" "!path.editor.%%a!" d -w"%dir.jzip.temp%" "%path.Archive%" "%Archive.file%" %iferror%
-	if not exist "%path.Archive%" mshta "vbscript:msgbox("压缩文件已删除。",64,"提示")(window.close)" & exit
+	if not exist "%path.Archive%" %MsgBox% "%txt_x.zip.deled%" & exit /b
 )
 goto :EOF
 
 
 ::重命名文件
 :ReName
-call "%dir.jzip%\Function\VbsBox" InputBox Archive.file.rn "请键入 %ui.Archive.file% 的新名字：" "可以使用通配符。"
+%InputBox% Archive.file.rn "%txt_x.type.rn.new%" " " "%ui.Archive.file%" " " "%txt_x.wildcard%"
 if not defined Archive.file.rn goto :EOF
 if defined listzip.Dir set "Archive.file.rn=!listzip.Dir!\!Archive.file.rn!"
 
@@ -196,7 +197,7 @@ goto :EOF
 
 ::压缩档锁定
 :Lock
-call "%dir.jzip%\Function\VbsBox" MsgBox-s key "锁定压缩文件后不可修改，确认锁定？"
+%MsgBox-s% key "%txt_x.lock.confirm%"
 if "%key%"=="1" (
 	cls
 	if "%type.editor%"=="rar" "%path.editor.rar%" k -w"%dir.jzip.temp%" "%path.Archive%" %iferror%
