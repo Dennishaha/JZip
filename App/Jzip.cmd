@@ -1,7 +1,7 @@
 
 @setlocal EnableExtensions EnableDelayedExpansion
 
-@set "jzip.ver=3.2"
+@set "jzip.ver=3.2.1"
 
 @if /i "%~1"=="-su" call :%* & goto :EOF
 @if /i "%~1"=="-help" call :%* & goto :EOF
@@ -25,19 +25,28 @@
 			)
 		)
 	)
+	
+	:: 检测语言/控制台，设定代码页/字体/大小
+	reg query "HKCU\Console" /t REG_DWORD /v "ForceV2" 2>nul | findstr "0x1" >nul && set "Console.ver=2" || set "Console.ver=1"
 
-	:: Jzip 语言判断，设定代码页/字体
-	if /i "!Language!"=="chs" (
-		reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "CodePage" /d "936" /f
-		reg add "HKCU\Console\JFsoft.Jzip" /t REG_SZ /v "FaceName" /d "黑体" /f
-	) else (
-		reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "CodePage" /d "437" /f
-		reg add "HKCU\Console\JFsoft.Jzip" /t REG_SZ /v "FaceName" /d "Consolas" /f
+	for %%z in (
+		"chs":"936":"1":"0x30":"":"0x100008"
+		"chs":"936":"2":"0x36":"黑体":"0x100000"
+		"en":"437":"1":"0x30":"":"0x120008"
+		"en":"437":"2":"0x36":"Consolas":"0x100000"
+	) do for /f "tokens=1-6 delims=:" %%a in ("%%z") do (
+		if "!Language!"=="%%~a" (
+			reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "CodePage" /d "%%~b" /f
+			if "!Console.ver!"=="%%~c" (
+				reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "FontFamily" /d "%%~d" /f
+				reg add "HKCU\Console\JFsoft.Jzip" /t REG_SZ /v "FaceName" /d "%%~e" /f
+				reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "FontSize" /d "%%~f" /f
+			)
+		)
 	)
 
-	:: 设定快速编辑/字体大小
+	:: 设定快速编辑
 	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "QuickEdit" /d "0x0" /f
-	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "FontSize" /d "0x100008" /f
 
 	start /i "JFsoft.Jzip" cmd /c call "%~0" :s %*
 	goto :EOF
@@ -60,29 +69,21 @@ set "FileAssoc="
 set "ShortCut=y"
 set "RightMenu=y"
 
-:: Jzip 文件支持类型
-set "jzip.spt.rar=rar"
-set "jzip.spt.7z=7z zip bz2 gz tgz tar wim xz 001 cab iso dll msi chm cpio deb dmg lzh lzma rpm udf vhd xar"
-set "jzip.spt.exe=exe"
-set "jzip.spt.write=exe rar 7z zip tar wim"
-set "jzip.spt.write.noadd=bz2 gz xz cab"
-set "jzip.spt.open=%jzip.spt.rar% %jzip.spt.7z%"
-
 :: 加载用户配置信息及临时文件夹
 for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip" 2^>nul') do if /i "%%b"=="REG_SZ" set "%%a=%%c"
 for %%a in (Dir.Jzip.Temp Color FileAssoc ShortCut RightMenu RecentTime) do >nul reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "%%a" /d "!%%a!" /f 
 >nul reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "RecentTime" /d "%date:~0,10% %time%" /f
 dir "%dir.jzip.temp%" /a:d /b >nul 2>nul || md "%dir.jzip.temp%" || (set dir.jzip.temp=%temp%\JFsoft\Jzip & md "!dir.jzip.temp!")
 
-:: 加载语言配置
+:: 加载语言配置/制表符补偿
 if /i "%Language%"=="chs" (
 	for /f "eol=[ tokens=1,*" %%a in (' type "%dir.jzip%\Langs\Chs.ini" ') do set "%%a%%b"
+	reg query "HKCU\Console" /t REG_DWORD /v "ForceV2" 2>nul | findstr "0x1" >nul || set "echo=echo"
 ) else (
 	for /f "eol=[ tokens=1,*" %%a in (' type "%dir.jzip%\Langs\En.ini" ') do set "%%a%%b"
 )
+if not defined echo set "echo=call "%dir.jzip%\Function\Echo.cmd" "
 
-:: 检测新版控制台，以修复制表符错位bug
-reg query "HKCU\Console" /t REG_DWORD /v "ForceV2" 2>nul | findstr "0x1" >nul && set "echo=call "%dir.jzip%\Function\Echo_v2.cmd" " || set "echo=echo"
 
 :: 配置组件
 color %Color%
@@ -95,6 +96,14 @@ set "tmouse.process= set "mouse=^^!errorlevel^^!" & (if "^^!mouse:~0,1^^!"=="-" 
 set "tmouse.test= echo,[^!mouse.x^!,^!mouse.y^!] & ping localhost -n 2 >nul "
 set "tcurs="%dir.jzip%\Components\x86\tcurs.exe""
 %tcurs% /crv 0
+
+:: Jzip 文件支持类型
+set "jzip.spt.rar=rar"
+set "jzip.spt.7z=7z zip bz2 gz tgz tar wim xz 001 cab iso dll msi chm cpio deb dmg lzh lzma rpm udf vhd xar"
+set "jzip.spt.exe=exe"
+set "jzip.spt.write=exe rar 7z zip tar wim"
+set "jzip.spt.write.noadd=bz2 gz xz cab"
+set "jzip.spt.open=%jzip.spt.rar% %jzip.spt.7z%"
 
 :: 压缩编辑器配置
 if "%processor_architecture%"=="AMD64" (
@@ -127,24 +136,24 @@ echo,
 echo,
 echo,
 echo,
-%echo%.                %txt_b12.top%%txt_b12.top%
-%echo%.                %txt_b12.emp%%txt_b12.emp%
-%echo%.                %txt_b12.emp%%txt_b12.emp%
-%echo%.                %txt_m.open%%txt_m.add%
-%echo%.                %txt_b12.emp%%txt_b12.emp%
-%echo%.                %txt_b12.emp%%txt_b12.emp%
-%echo%.                %txt_b12.bot%%txt_b12.bot%
+%echo%,                %txt_b12.top%%txt_b12.top%
+%echo%,                %txt_b12.emp%%txt_b12.emp%
+%echo%,                %txt_b12.emp%%txt_b12.emp%
+%echo%,                %txt_m.open%%txt_m.add%
+%echo%,                %txt_b12.emp%%txt_b12.emp%
+%echo%,                %txt_b12.emp%%txt_b12.emp%
+%echo%,                %txt_b12.bot%%txt_b12.bot%
 net session >nul 2>nul && (
-%echo%.                                        %txt_b12.top%
-%echo%.                                        %txt_b12.emp%
-%echo%.                                        %txt_m.set%
+%echo%,                                        %txt_b12.top%
+%echo%,                                        %txt_b12.emp%
+%echo%,                                        %txt_m.set%
 ) || (
-%echo%.                %txt_b12.top%%txt_b12.top%
-%echo%.                %txt_m.right%%txt_b12.emp%
-%echo%.                %txt_b12.bot%%txt_m.set%
+%echo%,                %txt_b12.top%%txt_b12.top%
+%echo%,                %txt_m.right%%txt_b12.emp%
+%echo%,                %txt_b12.bot%%txt_m.set%
 )
-%echo%.                                        %txt_b12.emp%
-%echo%.                                        %txt_b12.bot%
+%echo%,                                        %txt_b12.emp%
+%echo%,                                        %txt_b12.bot%
 echo,
 echo,
 echo,
