@@ -16,8 +16,8 @@ cls
 
 :: 若未设定语言，依据目前代码页设定
 if not defined Language (
-	for /f "tokens=2 delims=: " %%i in ('chcp') do (
-		if "%%i"=="936" (
+	for /f "tokens=2 delims=:" %%i in ('chcp') do (
+		if "%%i"==" 936" (
 			set "Language=chs"
 		) else ( 
 			set "Language=en"
@@ -28,7 +28,7 @@ if not defined Language (
 
 
 :: 依据设定语言，导入语言包
-if /i "%Language%"=="chs" (call :Langs-chs) else (call ::Langs-en)
+if /i "%Language%"=="chs" (call :Langs-chs) else (call :Langs-en)
 
 
 :: 预设错误代码

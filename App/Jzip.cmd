@@ -9,20 +9,13 @@
 @if not "%~1"==":s" >nul (
 
 	:: 检测注册表中 Jzip 语言设定
-	for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip" /v "Language" ^|^| echo,-') do (
-
-		:: 由 Jzip 安装器启动时，不采用注册表变量
-		if not defined Language if /i "%%b"=="REG_SZ" set "%%a=%%c"
+	for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip" /v "Language" ^|^| echo,') do (
+		if /i "%%b"=="REG_SZ" set "%%a=%%c"
 
 		:: 注册表无语言设定时，则依据目前代码页设定
-		if "%%c"=="" for /f "tokens=2 delims=: " %%i in ('chcp') do (
-			if "%%i"=="936" (
-				reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "Language" /d "chs" /f
-				set "Language=chs"
-			) else ( 
-				reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "Language" /d "en" /f
-				set "Language=en"
-			)
+		if "%%c"=="" for /f "tokens=2 delims=:" %%i in ('chcp') do (
+			if "%%i"==" 936" (set "Language=chs") else (set "Language=en")
+			reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "Language" /d "!Language!" /f
 		)
 	)
 	
@@ -35,7 +28,7 @@
 		"en":"437":"1":"0x30":"":"0x120008"
 		"en":"437":"2":"0x36":"Consolas":"0x100000"
 	) do for /f "tokens=1-6 delims=:" %%a in ("%%z") do (
-		if "!Language!"=="%%~a" (
+		if /i "!Language!"=="%%~a" (
 			reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "CodePage" /d "%%~b" /f
 			if "!Console.ver!"=="%%~c" (
 				reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "FontFamily" /d "%%~d" /f
