@@ -9,7 +9,7 @@
 @if not "%~1"==":s" >nul (
 
 	:: 检测注册表中 Jzip 语言设定
-	for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip" /v "Language" ^|^| echo,') do (
+	for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip" /v "Language" ^|^| echo,-') do (
 
 		:: 由 Jzip 安装器启动时，不采用注册表变量
 		if not defined Language if /i "%%b"=="REG_SZ" set "%%a=%%c"
