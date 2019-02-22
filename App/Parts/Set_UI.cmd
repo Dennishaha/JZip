@@ -1,5 +1,5 @@
 
-::调用判断
+::调用判断 
 if "%~1"=="-info" (
 	set "stat.color.wd=!txt_color.%color:~1,1%!"
 	set "stat.color.bg=!txt_color.%color:~0,1%!"

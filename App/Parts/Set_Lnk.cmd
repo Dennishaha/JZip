@@ -1,5 +1,5 @@
 
-::取得特殊文件夹
+::取得特殊文件夹 
 for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" 2^>nul') do (
 	if /i "%%b"=="REG_EXPAND_SZ" (
 		set "dir.%%a=%%~c"
@@ -7,7 +7,7 @@ for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\Microsoft\Windows
 	)
 )
 
-::被调用
+::被调用 
 if /i "%1"=="-info" call :Lnk %1 all 
 for %%A in (-on -off) do if /i "%1"=="%%A" call :Lnk %1 %2
 if /i "%1"=="-reon" (

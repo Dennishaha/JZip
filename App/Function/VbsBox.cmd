@@ -1,16 +1,16 @@
 
-:: 导入
+:: 导入 
 if /i "%~1"=="import" (
-	set "MsgBox=call "%~0" MsgBox"
-	set "MsgBox-s=call "%~0" MsgBox-s"
-	set "InputBox=call "%~0" InputBox"
+	set MsgBox=call "%~0" MsgBox
+	set MsgBox-s=call "%~0" MsgBox-s
+	set InputBox=call "%~0" InputBox
 	goto :EOF
 )
 
-:: 调用
-if /i "%~1"=="MsgBox" set "msgbox.t1="""""
+:: 调用 
+if /i "%~1"=="MsgBox" set msgbox.t1=""""
 for %%i in (MsgBox-s InputBox) do if /i "%~1"=="%%i" (
-	set "msgbox.t1="""
+	set msgbox.t1=""
 	set "%~2="
 )
 

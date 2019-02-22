@@ -1,11 +1,11 @@
-::检测目前状态
+::检测目前状态 
 reg query "HKCR\JFsoft.Jzip" >nul 2>nul && (
 	set "stat.FileAssoc=%txt_sym.cir.s%"
 ) || (
 	set "stat.FileAssoc=%txt_sym.cir%"
 )
 
-::被调用
+::被调用 
 if "%1"=="-on" if "!stat.FileAssoc!"=="%txt_sym.cir%" call :on
 if "%1"=="-off" if "!stat.FileAssoc!"=="%txt_sym.cir.s%" call :off
 if /i "%1"=="-reon" (

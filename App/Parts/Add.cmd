@@ -1,18 +1,18 @@
 
-:: 调用判断
+:: 调用判断 
 if defined ArchiveOrder call :Archive_Setting
 goto :EOF
 
 :Archive_Setting
 if defined 自解压 ( set "Archive.exten.out=.exe" ) else ( set "Archive.exten.out=%Archive.exten%" )
 
-:: 压缩档与添加文件名称重复判断
+:: 压缩档与添加文件名称重复判断 
 if "%path.raw.1%"=="%Archive.dir%%Archive.name%%Archive.exten.out%" set "Archive.name=%Archive.name% (1)"
 
 set "ui.Archive.ne=%Archive.name%%Archive.exten.out%"
 title %txt_aa.addto% %ui.Archive.ne% %title%
 
-::快速压缩时前往压缩执行
+::快速压缩时前往压缩执行 
 if "%ArchiveOrder%"=="add-7z" goto :Add_Process
 
 ::UI--------------------------------------------------
@@ -33,7 +33,7 @@ if "%ArchiveOrder%"=="add" (
 ) else echo,
 echo,
 
-if not defined 压缩级别 set "压缩级别=3"
+if not defined Add-Level set "Add-Level=3"
 for %%A in (
 	0/"^!txt_sym.cir^!^!txt_sym.cir^!^!txt_sym.cir^!^!txt_sym.cir^!^!txt_sym.cir^!"
 	1/"^!txt_sym.cir.s^!^!txt_sym.cir^!^!txt_sym.cir^!^!txt_sym.cir^!^!txt_sym.cir^!"
@@ -42,7 +42,7 @@ for %%A in (
 	4/"^!txt_sym.cir.s^!^!txt_sym.cir.s^!^!txt_sym.cir.s^!^!txt_sym.cir.s^!^!txt_sym.cir^!"	
 	5/"^!txt_sym.cir.s^!^!txt_sym.cir.s^!^!txt_sym.cir.s^!^!txt_sym.cir.s^!^!txt_sym.cir.s^!"
 ) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
-	if "%%~a"=="!压缩级别!" for %%i in (rar 7z zip bz2 gz xz cab) do if "%Archive.exten%"==".%%i" (
+	if "%%~a"=="!Add-Level!" for %%i in (rar 7z zip bz2 gz xz cab) do if "%Archive.exten%"==".%%i" (
 		echo,	%txt_aa.eff%		%%~b !txt_aa.eff.%%~a!
 	)
 	if "%%~a"=="0" for %%i in (tar wim) do if "%Archive.exten%"==".%%i" (
@@ -52,8 +52,8 @@ for %%A in (
 
 if "%ArchiveOrder%"=="add" (
 	echo,"rar 7z xz" | find "%Archive.exten:~1%" >nul && (
-		if "%固实文件%"=="y" echo,	%txt_aa.solid%		%txt_sym.cir.s%
-		if not "%固实文件%"=="y" echo,	%txt_aa.solid%		%txt_sym.cir%
+		if "%Add-Solid%"=="y" echo,	%txt_aa.solid%		%txt_sym.cir.s%
+		if not "%Add-Solid%"=="y" echo,	%txt_aa.solid%		%txt_sym.cir%
 	) || echo,
 ) else echo,
 
@@ -111,7 +111,7 @@ echo,
 %echo%,						%txt_b7.bot%%txt_b7.bot%
 
 ::UI--------------------------------------------------
-::坐标判断
+::坐标判断 
 %tmouse% /d 0 -1 1
 %tmouse.process%
 ::%tmouse.test%
@@ -166,7 +166,7 @@ if "%ArchiveOrder%"=="add" (
 if "%key%"=="a" ( if "%ArchiveOrder%"=="add" call "%dir.jzip%\Parts\Add_Set.cmd" :更改路径
 ) else if "%key%"=="b" ( if "%ArchiveOrder%"=="add" call "%dir.jzip%\Parts\Add_Set.cmd" :浏览
 ) else if "%key%"=="c" ( if "%ArchiveOrder%"=="add" call "%dir.jzip%\Parts\Add_Set.cmd" :更改名称
-) else if "%key:~0,1%"=="d" ( for %%a in (rar 7z zip bz2 gz xz cab) do if /i "%Archive.exten%"==".%%a" call "%dir.jzip%\Parts\Add_Set.cmd" :压缩级别 %key:~1%
+) else if "%key:~0,1%"=="d" ( for %%a in (rar 7z zip bz2 gz xz cab) do if /i "%Archive.exten%"==".%%a" call "%dir.jzip%\Parts\Add_Set.cmd" :Level %key:~1%
 ) else if "%key%"=="e" ( if "%ArchiveOrder%"=="add" for %%a in (rar 7z xz) do if /i "%Archive.exten%"==".%%a" call "%dir.jzip%\Parts\Add_Set.cmd" :固实文件
 ) else if "%key:~0,1%"=="f" ( for %%a in (rar 7z zip tar bz2 gz xz wim) do if /i "%Archive.exten%"==".%%a" call "%dir.jzip%\Parts\Add_Set.cmd" :分卷压缩 %key:~1%
 ) else if "%key:~0,1%"=="g" ( if "%ArchiveOrder%"=="add" for %%a in (rar 7z) do if /i "%Archive.exten%"==".%%a" call "%dir.jzip%\Parts\Add_Set.cmd" :自解压  %key:~1%
@@ -182,30 +182,30 @@ goto :Archive_Setting
 :Add_Process
 cls
 
-:: 新建压缩时
+:: 新建压缩时 
 if not "%ArchiveOrder%"=="list" (
 
-	:: 配置编辑器
+	:: 配置编辑器 
 	for %%i in (7z zip tar bz2 gz xz wim) do if /i "%Archive.exten%"==".%%i" set "type.editor=7z"
 	if /i "%Archive.exten%"==".rar" set "type.editor=rar"
 	if /i "%Archive.exten%"==".cab" set "type.editor=cab"
 
-	:: 配置压缩路径
+	:: 配置压缩路径 
 	set "path.Archive=%Archive.dir%%Archive.name%!Archive.exten.out!"
 )
 
-::配置压缩参数
-if defined 压缩级别 (
+::配置压缩参数 
+if defined Add-Level (
 	for %%A in (
 		0/0/0/none,1/1/1/lzx:15,2/2/3/lzx:17,3/3/5/mszip,4/4/7/lzx:19,5/5/9/lzx:21
 	) do (
 		for /f "tokens=1,2,3,4 delims=/" %%a in ("%%A") do (
-		if "%type.editor%"=="rar" if "%压缩级别%"=="%%a" set "btn.压缩级别=-m%%b"
-		if "%type.editor%"=="7z" if "%压缩级别%"=="%%a" set "btn.压缩级别=-mx=%%c"
-		if "%type.editor%"=="cab" if "%压缩级别%"=="%%a" set "btn.压缩级别=-m %%d"
+		if "%type.editor%"=="rar" if "%Add-Level%"=="%%a" set "btn.压缩级别=-m%%b"
+		if "%type.editor%"=="7z" if "%Add-Level%"=="%%a" set "btn.压缩级别=-mx=%%c"
+		if "%type.editor%"=="cab" if "%Add-Level%"=="%%a" set "btn.压缩级别=-m %%d"
 	)
 )
-if defined 固实文件 set "btn.固实文件=-s"
+if defined Add-Solid set "btn.固实文件=-s"
 if defined 压缩密码 set "btn.压缩密码=-p%压缩密码%"
 if defined 分卷压缩 set "btn.分卷压缩= -v%分卷压缩%"
 if defined 压缩版本.rar set "btn.压缩版本.rar=-ma%压缩版本.rar%"

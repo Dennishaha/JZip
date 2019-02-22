@@ -1,7 +1,7 @@
 
 @setlocal EnableExtensions EnableDelayedExpansion
 
-@set "jzip.ver=3.2.1"
+@set "jzip.ver=3.2.2"
 
 @if /i "%~1"=="-su" call :%* & goto :EOF
 @if /i "%~1"=="-help" call :%* & goto :EOF
@@ -56,11 +56,11 @@ set "dir.jzip.temp=%temp%\JFsoft.Jzip"
 
 call %* & exit /b
 :s
-set "title=-- Jzip"
-set "Color=f0"
-set "FileAssoc="
-set "ShortCut=y"
-set "RightMenu=y"
+set title=-- Jzip
+set Color=f0
+set FileAssoc=
+set ShortCut=y
+set RightMenu=y
 
 :: 加载用户配置信息及临时文件夹
 for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip" 2^>nul') do if /i "%%b"=="REG_SZ" set "%%a=%%c"
@@ -190,8 +190,8 @@ goto :EOF
 
 :Set_Info
 for %%a in (list unzip add add-7z) do if "%~1"=="%%a" set "ArchiveOrder=%%a"
-set "raw.num=1"
-set "ui.nospt="
+set raw.num=1
+set ui.nospt=
 
 :Set_Info_Cycle
 if not "%~2"=="" (
@@ -225,7 +225,7 @@ for %%a in (add add-7z) do if "%~1"=="%%a" (
 	if defined path.File call "%dir.jzip%\Parts\Add.cmd"
 	
 	if "%~1"=="add" (
-	for %%a in (Archive.exten 压缩级别 固实文件) do (
+	for %%a in (Archive.exten Add-Level Add-Solid) do (
 		reg add "HKCU\Software\JFsoft.Jzip\Record" /t REG_SZ /v "%%a" /d "!%%a!" /f >nul %iferror%
 		)
 	)

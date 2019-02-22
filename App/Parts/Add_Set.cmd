@@ -1,14 +1,14 @@
 
-::调用
+::调用 
 call :%*
 goto :EOF
 
-:压缩格式切换
+:压缩格式切换 
 set "Archive.exten=.%~1"
 if /i not "%自解压%"=="" call :自解压 -default
 goto :EOF
 
-:压缩加密
+:压缩加密 
 set "key="
 if "%~1"=="" (
 	if defined 压缩密码 ( set "压缩密码=" ) else ( set "key=1" )
@@ -18,19 +18,19 @@ if "%~1"=="" (
 if "%key%"=="1" %InputBox% 压缩密码 "%txt_aas.passwd%"
 goto :EOF
 
-:压缩级别
+:Level
 for %%i in (0 1 2 3 4 5) do if "%~1"=="%%i" (
-	set "压缩级别=%%i"
+	set "Add-Level=%%i"
 	goto :EOF
 )
 goto :EOF
 
-:固实文件
-if /i "%固实文件%"=="y" set "固实文件=" & goto :EOF
-if /i "%固实文件%"=="" set "固实文件=y" & goto :EOF
-set "固实文件=" & goto :EOF
+:固实文件 
+if /i "%Add-Solid%"=="y" set "Add-Solid=" & goto :EOF
+if /i "%Add-Solid%"=="" set "Add-Solid=y" & goto :EOF
+set "Add-Solid=" & goto :EOF
 
-:分卷压缩
+:分卷压缩 
 set "key="
 if "%~1"=="" (
 	if defined 分卷压缩 ( set "分卷压缩=" ) else ( set "key=1" )
@@ -40,12 +40,12 @@ if "%~1"=="" (
 if "%key%"=="1" %InputBox% 分卷压缩 "%txt_aas.split%" " " "%txt_aas.unit%"
 goto :EOF
 
-:压缩版本.rar
+:压缩版本.rar 
 if /i "%压缩版本.rar%"=="5" set "压缩版本.rar=4" & goto :EOF
 if /i "%压缩版本.rar%"=="4" set "压缩版本.rar=5" & goto :EOF
 set "压缩版本.rar=5" & goto :EOF
 
-:压缩恢复记录
+:压缩恢复记录 
 if "%~1"=="" (
 	if defined 压缩恢复记录 ( set "压缩恢复记录=" ) else ( set "压缩恢复记录=3" )
 ) else (
@@ -57,7 +57,7 @@ if "%~1"=="" (
 )
 goto :EOF
 
-:自解压
+:自解压 
 if "%~1"=="-default" (
 	set "自解压="
 	for %%i in (rar 7z) do if "%Archive.exten%"==".%%i" set "自解压=a32"
@@ -78,7 +78,7 @@ if "%~1"=="" (
 )
 goto :EOF
 
-:更改名称
+:更改名称 
 %InputBox% key1 "%txt_aas.zipname%"
 if not defined key1 goto :EOF
 set "Archive.name=%key1%"
@@ -87,7 +87,7 @@ for /f "delims=" %%i in ("%Archive.name%") do (
 )
 goto :EOF
 
-:浏览
+:浏览 
 call "%dir.jzip%\Function\Select_File.cmd" key1
 if not defined key1 goto :EOF
 for /f "delims=" %%i in ("%key1%") do (
@@ -110,7 +110,7 @@ for /f "delims=" %%i in ("%key1%") do (
 )
 goto :EOF
 
-:更改路径
+:更改路径 
 call "%dir.jzip%\Function\Select_Folder.cmd" key1
 if not defined key1 goto :EOF
 set "Archive.dir=%key1%\"

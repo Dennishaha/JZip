@@ -1,5 +1,5 @@
 
-::初始变量设定
+::初始变量设定 
 @echo off
 color %Color%
 title %path.Archive% %title%
@@ -12,23 +12,36 @@ set "listzip.txt=%dir.jzip.temp%\%random1%.tmp"
 set "listzip.Dir="
 set "listzip.Menu=basic"
 
-:: 压缩文件可用性检测
+:: 压缩文件可用性检测 
 for %%a in (rar 7z cab) do if "%type.editor%"=="%%a" >nul "!path.editor.%%a!" l "%path.Archive%" %iferror%
 
 :Menu
 cls
 
-:: 动态调整窗口大小，调试时需注释以禁用
+:: 动态调整窗口大小，调试时需注释以禁用 
 for /f "tokens=2 delims= " %%a in ('mode ^| findstr /r "列: Columns:"') do set /a "Window.Wide=%%~a-1"
 for /f "tokens=2 delims= " %%a in ('mode ^| findstr /r "行: Lines:"') do set "Window.Height=%%~a"
 set /a "listzip.LineViewBlock=Window.Height-5"
 
-::配置压缩参数栏，处于压缩文件根目录时
+:: UTF-8 代码页检测 
+for /f "tokens=2 delims=:" %%i in ('chcp') do (
+	for %%z in (
+		65001}rar}-scf
+		65001}7z}-sccutf-8
+	) do for /f "tokens=1-3 delims=}" %%a in ("%%z") do (
+		if "%%i"==" %%a" if "%type.editor%"=="%%b" set "btn.utf8=%%c"
+	)
+)
+
+:: 配置压缩参数栏，处于压缩文件根目录时 
 if "%listzip.Dir%"=="" (
 	set "listzip.Info="
 	if "%type.editor%"=="rar" (
 		for /f "tokens=2* delims=:" %%i in (' call "%path.editor.rar%" l "%path.Archive%" ^| findstr /r "^Details:" ') do (
 			set "listzip.Info=%%i"
+			set "listzip.Info=!listzip.Info:solid=%txt_solid%!"
+			set "listzip.Info=!listzip.Info:SFX=%txt_sfx%!"
+			set "listzip.Info=!listzip.Info:lock=%txt_lock%!"
 		)
 	)
 	if "%type.editor%"=="7z" (
@@ -42,50 +55,50 @@ if "%listzip.Dir%"=="" (
 )
 
 :: 生成压缩档文件列表
-for %%i in (
+for %%z in (
 	rar}"^    ...D... "}"^    ..A\.... "
 	7z}"^.......... ........ D.... "}"^.......... ........ \..... "
-) do for /f "tokens=1-3 delims=}" %%a in ("%%i") do (
+) do for /f "tokens=1-3 delims=}" %%a in ("%%z") do (
 	if "%type.editor%"=="%%a" >"%listzip.txt%" (
 		echo,.
 		if defined listzip.Dir (
-			"!path.editor.%%a!" l "%path.Archive%" | find " %listzip.Dir%\" | findstr /v "\<%listzip.Dir.p%\\.*\\.*" | findstr /r /c:"%%~b"
-			"!path.editor.%%a!" l "%path.Archive%" | find " %listzip.Dir%\" | findstr /v "\<%listzip.Dir.p%\\.*\\.*" | findstr /r /c:"%%~c"
+			"!path.editor.%%a!" l %btn.utf8% "%path.Archive%" | find " %listzip.Dir%\" | findstr /v "\<%listzip.Dir.p%\\.*\\.*" | findstr /r /c:"%%~b"
+			"!path.editor.%%a!" l %btn.utf8% "%path.Archive%" | find " %listzip.Dir%\" | findstr /v "\<%listzip.Dir.p%\\.*\\.*" | findstr /r /c:"%%~c"
 		) else (
-			"!path.editor.%%a!" l "%path.Archive%" | findstr /v "\\" | findstr /r /c:"%%~b"
-			"!path.editor.%%a!" l "%path.Archive%" | findstr /v "\\" | findstr /r /c:"%%~c"
+			"!path.editor.%%a!" l %btn.utf8% "%path.Archive%" | findstr /v "\\" | findstr /r /c:"%%~b"
+			"!path.editor.%%a!" l %btn.utf8% "%path.Archive%" | findstr /v "\\" | findstr /r /c:"%%~c"
 		)
 	)
 )
 
-:: 找到列出压缩档内容的位置
+:: 找到列出压缩档内容的位置 
 set listzip.LineFileStart=1
 for /f "tokens=3 delims=:" %%i in (' find /v /c "" "%listzip.txt%" ') do (
 	if %%i LSS 1 ( set "listzip.LineFileEnd=1" ) else ( set /a "listzip.LineFileEnd=%%i-1" )
 )
 
-::设定显示行首行数
+::设定显示行首行数 
 if not defined listzip.LineViewStart set /a "listzip.LineViewStart=listzip.LineFileStart"
 if %listzip.LineViewStart% LSS %listzip.LineFileStart% set /a "listzip.LineViewStart=listzip.LineFileStart"
 if %listzip.LineViewStart% GTR %listzip.LineFileEnd% set /a "listzip.LineViewStart-=listzip.LineViewBlock"
 
-::设定显示行末行数
+::设定显示行末行数 
 set /a "listzip.LineViewEnd=listzip.LineViewStart+listzip.LineViewBlock-1"
 if %listzip.LineViewEnd% GTR %listzip.LineFileEnd% set /a "listzip.LineViewEnd=listzip.LineFileEnd"
 
-::计算文件项数和显示页数
+::计算文件项数和显示页数 
 set /a "listzip.LineFileTotal=listzip.LineFileEnd-listzip.LineFileStart+1"
 set /a "listzip.ViewPageNow=((listzip.LineViewStart-listzip.LineFileStart)/listzip.LineViewBlock)+1"
 set /a "listzip.ViewPageTotal=(listzip.LineFileTotal-1)/listzip.LineViewBlock+1"
 
-:: if 判断排除空压缩档，读取文本至变量并处理
+:: if 判断排除空压缩档，读取文本至变量并处理 
 if %listzip.LineFileStart% LEQ %listzip.LineFileEnd% (
 	for /l %%a in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do call :分析一行内容 %%a
 )
 
 ::UI--------------------------------------------------
 
-::显示压缩档操作选项
+::显示压缩档操作选项 
 if "%listzip.Menu%"=="basic" (
 	if "%ui.Archive.writeable%"=="y" %echo%,  %txt_e.home% %txt_sym.delim% %txt_e.open% %txt_e.extr% %txt_e.unzip% %txt_e.add% %txt_e.del% %txt_e.rn% %txt_e.adv% %txt_e.up% %txt_e.down% %txt_e.ent% %txt_e.back%
 	if "%ui.Archive.writeable%"==""  %echo%,  %txt_e.home% %txt_sym.delim% %txt_e.open% %txt_e.extr% %txt_e.unzip%                  %txt_e.adv% %txt_e.up% %txt_e.down% %txt_e.ent% %txt_e.back%
@@ -99,35 +112,35 @@ for %%i in (7z rar) do if "%type.editor%"=="%%i" (
 	if defined listzip.LineFileSel ( echo=!txt_e.bar.%%i:%txt_sym.squ%=%txt_sym.squ.s%! ) else (echo=!txt_e.bar.%%i! )
 )
 
-:: if 判断排除空压缩档，读取变量内容到屏幕
+:: if 判断排除空压缩档，读取变量内容到屏幕 
 if %listzip.LineFileStart% LEQ %listzip.LineFileEnd% (
 	for /l %%a in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do (
 		for %%d in (%Window.Wide%) do echo,!listzip.LineView.%%a:~0,%%d!
 	)
 )
 
-::补充空行
+::补充空行 
 set /a "listzip.ViewEchoEnd=listzip.LineViewStart+listzip.LineViewBlock"
 set /a "listzip.ViewEchoSpace=listzip.ViewEchoEnd-listzip.LineFileEnd-2"
 if %listzip.LineViewEnd% LSS %listzip.ViewEchoEnd% (
 	for /l %%a in (0,1,!listzip.ViewEchoSpace!) do echo,
 )
 
-::调试注释，常闭
+::调试注释，常闭 
 ::echo, File {%listzip.LineFileStart%:%listzip.LineFileEnd%} View [%listzip.LineViewStart%:%listzip.LineViewEnd%]
 ::echo,!listzip.Dir!  !listzip.Dir.p!
 
-::下方提示栏
+::下方提示栏 
 if "%listzip.Dir%"=="" echo,  %listzip.ViewPageNow%/%listzip.ViewPageTotal% %txt_pages%  %listzip.LineFileTotal% %txt_items% %listzip.Info%
 if not "%listzip.Dir%"=="" echo,  %listzip.ViewPageNow%/%listzip.ViewPageTotal% %txt_pages%  %listzip.LineFileTotal% %txt_items%  %listzip.Dir:\= ^> %
 
 ::UI--------------------------------------------------
-::坐标判断
+::坐标判断 
 %tmouse% /d 0 -1 1
 %tmouse.process%
 ::%tmouse.test%
 
-::压缩档文件列表坐标判断
+::压缩档文件列表坐标判断 
 set /a listzip.ButtonLine=3
 if defined mouse.x if defined mouse.y (
 	for /l %%a in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do (
@@ -140,7 +153,7 @@ if defined mouse.x if defined mouse.y (
 						goto :Menu
 					)
 					if %mouse.x% GEQ 44 (
-						call :全不选
+						call :全不选 
 						if "!listzip.LineFile.%%a:~7,1!"=="D" call :进入 "!listzip.LineFile.%%a:~41!"
 						if not "!listzip.LineFile.%%a:~7,1!"=="D" call "%dir.jzip%\Parts\Arc_Expan.cmd" Open "!listzip.LineFile.%%a:~41!"
 					)
@@ -153,7 +166,7 @@ if defined mouse.x if defined mouse.y (
 						goto :Menu
 					)
 					if %mouse.x% GEQ 56 (
-						call :全不选
+						call :全不选 
 						if "!listzip.LineFile.%%a:~20,1!"=="D" call :进入 "!listzip.LineFile.%%a:~53!"
 						if not "!listzip.LineFile.%%a:~20,1!"=="D" call "%dir.jzip%\Parts\Arc_Expan.cmd" Open "!listzip.LineFile.%%a:~53!"
 					)
@@ -164,7 +177,7 @@ if defined mouse.x if defined mouse.y (
 	)
 )
 
-::界面操作栏坐标判断
+::界面操作栏坐标判断 
 if "%listzip.Menu%"=="basic" for %%A in (
 	10}13}0}0}1}
 	15}18}0}0}2}
@@ -209,8 +222,8 @@ if "%key%"=="1" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Open
 ) else if "%key%"=="7" ( set "listzip.Menu=advance" & goto :Menu
 ) else if "%key%"=="8" ( set /a "listzip.LineViewStart-=%listzip.LineViewBlock%" & goto :Menu
 ) else if "%key%"=="9" ( set /a "listzip.LineViewStart+=%listzip.LineViewBlock%" & goto :Menu
-) else if "%key%"=="10" ( call :进入
-) else if "%key%"=="11" ( call :进入 ..
+) else if "%key%"=="10" ( call :进入 
+) else if "%key%"=="11" ( call :进入  ..
 ) else if "%key%"=="a1" ( set "listzip.Menu=basic" & goto :Menu
 ) else if "%key%"=="a2" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Check
 ) else if "%key%"=="a3" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Expan.cmd" Repair
@@ -221,11 +234,11 @@ if "%key%"=="1" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Open
 ) else if "%key%"=="s2" ( if "%type.editor%"=="7z" call :全选切换 & goto :Menu
 ) else if "%key%"=="e" ( start /i cmd /c call "%path.jzip.launcher%" & goto :EOF
 )
-call :全不选
+call :全不选 
 goto :Menu
 
 
-:分析一行内容
+:分析一行内容 
 for /f "skip=%1 delims=" %%a in (%listzip.txt%) do (
 	set "listzip.LineFile.%1=%%a"
 	call set "listzip.LineView.%1=%%listzip.LineFile.%1!:%listzip.Dir%\=%%"
@@ -249,13 +262,13 @@ for /f "skip=%1 delims=" %%a in (%listzip.txt%) do (
 )
 goto :EOF
 
-:输出一行内容
+:输出一行内容 
 for /f "skip=%1 delims=" %%a in (%listzip.txt%) do echo,%%a & goto :EOF
 goto :EOF
 
-:进入
+:进入 
 if "%~1"=="" (
-	%InputBox% listzip.Dir "进入的文件夹："
+	%InputBox% listzip.Dir "%txt_e.type.enterfold%"
 	if not defined listzip.Dir goto :EOF
 	if "!listzip.Dir:~0,1!"=="\" set "listzip.Dir=!listzip.Dir:~1!"
 ) else if "%~1"==".." (
@@ -284,16 +297,16 @@ set "listzip.LineViewStart="
 goto :EOF
 
 
-:全选切换
-if defined listzip.LineFileSel (call :全不选) else (call :全选)
+:全选切换 
+if defined listzip.LineFileSel ( call :全不选 ) else ( call :全选 )
 goto :EOF
 
-:全选
+:全选 
 for /l %%a in (%listzip.LineFileStart%,1,%listzip.LineFileEnd%) do set "listzip.LineFileSel.%%a=%%a"
 set "listzip.LineFileSel=all"
 goto :EOF
 
-:全不选
+:全不选 
 for /f "tokens=1 delims==" %%a in ('2^>nul set "listzip.LineFileSel."') do set "%%a="
 set "listzip.LineFileSel="
 goto :EOF

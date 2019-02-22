@@ -14,7 +14,7 @@ title Jzip Installer
 cls
 
 
-:: 若未设定语言，依据目前代码页设定
+:: 若未设定语言，依据目前代码页设定 
 if not defined Language (
 	for /f "tokens=2 delims=:" %%i in ('chcp') do (
 		if "%%i"==" 936" (
@@ -27,15 +27,15 @@ if not defined Language (
 )
 
 
-:: 依据设定语言，导入语言包
+:: 依据设定语言，导入语言包 
 if /i "%Language%"=="chs" (call :Langs-chs) else (call :Langs-en)
 
 
-:: 预设错误代码
+:: 预设错误代码 
 for /l %%i in (1,1,4) do set "if.error.1=|| (call :MsgBox "!txt_vc.err.%%i!" "%txt_vc.err.info%" & goto :EOF)"
 
 
-:: 配置路径和窗口
+:: 配置路径和窗口 
 set "dir.jzip.default=%appdata%\JFsoft\JZip\App"
 
 if "%1"=="Install" (
@@ -47,25 +47,25 @@ if "%1"=="Install" (
 )
 
 
-:: Jzip 便携版判断
+:: Jzip 便携版判断 
 if /i "%dir.jzip%"=="%dir.jzip.default%" (set "jzip.Portable=") else (set "jzip.Portable=1")
 
 
-:: Mshta 可用性判断
+:: Mshta 可用性判断 
 mshta /? || ( echo,%txt_vc.err.hta% & echo,%txt_vc.err.info% & pause >nul )
 
 
-:: 检测 Bits 组件
+:: 检测 Bits 组件 
 for %%i in (Install Upgrade) do if "%1"=="%%i" (
 	bitsadmin /? >nul 2>nul %if.error.4%
 
-	:: 若 Bits 服务被禁用，询问开启
+	:: 若 Bits 服务被禁用，询问开启 
 	sc qc bits | findstr /i "DISABLED" >nul && (
 		if "%1"=="Install" call :MsgBox-s key "%txt_vc.bits.n.in%" "%txt_vc.bits.acc%"
 		if "%1"=="Upgrade" call :MsgBox-s key "%txt_vc.bits.n.up%" "%txt_vc.bits.acc%"
 
 		if "!key!"=="1" (
-			:: 启用 Bits 服务
+			:: 启用 Bits 服务 
 			net session >nul 2>nul && (sc config bits start= demand >nul)
 			net session >nul 2>nul || (
 				mshta vbscript:CreateObject^("Shell.Application"^).ShellExecute^("cmd.exe","/c sc config bits start= demand >nul","","runas",1^)^(window.close^)
@@ -79,7 +79,7 @@ for %%i in (Install Upgrade) do if "%1"=="%%i" (
 )
 
 
-:: 获取 Github 上的 JZip 安装信息
+:: 获取 Github 上的 JZip 安装信息 
 for %%i in (Install Upgrade) do if "%1"=="%%i" (
 	>nul 2>nul ( dir "%dir.jzip.temp%\ver.ini" /a:-d /b && del /q /f /s "%dir.jzip.temp%\ver.ini" )
 	bitsadmin /transfer !random! /download /priority foreground https://raw.githubusercontent.com/Dennishaha/JZip/master/Server/ver.ini "%dir.jzip.temp%\ver.ini" %if.error.1%
@@ -110,7 +110,7 @@ for %%a in (Install Upgrade) do if "%1"=="%%a" if /i not "%jzip.ver%"=="%jzip.ne
 ::UI--------------------------------------------------
 
 
-:: 弹出选择框
+:: 弹出选择框 
 set "key="
 if "%1"=="Install" call :MsgBox-s key "%txt_vc.get% %jzip.newver%" " " "%txt_vc.getauto%"
 if "%1"=="UnInstall" call :MsgBox-s key "%txt_vc.rid%"
@@ -124,7 +124,7 @@ if "%1"=="Upgrade" (
 if not "%key%"=="1" goto :EOF
 
 
-:: Jzip 便携版判断，目录清空/移除询问
+:: Jzip 便携版判断，目录清空/移除询问 
 set "key="
 if defined jzip.Portable (
 	for %%a in (Install Upgrade) do if "%1"=="%%a" (
@@ -137,7 +137,7 @@ if defined jzip.Portable (
 )
 
 
-:: 获取 JZip 安装包
+:: 获取 JZip 安装包 
 for %%a in (Install Upgrade) do if "%1"=="%%a" (
 	>nul 2>nul ( dir "%jzip.newver.page%" /a:-d /b && del /q /f /s "%jzip.newver.page%" )
 	bitsadmin /transfer %random% /download /priority foreground %jzip.newver.url% "%jzip.newver.page%" %if.error.1%
@@ -147,14 +147,14 @@ for %%a in (Install Upgrade) do if "%1"=="%%a" (
 )
 
 
-:: 解除安装
+:: 解除安装 
 for %%a in (Upgrade UnInstall) do if "%1"=="%%a" (
 	call "%dir.jzip%\Parts\Set_Lnk.cmd" -off all
 	call "%dir.jzip%\Parts\Set_Assoc.cmd" -off
 )
 
 
-:: 安装
+:: 安装 
 for %%a in (Install Upgrade) do if "%1"=="%%a" (
 
 	cmd /q /c "rd /q /s "%dir.jzip%" >nul 2>nul & md "%dir.jzip%" >nul 2>nul & "%jzip.newver.page%" x -o"%dir.jzip%\" & "%dir.jzip%\%jzip.newver.installer%" -install"
@@ -162,7 +162,7 @@ for %%a in (Install Upgrade) do if "%1"=="%%a" (
 )
 
 
-:: 删除 JZip 注册表项和目录
+:: 删除 JZip 注册表项和目录 
 if "%1"=="UnInstall" (
 	>nul (
 		reg delete "HKCU\Console\JFsoft.Jzip" /f
@@ -174,7 +174,7 @@ goto :EOF
 
 
 
-:: 语言包
+:: 语言包 
 :Langs-chs
 set txt_vc.err.info=您可以在 https://github.com/Dennishaha/JZip 上了解更多信息。
 set txt_vc.err.1=取得 安装信息 失败。
@@ -236,7 +236,7 @@ goto :EOF
 
 
 
-:: 插件
+:: 插件 
 :MsgBox
 mshta vbscript:execute^("msgbox(""%~1""&vbCrLf&vbCrLf&""%~2"",64+4096,""%txt_vc.notice%"")(close)"^)
 goto :EOF

@@ -7,6 +7,6 @@ goto :EOF
 
 <script>
 var Shell = new ActiveXObject("Shell.Application");
-var Folder = Shell.BrowseForFolder(0, "", 0); //起始目录为：桌面
-new ActiveXObject('Scripting.FileSystemObject').GetStandardStream(1).Write(Folder ? Folder.Self.Path : "")[window.close()];
+var Folder = Shell.BrowseForFolder(0, "", 0); //起始目录为：桌面 
+new ActiveXObject('Scripting.FileSystemObject').GetStandardStream(1).Write(Folder ? Folder.Self.Path : "")[close()];
 </script>

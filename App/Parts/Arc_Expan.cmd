@@ -1,8 +1,8 @@
 
-:: 预处理变量
+:: 预处理变量 
 set "Archive.file="
 
-:: 文件夹选择检测
+:: 文件夹选择检测 
 
 for %%i in (Unzip) do if /i "%~1"=="%%i" (
 	if "%~2"=="" (
@@ -20,7 +20,7 @@ for %%i in (Unzip) do if /i "%~1"=="%%i" (
 	)
 )
 
-:: 单击打开检测
+:: 单击打开检测 
 for %%i in (Open) do if /i "%~1"=="%%i" (
 	if not "%~2"=="" (
 		set "Archive.file=%~2"
@@ -29,7 +29,7 @@ for %%i in (Open) do if /i "%~1"=="%%i" (
 	)
 )
 
-:: 空选检测
+:: 空选检测 
 >nul 2>nul set "listzip.LineFileSel." || for %%i in (
 	Open\"%txt_x.type.open%"
 	Extr\"%txt_x.type.extr%"\"%txt_x.wildcard%"\"%txt_x.totmp%"
@@ -50,7 +50,7 @@ for %%i in (Open) do if /i "%~1"=="%%i" (
 	)
 )
 
-:: 多项检测
+:: 多项检测 
 >nul 2>nul set "listzip.LineFileSel." && (
 	for %%i in (Open Extr UnZip Delete ReName) do if /i "%~1"=="%%i" (
 		for /f "tokens=2 delims==" %%a in ('2^>nul set "listzip.LineFileSel."') do (
@@ -64,7 +64,7 @@ for %%i in (Open) do if /i "%~1"=="%%i" (
 	)
 )
 
-:: 其他选项检测
+:: 其他选项检测 
 for %%i in (Add Check ReName Repair Note Lock) do if /i "%~1"=="%%i" (
 	call :%*
 	goto :EOF
@@ -72,7 +72,7 @@ for %%i in (Add Check ReName Repair Note Lock) do if /i "%~1"=="%%i" (
 goto :EOF
 
 
-::添加文件
+::添加文件 
 :Add
 call "%dir.jzip%\Function\Select_File.cmd" key
 set "path.File=!key!"
@@ -93,12 +93,12 @@ for %%a in (rar,7z) do if "%type.editor%"=="%%a" (
 goto :EOF
 
 
-::打开文件
+::打开文件 
 :Open
 cls
 set "key1="
 
-:: EXE 类型询问
+:: EXE 类型询问 
 if /i "%Archive.file:~-4%"==".exe" %MsgBox-s% key1 "%txt_x.exetakeall%"
 if "%key1%"=="1" (
 	if "%type.editor%"=="rar" "%path.editor.rar%" x -y "%path.Archive%" %dir.jzip.temp%\%random1%\ %iferror%
@@ -108,7 +108,7 @@ if "%key1%"=="1" (
 	if "%type.editor%"=="7z" "%path.editor.7z%" x -o"%dir.jzip.temp%\%random1%" -y "%path.Archive%" "%Archive.file%" %iferror%
 )
 
-:: 批处理 类型判断
+:: 批处理 类型判断 
 for %%i in (cmd bat) do if /i "%Archive.file:~-4%"==".%%i" (
 	start /i cmd /c call "%dir.jzip.temp%\%random1%\%Archive.file%"
 	goto :EOF
@@ -119,7 +119,7 @@ if errorlevel 1 start "" "%dir.jzip.temp%\%random1%\%listzip.Dir%"
 goto :EOF
 
 
-::提取文件
+::提取文件 
 :Extr
 cls
 if "%type.editor%"=="rar"  "%path.editor.rar%" x -y "%path.Archive%" "%Archive.file%" %dir.jzip.temp%\%random1%\ %iferror%
@@ -129,7 +129,7 @@ start "" "%dir.jzip.temp%\%random1%\%listzip.Dir%"
 goto :EOF
 
 
-::解压文件
+::解压文件 
 :Unzip
 cls
 if not defined Archive.file (
@@ -150,7 +150,7 @@ if defined listzip.Dir (
 goto :EOF
 
 
-::删除文件
+::删除文件 
 :Delete
 %MsgBox-s% key1 "%txt_x.del.confirm%" " " "%ui.Archive.file%"
 if "%key1%"=="1" (
@@ -161,7 +161,7 @@ if "%key1%"=="1" (
 goto :EOF
 
 
-::重命名文件
+::重命名文件 
 :ReName
 %InputBox% Archive.file.rn "%txt_x.type.rn.new%" " " "%ui.Archive.file%" " " "%txt_x.wildcard%"
 if not defined Archive.file.rn goto :EOF
@@ -171,7 +171,7 @@ for %%a in (rar,7z) do if "%type.editor%"=="%%a" "!path.editor.%%a!" rn -w"%dir.
 goto :EOF
 
 
-::压缩档检查
+::压缩档检查 
 :Check
 cls
 for %%a in (rar,7z) do  if "%type.editor%"=="%%a" "!path.editor.%%a!" t "%path.Archive%" %iferror%
@@ -179,7 +179,7 @@ pause
 goto :EOF
 
 
-::压缩档修复
+::压缩档修复 
 :Repair
 cls
 if "%type.editor%"=="rar" "%path.editor.rar%" r -w%dir.jzip.temp% "%path.Archive%" %iferror%
@@ -187,7 +187,7 @@ pause
 goto :EOF
 
 
-::压缩档注释
+::压缩档注释 
 :Note
 cls
 if "%type.editor%"=="rar" "%path.editor.rar%" c -w%dir.jzip.temp% "%path.Archive%" %iferror%
@@ -195,7 +195,7 @@ pause
 goto :EOF
 
 
-::压缩档锁定
+::压缩档锁定 
 :Lock
 %MsgBox-s% key "%txt_x.lock.confirm%"
 if "%key%"=="1" (
