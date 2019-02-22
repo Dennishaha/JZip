@@ -1,109 +1,105 @@
 
 ::调用判断
-set "color.list=0/黑,1/蓝,2/绿,3/青,4/红,5/紫,6/黄,7/浅灰,8/深灰,9/浅蓝,a/浅绿,b/浅青,c/浅红,d/浅紫,e/浅黄,f/白"
-
-if "%~1"=="-info" call :text_color
+if "%~1"=="-info" (
+	set "stat.color.wd=!txt_color.%color:~1,1%!"
+	set "stat.color.bg=!txt_color.%color:~0,1%!"
+)
 if "%~1"=="" call :start
 goto :eof
 
 
-:text_color
-for %%A in (!color.list!) do (
-	for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
-		if "%界面颜色:~1,1%"=="%%a" set "ui.word=%%b"
-		if "%界面颜色:~0,1%"=="%%a" set "ui.paper=%%b"
-	)
-)
-goto :EOF
-
 :start
 if not defined ui.mouse set "ui.mouse=word"
-color %界面颜色%
+color %Color%
 cls
-echo.
-echo.   Jzip 界面颜色设置
-echo.
-echo.
-echo.
-if "%ui.mouse%"=="paper" (
-%echo%.                                                    ┌─────┐
-%echo%.                 点击下方颜色设定   ^< 背景色 ^>      │ 设定文字 │
-%echo%.                                                    └─────┘
-)
+
+echo,
+echo,   %txt_color.title%
+echo,
+echo,
+echo,
 if "%ui.mouse%"=="word" (
-%echo%.                                                    ┌─────┐
-%echo%.                 点击下方颜色设定   [ 文字色 ]      │ 设定背景 │
-%echo%.                                                    └─────┘
+%echo%,							%txt_b7.top%
+%echo%,		%txt_color.tip%	[ %txt_color.wd% ]	%txt_color.b7.bg%
+%echo%,							%txt_b7.bot%
 )
-echo.
-echo.
-echo.
-set "ui.colorselect=   黑     深灰    浅灰     白   "
-for %%A in (!color.list!) do for /f "tokens=1-2 delims=/" %%a in ("%%A") do (
-	if "%界面颜色:~1,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =[ %%~b ]!"
-	if "%界面颜色:~0,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =< %%~b >!"
+if "%ui.mouse%"=="paper" (
+%echo%,							%txt_b7.top%
+%echo%,		%txt_color.tip%	= %txt_color.bg% =	%txt_color.b7.wd%
+%echo%,							%txt_b7.bot%
 )
-echo.                     !ui.colorselect!
-echo.
-echo.
-set "ui.colorselect=   红      黄      绿      青      蓝      紫   "
-for %%A in (!color.list!) do for /f "tokens=1-2 delims=/" %%a in ("%%A") do (
-	if "%界面颜色:~1,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =[ %%~b ]!"
-	if "%界面颜色:~0,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =< %%~b >!"
+echo,
+echo,
+echo,
+set "ui.tmp=   %txt_color.0%     %txt_color.8%    %txt_color.7%     %txt_color.f%   "
+for %%i in (0 8 7 f) do (
+	if "%color:~1,1%"=="%%i" call set "ui.tmp=%%ui.tmp:  !txt_color.%%i!  =[ !txt_color.%%i! ]%%"
+	if "%color:~0,1%"=="%%i" call set "ui.tmp=%%ui.tmp:  !txt_color.%%i!  == !txt_color.%%i! =%%"
 )
-echo.             !ui.colorselect!
-echo.
-echo.
-set "ui.colorselect=  浅红    浅黄    浅绿    浅青    浅蓝    浅紫  "
-for %%A in (!color.list!) do for /f "tokens=1-2 delims=/" %%a in ("%%A") do (
-	if "%界面颜色:~1,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =[ %%~b ]!"
-	if "%界面颜色:~0,1%"=="%%~a" set "ui.colorselect=!ui.colorselect:  %%~b  =< %%~b >!"
+echo,                     !ui.tmp!
+echo,
+echo,
+set "ui.tmp=   %txt_color.4%      %txt_color.6%      %txt_color.2%      %txt_color.3%      %txt_color.1%      %txt_color.5%   "
+for %%i in (4 6 2 3 1 5) do (
+	if "%color:~1,1%"=="%%i" call set "ui.tmp=%%ui.tmp:  !txt_color.%%i!  =[ !txt_color.%%i! ]%%"
+	if "%color:~0,1%"=="%%i" call set "ui.tmp=%%ui.tmp:  !txt_color.%%i!  == !txt_color.%%i! =%%"
 )
-echo.             !ui.colorselect!
-echo.
-echo.
-echo.
-%echo%.                                                               ┌─────┐
-%echo%.                                                               │   完成   │
-%echo%.                                                               └─────┘
+echo,             !ui.tmp!
+echo,
+echo,
+set "ui.tmp=  %txt_color.c%    %txt_color.e%    %txt_color.a%    %txt_color.b%    %txt_color.9%    %txt_color.d%  "
+for %%i in (c e a b 9 d) do (
+	if "%color:~1,1%"=="%%i" call set "ui.tmp=%%ui.tmp:  !txt_color.%%i!  =[ !txt_color.%%i! ]%%"
+	if "%color:~0,1%"=="%%i" call set "ui.tmp=%%ui.tmp:  !txt_color.%%i!  == !txt_color.%%i! =%%"
+)
+echo,             !ui.tmp!
+echo,
+echo,
+echo,
+%echo%,								%txt_b7.top%
+%echo%,								%txt_b7.finish%
+%echo%,								%txt_b7.bot%
 
 %tmouse% /d 0 -1 1
 %tmouse.process%
 ::%tmouse.test%
 
 for %%A in (
-	64}75}21}23}back}
-	53}64}5}7}change}
-	14}19}13}15}红}
-	14}19}16}18}浅红}
-	22}27}10}12}黑}
-	22}27}13}15}黄}
-	22}27}16}18}浅黄}
-	30}35}10}12}深灰}
-	30}35}13}15}绿}
-	30}35}16}18}浅绿}
-	38}43}10}12}浅灰}
-	38}43}13}15}青}
-	38}43}16}18}浅青}
-	46}51}10}12}白}
-	46}51}13}15}蓝}
-	46}51}16}18}浅蓝}
-	54}59}10}15}紫}
-	54}59}16}18}浅紫}
+	65}74}21}23}back}
+	57}68}5}7}change}
+	14}19}13}15}4}
+	14}19}16}18}c}
+	22}27}10}12}0}
+	22}27}13}15}6}
+	22}27}16}18}e}
+	30}35}10}12}8}
+	30}35}13}15}2}
+	30}35}16}18}a}
+	38}43}10}12}7}
+	38}43}13}15}3}
+	38}43}16}18}b}
+	46}51}10}12}f}
+	46}51}13}15}1}
+	46}51}16}18}9}
+	54}59}10}15}5}
+	54}59}16}18}d}
 ) do for /f "tokens=1-5 delims=}" %%a in ("%%A") do (
 	if defined mouse.x if defined mouse.y (
 		if %mouse.x% GEQ %%~a if %mouse.x% LEQ %%~b if %mouse.y% GEQ %%~c if %mouse.y% LEQ %%~d (set "key=%%~e")
 	)
 )
 
-if "%key%"=="change" ( if "%ui.mouse%"=="paper" set "ui.mouse=word" ) & ( if "%ui.mouse%"=="word" set "ui.mouse=paper" )
+if "%key%"=="change" (
+	if "%ui.mouse%"=="paper" set "ui.mouse=word"
+	if "%ui.mouse%"=="word" set "ui.mouse=paper"
+)
 if "%key%"=="back" goto :EOF
 
-for %%A in (!color.list!) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
-	if "%key%"=="%%b" (
-		if "%ui.mouse%"=="word" if not "%界面颜色:~0,1%"=="%%a" set "界面颜色=%界面颜色:~0,1%%%a"
-		if "%ui.mouse%"=="paper" if not "%界面颜色:~1,1%"=="%%a" set "界面颜色=%%a%界面颜色:~1,1%"
-		reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "界面颜色" /d "!界面颜色!" /f >nul
+for %%i in (0 1 2 3 4 5 6 7 8 9 a b c d e f) do (
+	if "%key%"=="%%i" (
+		if "%ui.mouse%"=="word" if not "%Color:~0,1%"=="%%i" set "Color=%Color:~0,1%%%i"
+		if "%ui.mouse%"=="paper" if not "%Color:~1,1%"=="%%i" set "Color=%%i%Color:~1,1%"
+		reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "Color" /d "!Color!" /f >nul
 	)
 )
 goto :start

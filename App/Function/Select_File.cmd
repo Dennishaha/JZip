@@ -1,5 +1,5 @@
 <!-- :
-if "%~1"=="" echo,È±ÉÙ²ÎÊý%%1¡£& pause
+if "%~1"=="" echo, Missing parameters %%1. & pause & goto :EOF
 set "%~1="
 for /f "delims=" %%a in ('mshta "%~f0"') do set "%~1=%%~a"
 goto :EOF

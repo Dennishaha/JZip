@@ -1,6 +1,7 @@
 
 ::初始变量设定
-color %界面颜色%
+@echo off
+color %Color%
 title %path.Archive% %title%
 
 set /a Window.Wide=110, Window.Height=35
@@ -22,13 +23,31 @@ for /f "tokens=2 delims= " %%a in ('mode ^| findstr /r "列: Columns:"') do set /
 for /f "tokens=2 delims= " %%a in ('mode ^| findstr /r "行: Lines:"') do set "Window.Height=%%~a"
 set /a "listzip.LineViewBlock=Window.Height-5"
 
+::配置压缩参数栏，处于压缩文件根目录时
+if "%listzip.Dir%"=="" (
+	set "listzip.Info="
+	if "%type.editor%"=="rar" (
+		for /f "tokens=2* delims=:" %%i in (' call "%path.editor.rar%" l "%path.Archive%" ^| findstr /r "^Details:" ') do (
+			set "listzip.Info=%%i"
+		)
+	)
+	if "%type.editor%"=="7z" (
+		for /f "tokens=1-2* delims==" %%i in (' call "%path.editor.7z%" l "%path.Archive%" ^| findstr /r "^Type ^Offset ^Method ^Solid " ') do (
+			if "%%i"=="Type " set "listzip.Info=!listzip.Info!%%j"
+			if "%%i"=="Offset " set "listzip.Info=!listzip.Info!, %txt_sfx%"
+			if "%%i"=="Method " set "listzip.Info=!listzip.Info!,%%j"
+			if "%%i"=="Solid " if "%%j"==" +" set "listzip.Info=!listzip.Info!, %txt_solid%"
+		)
+	)
+)
+
 :: 生成压缩档文件列表
 for %%i in (
 	rar}"^    ...D... "}"^    ..A\.... "
 	7z}"^.......... ........ D.... "}"^.......... ........ \..... "
 ) do for /f "tokens=1-3 delims=}" %%a in ("%%i") do (
 	if "%type.editor%"=="%%a" >"%listzip.txt%" (
-		echo.-----------
+		echo,.
 		if defined listzip.Dir (
 			"!path.editor.%%a!" l "%path.Archive%" | find " %listzip.Dir%\" | findstr /v "\<%listzip.Dir.p%\\.*\\.*" | findstr /r /c:"%%~b"
 			"!path.editor.%%a!" l "%path.Archive%" | find " %listzip.Dir%\" | findstr /v "\<%listzip.Dir.p%\\.*\\.*" | findstr /r /c:"%%~c"
@@ -59,48 +78,29 @@ set /a "listzip.LineFileTotal=listzip.LineFileEnd-listzip.LineFileStart+1"
 set /a "listzip.ViewPageNow=((listzip.LineViewStart-listzip.LineFileStart)/listzip.LineViewBlock)+1"
 set /a "listzip.ViewPageTotal=(listzip.LineFileTotal-1)/listzip.LineViewBlock+1"
 
-::配置压缩参数栏，处于压缩文件根目录时
-if "%listzip.Dir%"=="" (
-	set "listzip.Info="
-	if "%type.editor%"=="rar" (
-		for /f "tokens=2* delims=:" %%i in (' call "%path.editor.rar%" l "%path.Archive%" ^| findstr /r "^详情:" ') do (
-			set "listzip.Info=%%i"
-		)
-	)
-	if "%type.editor%"=="7z" (
-		for /f "tokens=1-2* delims==" %%i in (' call "%path.editor.7z%" l "%path.Archive%" ^| findstr /r "^Type ^Offset ^Method ^Solid " ') do (
-			if "%%i"=="Type " set "listzip.Info=!listzip.Info!%%j"
-			if "%%i"=="Offset " set "listzip.Info=!listzip.Info!, 自解压"
-			if "%%i"=="Method " set "listzip.Info=!listzip.Info!,%%j"
-			if "%%i"=="Solid " if "%%j"==" +" set "listzip.Info=!listzip.Info!, 固实"
-		)
-	)
+:: if 判断排除空压缩档，读取文本至变量并处理
+if %listzip.LineFileStart% LEQ %listzip.LineFileEnd% (
+	for /l %%a in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do call :分析一行内容 %%a
 )
 
 ::UI--------------------------------------------------
 
 ::显示压缩档操作选项
 if "%listzip.Menu%"=="basic" (
-	if "%ui.Archive.writeable%"=="y" %echo%.  主页 │ 打开 提取 解压到 添加 删除 重命名 高级 上页 下页 进入 上级
-	if "%ui.Archive.writeable%"==""  %echo%.  主页 │ 打开 提取 解压到                  高级 上页 下页 进入 上级
+	if "%ui.Archive.writeable%"=="y" %echo%,  %txt_e.home% %txt_sym.delim% %txt_e.open% %txt_e.extr% %txt_e.unzip% %txt_e.add% %txt_e.del% %txt_e.rn% %txt_e.adv% %txt_e.up% %txt_e.down% %txt_e.ent% %txt_e.back%
+	if "%ui.Archive.writeable%"==""  %echo%,  %txt_e.home% %txt_sym.delim% %txt_e.open% %txt_e.extr% %txt_e.unzip%                  %txt_e.adv% %txt_e.up% %txt_e.down% %txt_e.ent% %txt_e.back%
 )
 if "%listzip.Menu%"=="advance" (
-	if "%type.editor%"=="7z"  %echo%.  主页 │ 基本 测试
-	if "%type.editor%"=="rar" %echo%.  主页 │ 基本 测试 修复 锁定 添加注释 自解压转换
+	if "%type.editor%"=="7z"  %echo%,  %txt_e.home% %txt_sym.delim% %txt_e.basic% %txt_e.test%
+	if "%type.editor%"=="rar" %echo%,  %txt_e.home% %txt_sym.delim% %txt_e.basic% %txt_e.test% %txt_e.fix% %txt_e.lock% %txt_e.rem% %txt_e.sfx%
 )
-echo.
-if "%type.editor%"=="7z" (	
-	if not defined listzip.LineFileSel echo.   日期      时间    属性         大小       压缩后  □ 名称
-	if defined listzip.LineFileSel echo.   日期      时间    属性         大小       压缩后  ■ 名称
-)
-if "%type.editor%"=="rar" (
-	if not defined listzip.LineFileSel echo.     属性        大小     日期     时间  □ 名称
-	if defined listzip.LineFileSel echo.     属性        大小     日期     时间  ■ 名称
+echo,
+for %%i in (7z rar) do if "%type.editor%"=="%%i" (
+	if defined listzip.LineFileSel ( echo=!txt_e.bar.%%i:%txt_sym.squ%=%txt_sym.squ.s%! ) else (echo=!txt_e.bar.%%i! )
 )
 
-:: if 判断排除空压缩档。输出压缩档内容到屏幕，读至变量
+:: if 判断排除空压缩档，读取变量内容到屏幕
 if %listzip.LineFileStart% LEQ %listzip.LineFileEnd% (
-	for /l %%a in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do call :分析一行内容 %%a
 	for /l %%a in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do (
 		for %%d in (%Window.Wide%) do echo,!listzip.LineView.%%a:~0,%%d!
 	)
@@ -110,16 +110,16 @@ if %listzip.LineFileStart% LEQ %listzip.LineFileEnd% (
 set /a "listzip.ViewEchoEnd=listzip.LineViewStart+listzip.LineViewBlock"
 set /a "listzip.ViewEchoSpace=listzip.ViewEchoEnd-listzip.LineFileEnd-2"
 if %listzip.LineViewEnd% LSS %listzip.ViewEchoEnd% (
-	for /l %%a in (0,1,!listzip.ViewEchoSpace!) do echo.
+	for /l %%a in (0,1,!listzip.ViewEchoSpace!) do echo,
 )
 
 ::调试注释，常闭
-::echo. File {%listzip.LineFileStart%:%listzip.LineFileEnd%} View [%listzip.LineViewStart%:%listzip.LineViewEnd%]
+::echo, File {%listzip.LineFileStart%:%listzip.LineFileEnd%} View [%listzip.LineViewStart%:%listzip.LineViewEnd%]
 ::echo,!listzip.Dir!  !listzip.Dir.p!
 
-::下方提示
-if "%listzip.Dir%"=="" echo.  %listzip.ViewPageNow%/%listzip.ViewPageTotal% 页  %listzip.LineFileTotal% 个项目 %listzip.Info%
-if not "%listzip.Dir%"=="" echo.  %listzip.ViewPageNow%/%listzip.ViewPageTotal% 页  %listzip.LineFileTotal% 个项目  %listzip.Dir:\= ^> %
+::下方提示栏
+if "%listzip.Dir%"=="" echo,  %listzip.ViewPageNow%/%listzip.ViewPageTotal% %txt_pages%  %listzip.LineFileTotal% %txt_items% %listzip.Info%
+if not "%listzip.Dir%"=="" echo,  %listzip.ViewPageNow%/%listzip.ViewPageTotal% %txt_pages%  %listzip.LineFileTotal% %txt_items%  %listzip.Dir:\= ^> %
 
 ::UI--------------------------------------------------
 ::坐标判断
@@ -201,7 +201,7 @@ for %%A in (
 )
 
 if "%key%"=="1" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Open
-) else if "%key%"=="2" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" UnPart & goto :Menu
+) else if "%key%"=="2" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Extr & goto :Menu
 ) else if "%key%"=="3" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Unzip & goto :Menu
 ) else if "%key%"=="4" ( if "%ui.Archive.writeable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" Add
 ) else if "%key%"=="5" ( if "%ui.Archive.writeable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" Delete
@@ -232,17 +232,17 @@ for /f "skip=%1 delims=" %%a in (%listzip.txt%) do (
 	if "%type.editor%"=="7z" (
 		if "!listzip.LineFile.%1:~20,1!"=="D" set "listzip.LineView.%1=!listzip.LineView.%1:~0,51!  <!listzip.LineView.%1:~53!>"
 		if defined listzip.LineFileSel.%1 (
-			set "listzip.LineView.%1=!listzip.LineView.%1:~0,51!  ■ !listzip.LineView.%1:~53!"
+			set "listzip.LineView.%1=!listzip.LineView.%1:~0,51!  %txt_sym.squ.s% !listzip.LineView.%1:~53!"
 		) else (
-			set "listzip.LineView.%1=!listzip.LineView.%1:~0,51!  □ !listzip.LineView.%1:~53!"
+			set "listzip.LineView.%1=!listzip.LineView.%1:~0,51!  %txt_sym.squ% !listzip.LineView.%1:~53!"
 		)
 	)
 	if "%type.editor%"=="rar" (
 		if "!listzip.LineFile.%1:~7,1!"=="D" set "listzip.LineView.%1=!listzip.LineView.%1:~0,39!  <!listzip.LineView.%1:~41!>"
 		if defined listzip.LineFileSel.%1 (
-			set "listzip.LineView.%1=!listzip.LineView.%1:~0,39!  ■ !listzip.LineView.%1:~41!"
+			set "listzip.LineView.%1=!listzip.LineView.%1:~0,39!  %txt_sym.squ.s% !listzip.LineView.%1:~41!"
 		) else (
-		 	set "listzip.LineView.%1=!listzip.LineView.%1:~0,39!  □ !listzip.LineView.%1:~41!"
+		 	set "listzip.LineView.%1=!listzip.LineView.%1:~0,39!  %txt_sym.squ% !listzip.LineView.%1:~41!"
 		)
 	)
 	goto :EOF
@@ -255,7 +255,7 @@ goto :EOF
 
 :进入
 if "%~1"=="" (
-	call "%dir.jzip%\Function\VbsBox" InputBox listzip.Dir "进入的文件夹："
+	%InputBox% listzip.Dir "进入的文件夹："
 	if not defined listzip.Dir goto :EOF
 	if "!listzip.Dir:~0,1!"=="\" set "listzip.Dir=!listzip.Dir:~1!"
 ) else if "%~1"==".." (
