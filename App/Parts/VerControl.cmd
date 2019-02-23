@@ -32,8 +32,8 @@ if /i "%Language%"=="chs" (call :Langs-chs) else (call :Langs-en)
 
 
 :: 预设错误代码
-for /l %%i in (1,1,4) do set "if.error.%%i=(call :MsgBox "!txt_vc.err.%%i!" "%txt_vc.err.info%" & goto :EOF)"
-::                                     ^~~
+for /l %%i in (1,1,4) do set "if.error.%%i=|| (call :MsgBox "!txt_vc.err.%%i!" "%txt_vc.err.info%" & goto :EOF)"
+::                                     ^~~ ^~
 
 :: 配置路径和窗口
 set "dir.jzip.default=%appdata%\JFsoft\JZip\App"
@@ -71,7 +71,9 @@ for %%i in (Install Upgrade) do if "%1"=="%%i" (
 	)>DownLoad.vbs
 	if exist "%dir.jzip.temp%\ver.ini" del "%dir.jzip.temp%\ver.ini"
 	cscript /nologo DownLoad.vbs "https://raw.githubusercontent.com/Dennishaha/JZip/master/Server/ver.ini" "%dir.jzip.temp%\ver.ini" %if.error.1%
-	if not exist "%dir.jzip.temp%\ver.ini" %if.error.2%
+	:: 居然作者那么喜欢用if.error.2这种东西那就理解了
+	:: if not exist "%dir.jzip.temp%\ver.ini" call :MsgBox "!txt_vc.err.2!" "%txt_vc.err.info%" & goto :EOF
+	type "%dir.jzip.temp%\ver.ini" %if.error.2%
 	for /f "eol=[ usebackq tokens=1* delims==" %%a in ("%dir.jzip.temp%\ver.ini") do set "%%a=%%b"
 	set "jzip.newver.page=%dir.jzip.temp%\full.!jzip.newver!.exe"
 )
