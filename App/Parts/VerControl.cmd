@@ -32,7 +32,7 @@ if /i "%Language%"=="chs" (call :Langs-chs) else (call :Langs-en)
 
 
 :: 预设错误代码 
-for /l %%i in (1,1,4) do set "if.error.1=|| (call :MsgBox "!txt_vc.err.%%i!" "%txt_vc.err.info%" & goto :EOF)"
+for /l %%i in (1,1,4) do set "if.error.%%i=|| (call :MsgBox "!txt_vc.err.%%i!" "%txt_vc.err.info%" & goto :EOF)"
 
 
 :: 配置路径和窗口 
