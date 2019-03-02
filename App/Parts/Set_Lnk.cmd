@@ -51,7 +51,7 @@ for %%A in (
 ) do for /f "usebackq tokens=1-5 delims=/" %%a in ('%%A') do (
 	if "%%~b"=="" %MsgBox% "Missing shortcut configuration." & >nul pause & exit
 	if /i "%2"=="%%~a" (
-		if /i "%1"=="-on" call "%dir.jzip%\Function\Create_Lnk.cmd" "!dir.%%~a!\%%~b.lnk" %%c %%d %%e "!dir.desktop!" ""
+		if /i "%1"=="-on" call "%dir.jzip%\Function\Create_Lnk.cmd" "!dir.%%~a!\%%~b.lnk" %%c %%d "7" %%e "!dir.desktop!" ""
 		if /i "%1"=="-off" >nul del /q /f /s "!dir.%%~a!\%%~b.lnk" || %MsgBox% "Failed to remove shortcut."
 		if /i "%1"=="-info" >nul 2>nul dir "!dir.%%~a!\%%~b.lnk" /a:-d /b && (
 			set "stat.Lnk.%%~a=%txt_sym.cir.s%" 

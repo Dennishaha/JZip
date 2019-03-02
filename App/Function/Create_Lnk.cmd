@@ -5,13 +5,13 @@
 	echo.Set Ink = WshShell.CreateShortcut^("%~1"^)
 	echo.Ink.TargetPath = "%~2"
 	echo.Ink.Arguments = "%~3"
-	echo.Ink.WindowStyle = "1"
-	echo.Ink.IconLocation = "%dir.jzip%\Components\Icon\%~4"
-	echo.Ink.WorkingDirectory = "%~5"
-	echo.Ink.Description = "%~6"
+	echo.Ink.WindowStyle = "%~4"
+	echo.Ink.IconLocation = "%dir.jzip%\Components\Icon\%~5"
+	echo.Ink.WorkingDirectory = "%~6"
+	echo.Ink.Description = "%~7"
 	echo.Ink.Save
 )
 cscript //nologo "%dir.jzip.temp%\ink.vbs"
 goto :EOF
 
-:: 用法：%~0 "特殊文件夹" "捷径路径" "目标路径" "参数" "图标路径" "工作目录" "描述"
+:: 用法：%~0 "特殊文件夹" "捷径路径" "目标路径" "参数" "窗口大小" "图标路径" "工作目录" "描述"

@@ -4,8 +4,8 @@
 color %Color%
 title %path.Archive% %title%
 
-set /a Window.Wide=110, Window.Height=35
-mode %Window.Wide%, %Window.Height%
+set /a Window.Columns=110, Window.Lines=35
+mode %Window.Columns%, %Window.Lines%
 for %%a in (%jzip.spt.write%) do if /i "%Archive.exten%"==".%%a" set "ui.Archive.writeable=y"
 for /f "delims=" %%a in ('cscript //nologo "%dir.jzip%\Function\Create_GUID.vbs"') do set "random1=%%a"
 set "listzip.txt=%dir.jzip.temp%\%random1%.tmp"
@@ -19,9 +19,13 @@ for %%a in (rar 7z cab) do if "%type.editor%"=="%%a" >nul "!path.editor.%%a!" l 
 cls
 
 :: 动态调整窗口大小，调试时需注释以禁用 
-for /f "tokens=2 delims= " %%a in ('mode ^| findstr /r "列: Columns:"') do set /a "Window.Wide=%%~a-1"
-for /f "tokens=2 delims= " %%a in ('mode ^| findstr /r "行: Lines:"') do set "Window.Height=%%~a"
-set /a "listzip.LineViewBlock=Window.Height-5"
+for /f "tokens=1-2" %%a in ('mode') do (
+	if /i "%%a"=="行:　" set Window.Lines=%%~b
+	if /i "%%a"=="Lines:" set Window.Lines=%%~b
+	if /i "%%a"=="列:　　" set /a Window.Columns=%%~b-1
+	if /i "%%a"=="Columns:" set /a Window.Columns=%%~b-1
+)
+set /a "listzip.LineViewBlock=Window.Lines-5"
 
 :: UTF-8 代码页检测 
 for /f "tokens=2 delims=:" %%i in ('chcp') do (
@@ -91,11 +95,6 @@ set /a "listzip.LineFileTotal=listzip.LineFileEnd-listzip.LineFileStart+1"
 set /a "listzip.ViewPageNow=((listzip.LineViewStart-listzip.LineFileStart)/listzip.LineViewBlock)+1"
 set /a "listzip.ViewPageTotal=(listzip.LineFileTotal-1)/listzip.LineViewBlock+1"
 
-:: if 判断排除空压缩档，读取文本至变量并处理 
-if %listzip.LineFileStart% LEQ %listzip.LineFileEnd% (
-	for /l %%a in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do call :分析一行内容 %%a
-)
-
 ::UI--------------------------------------------------
 
 ::显示压缩档操作选项 
@@ -112,10 +111,16 @@ for %%i in (7z rar) do if "%type.editor%"=="%%i" (
 	if defined listzip.LineFileSel ( echo=!txt_e.bar.%%i:%txt_sym.squ%=%txt_sym.squ.s%! ) else (echo=!txt_e.bar.%%i! )
 )
 
-:: if 判断排除空压缩档，读取变量内容到屏幕 
+:: if 判断排除空压缩档，处理变量内容并输出到屏幕 
 if %listzip.LineFileStart% LEQ %listzip.LineFileEnd% (
+	if "%type.editor%"=="7z" (
+		for /l %%a in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do call :分析一行内容 %%a 20 51 53
+	)
+	if "%type.editor%"=="rar" (
+		for /l %%a in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do call :分析一行内容 %%a 7 39 41
+	)
 	for /l %%a in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do (
-		for %%d in (%Window.Wide%) do echo,!listzip.LineView.%%a:~0,%%d!
+		for %%d in (%Window.Columns%) do echo,!listzip.LineView.%%a:~0,%%d!
 	)
 )
 
@@ -143,32 +148,25 @@ if not "%listzip.Dir%"=="" echo,  %listzip.ViewPageNow%/%listzip.ViewPageTotal% 
 ::压缩档文件列表坐标判断 
 set /a listzip.ButtonLine=3
 if defined mouse.x if defined mouse.y (
-	for /l %%a in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do (
-		if defined listzip.LineFile.%%a (
+	for /l %%i in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do (
+		if defined listzip.LineFile.%%i (
 			if %mouse.y% EQU !listzip.ButtonLine! (
-				if "%type.editor%"=="rar" (
-					if %mouse.x% GEQ 41 if %mouse.x% LEQ 42 (
-						if defined listzip.LineFileSel.%%a (set "listzip.LineFileSel.%%a=") else (set "listzip.LineFileSel.%%a=%%a")
-						set "listzip.LineFileSel="
-						goto :Menu
-					)
-					if %mouse.x% GEQ 44 (
-						call :全不选 
-						if "!listzip.LineFile.%%a:~7,1!"=="D" call :进入 "!listzip.LineFile.%%a:~41!"
-						if not "!listzip.LineFile.%%a:~7,1!"=="D" call "%dir.jzip%\Parts\Arc_Expan.cmd" Open "!listzip.LineFile.%%a:~41!"
-					)
-				)
-				if "%type.editor%"=="7z" (
+				for %%z in (
+					7z:53:54:56:20
+					rar:41:42:44:7
+				) do for /f "tokens=1-5 delims=:" %%a in ("%%z") do (
+					if "%type.editor%"=="%%a" (
 
-					if %mouse.x% GEQ 53 if %mouse.x% LEQ 54 (
-						if defined listzip.LineFileSel.%%a (set "listzip.LineFileSel.%%a=") else (set "listzip.LineFileSel.%%a=%%a")
-						set "listzip.LineFileSel="
-						goto :Menu
-					)
-					if %mouse.x% GEQ 56 (
-						call :全不选 
-						if "!listzip.LineFile.%%a:~20,1!"=="D" call :进入 "!listzip.LineFile.%%a:~53!"
-						if not "!listzip.LineFile.%%a:~20,1!"=="D" call "%dir.jzip%\Parts\Arc_Expan.cmd" Open "!listzip.LineFile.%%a:~53!"
+						if %mouse.x% GEQ %%b if %mouse.x% LEQ %%c (
+							if defined listzip.LineFileSel.%%i (set "listzip.LineFileSel.%%i=") else (set "listzip.LineFileSel.%%i=%%i")
+							set "listzip.LineFileSel="
+							goto :Menu
+						)
+						if %mouse.x% GEQ %%d (
+							call :全不选 
+							if "!listzip.LineFile.%%i:~%%e,1!"=="D" call :进入 "!listzip.LineFile.%%i:~%%b!"
+							if not "!listzip.LineFile.%%i:~%%e,1!"=="D" call "%dir.jzip%\Parts\Arc_Expan.cmd" Open "!listzip.LineFile.%%i:~%%b!"
+						)
 					)
 				)
 			)
@@ -242,29 +240,16 @@ goto :Menu
 for /f "skip=%1 delims=" %%a in (%listzip.txt%) do (
 	set "listzip.LineFile.%1=%%a"
 	call set "listzip.LineView.%1=%%listzip.LineFile.%1!:%listzip.Dir%\=%%"
-	if "%type.editor%"=="7z" (
-		if "!listzip.LineFile.%1:~20,1!"=="D" set "listzip.LineView.%1=!listzip.LineView.%1:~0,51!  <!listzip.LineView.%1:~53!>"
-		if defined listzip.LineFileSel.%1 (
-			set "listzip.LineView.%1=!listzip.LineView.%1:~0,51!  %txt_sym.squ.s% !listzip.LineView.%1:~53!"
-		) else (
-			set "listzip.LineView.%1=!listzip.LineView.%1:~0,51!  %txt_sym.squ% !listzip.LineView.%1:~53!"
-		)
-	)
-	if "%type.editor%"=="rar" (
-		if "!listzip.LineFile.%1:~7,1!"=="D" set "listzip.LineView.%1=!listzip.LineView.%1:~0,39!  <!listzip.LineView.%1:~41!>"
-		if defined listzip.LineFileSel.%1 (
-			set "listzip.LineView.%1=!listzip.LineView.%1:~0,39!  %txt_sym.squ.s% !listzip.LineView.%1:~41!"
-		) else (
-		 	set "listzip.LineView.%1=!listzip.LineView.%1:~0,39!  %txt_sym.squ% !listzip.LineView.%1:~41!"
-		)
+	if "!listzip.LineFile.%1:~%2,1!"=="D" set "listzip.LineView.%1=!listzip.LineView.%1:~0,%3!  <!listzip.LineView.%1:~%4!>"
+	if defined listzip.LineFileSel.%1 (
+		set "listzip.LineView.%1=!listzip.LineView.%1:~0,%3!  %txt_sym.squ.s% !listzip.LineView.%1:~%4!"
+	) else (
+		set "listzip.LineView.%1=!listzip.LineView.%1:~0,%3!  %txt_sym.squ% !listzip.LineView.%1:~%4!"
 	)
 	goto :EOF
 )
 goto :EOF
 
-:输出一行内容 
-for /f "skip=%1 delims=" %%a in (%listzip.txt%) do echo,%%a & goto :EOF
-goto :EOF
 
 :进入 
 if "%~1"=="" (

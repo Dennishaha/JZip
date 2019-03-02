@@ -1,10 +1,10 @@
 
 @setlocal EnableExtensions EnableDelayedExpansion
 
-@set "jzip.ver=3.2.2"
-
-@if /i "%~1"=="-su" call :%* & goto :EOF
-@if /i "%~1"=="-help" call :%* & goto :EOF
+@set "jzip.ver=3.2.3"
+@set "path.jzip.launcher=%~0"
+@set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
+@set "dir.jzip.temp=%temp%\JFsoft.Jzip"
 
 @if not "%~1"==":s" >nul (
 
@@ -21,27 +21,35 @@
 	)
 	reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "Language" /d "!Language!" /f
 
-	:: 检测语言/控制台，设定代码页/字体/大小
+	:: 检测语言/控制台，设定代码页/字体/大小/快速编辑，加载制表符补偿/语言配置
 	reg query "HKCU\Console" /t REG_DWORD /v "ForceV2" 2>nul | findstr "0x1" >nul && set "Console.ver=2" || set "Console.ver=1"
 
 	for %%z in (
-		"chs":"936":"1":"0x30":"":"0x100008"
-		"chs":"936":"2":"0x36":"黑体":"0x100000"
-		"en":"437":"1":"0x30":"":"0x120008"
-		"en":"437":"2":"0x36":"Consolas":"0x100000"
-	) do for /f "tokens=1-6 delims=:" %%a in ("%%z") do (
+		"chs":"936":"1":"0x30":"":"0x100008":"1"
+		"chs":"936":"2":"0x36":"黑体":"0x100000":"2"
+		"en":"437":"1":"0x30":"":"0x120008":"2"
+		"en":"437":"2":"0x36":"Consolas":"0x100000":"2"
+	) do for /f "tokens=1-7 delims=:" %%a in ("%%z") do (
 		if /i "!Language!"=="%%~a" if "!Console.ver!"=="%%~c" (
 			reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "CodePage" /d "%%~b" /f
 			reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "FontFamily" /d "%%~d" /f
 			reg add "HKCU\Console\JFsoft.Jzip" /t REG_SZ /v "FaceName" /d "%%~e" /f
 			reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "FontSize" /d "%%~f" /f
+			reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "QuickEdit" /d "0x0" /f
+
+			if "%%~g"=="1" set "echo=echo"
+			if "%%~g"=="2" set "echo=call "%dir.jzip%\Function\Echo.cmd" "
+
+			for /f "eol=[ tokens=1,*" %%i in ('type "%dir.jzip%\Langs\%%~a.ini"') do set "%%i%%j"
 		)
 	)
+)
 
-	:: 设定快速编辑
-	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "QuickEdit" /d "0x0" /f
+@if /i "%~1"=="-su" call :-su & goto :EOF
+@if /i "%~1"=="-help" call :-help & goto :EOF
 
-	start /i "JFsoft.Jzip" cmd /c call "%~0" :s %*
+@if not "%~1"==":s" (
+	start "JFsoft.Jzip" cmd /c call "%~0" :s %*
 	goto :EOF
 )
 
@@ -50,12 +58,9 @@
 @echo off
 mode 80, 25
 
-set "path.jzip.launcher=%~0"
-set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
-set "dir.jzip.temp=%temp%\JFsoft.Jzip"
-
 call %* & exit /b
 :s
+
 set title=-- Jzip
 set Color=f0
 set FileAssoc=
@@ -67,16 +72,6 @@ for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip" 2^>n
 for %%a in (Dir.Jzip.Temp Color FileAssoc ShortCut RightMenu RecentTime) do >nul reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "%%a" /d "!%%a!" /f 
 >nul reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "RecentTime" /d "%date:~0,10% %time%" /f
 dir "%dir.jzip.temp%" /a:d /b >nul 2>nul || md "%dir.jzip.temp%" || (set dir.jzip.temp=%temp%\JFsoft\Jzip & md "!dir.jzip.temp!")
-
-:: 加载语言配置/制表符补偿
-if /i "%Language%"=="chs" (
-	for /f "eol=[ tokens=1,*" %%a in (' type "%dir.jzip%\Langs\Chs.ini" ') do set "%%a%%b"
-	reg query "HKCU\Console" /t REG_DWORD /v "ForceV2" 2>nul | findstr "0x1" >nul || set "echo=echo"
-) else (
-	for /f "eol=[ tokens=1,*" %%a in (' type "%dir.jzip%\Langs\En.ini" ') do set "%%a%%b"
-)
-if not defined echo set "echo=call "%dir.jzip%\Function\Echo.cmd" "
-
 
 :: 配置组件
 color %Color%
@@ -112,9 +107,12 @@ set "path.editor.cab=%dir.jzip%\Components\x86\cabarc.exe"
 ::被调用
 if exist "%~1" call :Set_Info list %* & goto :EOF
 if exist "%~2" call :Set_Info %* & goto :EOF
-if /i "%~1"=="-install" call "%dir.jzip%\Parts\Set_Lnk.cmd" -reon & call "%dir.jzip%\Parts\Set_Assoc.cmd" -reon & call "%dir.jzip%\Parts\Set.cmd"
 if /i "%~1"=="-setting" call "%dir.jzip%\Parts\Set.cmd"	
-
+if /i "%~1"=="-install" (
+	call "%dir.jzip%\Parts\Set_Lnk.cmd" -reon
+	call "%dir.jzip%\Parts\Set_Assoc.cmd" -reon
+	call "%dir.jzip%\Parts\Set.cmd"
+)
 
 :BASIC
 title %txt_title%
@@ -176,19 +174,18 @@ if "%key%"== "1" ( call :SetPath list
 ) else if "%key%"== "3" ( net session >nul 2>nul || ( call :-su & goto :EOF )
 ) else if "%key%"== "4" ( call "%dir.jzip%\Parts\Set.cmd"
 )
-
-::清除已有变量并重启
-::start "" /b /i cmd /c "%path.jzip.launcher%" & cls & exit /b
 goto :BASIC
 
 
 :SetPath
+set key=
 call "%dir.jzip%\Function\Select_File.cmd" key
 if defined key call :Set_Info %~1 "!key!"
 goto :EOF
 
 
 :Set_Info
+setlocal
 for %%a in (list unzip add add-7z) do if "%~1"=="%%a" set "ArchiveOrder=%%a"
 set raw.num=1
 set ui.nospt=
@@ -263,6 +260,7 @@ for %%a in (list unzip) do if "%~1"=="%%a" (
 	)
 )
 if defined ui.nospt start /min "" cmd  /q /v:on /c %MsgBox% "%txt_notzip%" " " %ui.nospt%
+endlocal
 goto :EOF
 
 
