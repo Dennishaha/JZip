@@ -53,7 +53,6 @@ for %%i in (Open) do if /i "%~1"=="%%i" (
 >nul 2>nul set "listzip.LineFileSel." && (
 	for %%i in (Open Extr UnZip Delete ReName) do if /i "%~1"=="%%i" (
 		for /f "tokens=2 delims==" %%a in ('2^>nul set "listzip.LineFileSel."') do (
-			cls
 			if "%type.editor%"=="7z" set "listzip.File.%%a=!listzip.LineFile.%%a:~53!"
 			if "%type.editor%"=="rar" set "listzip.File.%%a=!listzip.LineFile.%%a:~41!"
 			set "Archive.file=!listzip.File.%%a!"

@@ -85,7 +85,9 @@ set /a "listzip.LineViewBlock=Window.Lines-5"
 ::设定显示行首行数 
 if not defined listzip.LineViewStart set /a "listzip.LineViewStart=listzip.LineFileStart"
 if %listzip.LineViewStart% LSS %listzip.LineFileStart% set /a "listzip.LineViewStart=listzip.LineFileStart"
-if %listzip.LineViewStart% GTR %listzip.LineFileEnd% set /a "listzip.LineViewStart-=listzip.LineViewBlock"
+if %listzip.LineViewStart% GTR %listzip.LineViewBlock% (
+	if %listzip.LineViewStart% GTR %listzip.LineFileEnd% set /a "listzip.LineViewStart-=listzip.LineViewBlock"
+)
 
 ::设定显示行末行数 
 set /a "listzip.LineViewEnd=listzip.LineViewStart+listzip.LineViewBlock-1"
@@ -96,14 +98,12 @@ set /a "listzip.LineFileTotal=listzip.LineFileEnd-listzip.LineFileStart+1"
 set /a "listzip.ViewPageNow=((listzip.LineViewStart-listzip.LineFileStart)/listzip.LineViewBlock)+1"
 set /a "listzip.ViewPageTotal=(listzip.LineFileTotal-1)/listzip.LineViewBlock+1"
 
-:: if 判断排除空压缩档，读取文本至变量并处理 	
-if %listzip.LineFileStart% LEQ %listzip.LineFileEnd% (
-	if "%type.editor%"=="7z" (
-		for /l %%a in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do call :分析一行内容 %%a 20 51 53
-	)
-	if "%type.editor%"=="rar" (
-		for /l %%a in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do call :分析一行内容 %%a 7 39 41
-	)
+:: 读取文本至变量并处理 	
+if "%type.editor%"=="7z" (
+	for /l %%a in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do call :分析一行内容 %%a 20 51 53
+)
+if "%type.editor%"=="rar" (
+	for /l %%a in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do call :分析一行内容 %%a 7 39 41
 )
 
 ::UI--------------------------------------------------
@@ -151,21 +151,16 @@ for %%i in (7z rar) do if "%type.editor%"=="%%i" (
 	if defined listzip.LineFileSel ( echo=!txt_e.bar.%%i:%txt_sym.squ%=%txt_sym.squ.s%! ) else (echo=!txt_e.bar.%%i! )
 )
 
-:: if 判断排除空压缩档，读取变量内容并输出到屏幕 
-if %listzip.LineFileStart% LEQ %listzip.LineFileEnd% (
-	for %%a in (%Window.Columns%) do (
-		for /l %%i in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do (
+:: 读取变量内容并输出到屏幕 
+for %%a in (%Window.Columns%) do (
+	for /l %%i in (%listzip.LineViewStart%,1,%listzip.LineViewEnd%) do (
 		echo,!listzip.LineView.%%i:~0,%%a!
-		)
 	)
 )
 
 ::补充空行 
-set /a "listzip.ViewEchoEnd=listzip.LineViewStart+listzip.LineViewBlock"
-set /a "listzip.ViewEchoSpace=listzip.ViewEchoEnd-listzip.LineFileEnd-2"
-if %listzip.LineViewEnd% LSS %listzip.ViewEchoEnd% (
-	for /l %%a in (0,1,!listzip.ViewEchoSpace!) do echo,
-)
+set /a "listzip.ViewEchoEnd=listzip.LineViewStart+listzip.LineViewBlock-2"
+for /l %%i in (!listzip.LineFileEnd!,1,!listzip.ViewEchoEnd!) do echo,
 
 ::调试注释，常闭 
 ::echo, File {%listzip.LineFileStart%:%listzip.LineFileEnd%} View [%listzip.LineViewStart%:%listzip.LineViewEnd%]
