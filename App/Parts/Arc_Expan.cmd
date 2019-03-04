@@ -40,7 +40,6 @@ for %%i in (Open) do if /i "%~1"=="%%i" (
 	if /i "%~1"=="%%~a" (
 		if /i not "%%~b"=="" (
 			%InputBox% Archive.file "%%~b" " " "%%~c" "%%~d"
-			echo=%InputBox% Archive.file "%%~b" " " "%%~c" "%%~d"
 			if not defined Archive.file goto :EOF
 			set "ui.Archive.file=!Archive.file!"
 			if defined listzip.Dir set "Archive.file=!listzip.Dir!\!Archive.file!"
@@ -54,6 +53,7 @@ for %%i in (Open) do if /i "%~1"=="%%i" (
 >nul 2>nul set "listzip.LineFileSel." && (
 	for %%i in (Open Extr UnZip Delete ReName) do if /i "%~1"=="%%i" (
 		for /f "tokens=2 delims==" %%a in ('2^>nul set "listzip.LineFileSel."') do (
+			cls
 			if "%type.editor%"=="7z" set "listzip.File.%%a=!listzip.LineFile.%%a:~53!"
 			if "%type.editor%"=="rar" set "listzip.File.%%a=!listzip.LineFile.%%a:~41!"
 			set "Archive.file=!listzip.File.%%a!"
@@ -175,7 +175,7 @@ goto :EOF
 :Check
 cls
 for %%a in (rar,7z) do  if "%type.editor%"=="%%a" "!path.editor.%%a!" t "%path.Archive%" %iferror%
-pause
+timeout /t 10 || pause
 goto :EOF
 
 
@@ -183,7 +183,7 @@ goto :EOF
 :Repair
 cls
 if "%type.editor%"=="rar" "%path.editor.rar%" r -w%dir.jzip.temp% "%path.Archive%" %iferror%
-pause
+timeout /t 10 || pause
 goto :EOF
 
 
@@ -191,7 +191,7 @@ goto :EOF
 :Note
 cls
 if "%type.editor%"=="rar" "%path.editor.rar%" c -w%dir.jzip.temp% "%path.Archive%" %iferror%
-pause
+timeout /t 10 || pause
 goto :EOF
 
 
@@ -201,7 +201,7 @@ goto :EOF
 if "%key%"=="1" (
 	cls
 	if "%type.editor%"=="rar" "%path.editor.rar%" k -w"%dir.jzip.temp%" "%path.Archive%" %iferror%
-	pause
+	timeout /t 10 || pause
 )
 goto :EOF
 
