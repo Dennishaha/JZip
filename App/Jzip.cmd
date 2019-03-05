@@ -1,7 +1,7 @@
 
 @setlocal EnableExtensions EnableDelayedExpansion
 
-@set "jzip.ver=3.2.4.1"
+@set "jzip.ver=3.2.4.2"
 @set "path.jzip.launcher=%~0"
 @set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 @set "dir.jzip.temp=%temp%\JFsoft.Jzip"
@@ -66,12 +66,7 @@ set Color=f0
 set FileAssoc=
 set ShortCut=y
 set RightMenu=y
-
-:: 加载用户配置信息及临时文件夹
-for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip" 2^>nul') do if /i "%%b"=="REG_SZ" set "%%a=%%c"
-for %%a in (Dir.Jzip.Temp Color FileAssoc ShortCut RightMenu RecentTime) do >nul reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "%%a" /d "!%%a!" /f 
->nul reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "RecentTime" /d "%date:~0,10% %time%" /f
-dir "%dir.jzip.temp%" /a:d /b >nul 2>nul || md "%dir.jzip.temp%" || (set dir.jzip.temp=%temp%\JFsoft\Jzip & md "!dir.jzip.temp!")
+set "dir.jzip.temp.default=%dir.jzip.temp%"
 
 :: 配置组件
 color %Color%
@@ -102,6 +97,12 @@ if "%processor_architecture%"=="AMD64" (
 	set "path.editor.rar=%dir.jzip%\Components\x86\rar.exe"
 )
 set "path.editor.cab=%dir.jzip%\Components\x86\cabarc.exe"
+
+:: 加载用户配置信息及临时文件夹
+for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip" 2^>nul') do if /i "%%b"=="REG_SZ" set "%%a=%%c"
+for %%a in (Dir.Jzip.Temp Color FileAssoc ShortCut RightMenu RecentTime) do >nul reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "%%a" /d "!%%a!" /f 
+>nul reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "RecentTime" /d "%date:~0,10% %time%" /f
+dir "%dir.jzip.temp%" /a:d /b >nul 2>nul || ( md "%dir.jzip.temp%" || (set "dir.jzip.temp=%dir.jzip.temp.default%" & md "!dir.jzip.temp!") )
 
 
 ::被调用

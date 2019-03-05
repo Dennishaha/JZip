@@ -124,7 +124,7 @@ goto :EOF
 
 
 :Temp_Reset
-set "dir.jzip.temp=%temp%\JFsoft.Jzip"
+set "dir.jzip.temp=%dir.jzip.temp.default%"
 md %dir.jzip.temp% >nul 2>nul
 reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "dir.jzip.temp" /d "!dir.jzip.temp!" /f >nul
 goto :EOF
