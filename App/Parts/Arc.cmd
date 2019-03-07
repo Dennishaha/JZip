@@ -251,8 +251,8 @@ if "%key%"=="1" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Open
 ) else if "%key%"=="5" ( if "%ui.Archive.writeable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" Delete
 ) else if "%key%"=="6" ( if "%ui.Archive.writeable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" ReName
 ) else if "%key%"=="7" ( set "listzip.Menu=advance" & goto :Menu-fast
-) else if "%key%"=="8" ( set /a "listzip.LineViewStart-=%listzip.LineViewBlock%" & goto :Menu
-) else if "%key%"=="9" ( set /a "listzip.LineViewStart+=%listzip.LineViewBlock%" & goto :Menu
+) else if "%key%"=="8" ( set /a "listzip.LineViewStart-=%listzip.LineViewBlock%" & goto :Menu-fast
+) else if "%key%"=="9" ( set /a "listzip.LineViewStart+=%listzip.LineViewBlock%" & goto :Menu-fast
 ) else if "%key%"=="10" ( call :进入 
 ) else if "%key%"=="11" ( call :进入  ..
 ) else if "%key%"=="a1" ( set "listzip.Menu=basic" & goto :Menu-fast

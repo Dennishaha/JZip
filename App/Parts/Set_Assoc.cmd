@@ -20,7 +20,7 @@ goto :EOF
 
 :on
 1>"%dir.jzip.temp%\Assoc.cmd" (
-	echo,for %%^%%a in ^(%jzip.spt.open%^) do 1^>nul assoc .%%^%%a=JFsoft.Jzip
+	echo,for %%^%%a in ^(%jzip.spt.assoc%^) do 1^>nul assoc .%%^%%a=JFsoft.Jzip
 	echo,1^>nul ftype JFsoft.Jzip="%path.jzip.launcher%" "%%%%1"
 )
 if "%1"=="reg" 1>>"%dir.jzip.temp%\Assoc.cmd" (

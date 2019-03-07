@@ -1,7 +1,7 @@
 
 @setlocal EnableExtensions EnableDelayedExpansion
 
-@set "jzip.ver=3.2.4.2"
+@set "jzip.ver=3.2.4.3"
 @set "path.jzip.launcher=%~0"
 @set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 @set "dir.jzip.temp=%temp%\JFsoft.Jzip"
@@ -84,9 +84,10 @@ set "tcurs="%dir.jzip%\Components\x86\tcurs.exe""
 set "jzip.spt.rar=rar"
 set "jzip.spt.7z=7z zip bz2 gz tgz tar wim xz 001 cab iso dll msi chm cpio deb dmg lzh lzma rpm udf vhd xar"
 set "jzip.spt.exe=exe"
+set "jzip.spt.assoc=rar 7z zip bz2 gz tgz tar wim xz 001 cab"
 set "jzip.spt.write=exe rar 7z zip tar wim"
 set "jzip.spt.write.noadd=bz2 gz xz cab"
-set "jzip.spt.open=%jzip.spt.rar% %jzip.spt.7z%"
+
 
 :: —πÀı±‡º≠∆˜≈‰÷√
 if "%processor_architecture%"=="AMD64" (
