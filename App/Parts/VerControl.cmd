@@ -250,7 +250,8 @@ if not "%~2"=="" (
 	if "!msgbox.t2: =!"=="" (
 		set "msgbox.t1=!msgbox.t1!&vbCrLf"
 	) else (
-			
+		set "msgbox.t2=!msgbox.t2:(=^(!"
+		set "msgbox.t2=!msgbox.t2:)=^)!"
 		set "msgbox.t2=!msgbox.t2:&=`?`&Chr(38)&`?`!"
 		set "msgbox.t2=!msgbox.t2: =`?`&Chr(32)&`?`!"
 		set "msgbox.t2=!msgbox.t2:,=`?`&Chr(44)&`?`!"

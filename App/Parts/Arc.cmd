@@ -9,16 +9,26 @@ mode %Window.Columns%, %Window.Lines%
 for %%a in (%jzip.spt.write%) do if /i "%Archive.exten%"==".%%a" set "ui.Archive.writeable=y"
 for /f "delims=" %%a in ('cscript //nologo "%dir.jzip%\Function\Create_GUID.vbs"') do set "random1=%%a"
 set "listzip.txt=%dir.jzip.temp%\%random1%.tmp"
-set "listzip.Dir="
-set "listzip.Menu=basic"
+set listzip.Dir=
+set listzip.Menu=basic
+set listzip.FileSel=0
 
-:: UTF-8 代码页检测 
+:: 设定编码开关 
 for /f "tokens=2 delims=:" %%i in ('chcp') do (
 	for %%z in (
-		65001}rar}-scf
-		65001}7z}-sccutf-8
-	) do for /f "tokens=1-3 delims=}" %%a in ("%%z") do (
-		if "%%i"==" %%a" if "%type.editor%"=="%%b" set "btn.utf8=%%c"
+		rar}ansi}-sca
+		rar}utf8}-scf
+		7z}ansi}-sccwin}-scswin
+		7z}utf8}-sccutf-8}-scsutf-8
+	) do for /f "tokens=1-4 delims=}" %%a in ("%%z") do (
+		if "%type.editor%"=="%%a" (
+			if "%%b"=="utf8" if "%%i"==" 65001" (
+				set "btn.utf.a=%%c" & set "btn.utf.b=%%d"
+			)
+			if "%%b"=="ansi" if not "%%i"==" 65001" (
+				set "btn.utf.a=%%c" & set "btn.utf.b=%%d"
+			)
+		)
 	)
 )
 
@@ -56,11 +66,11 @@ for %%z in (
 	if "%type.editor%"=="%%a" >"%listzip.txt%" (
 		echo,.
 		if defined listzip.Dir (
-			"!path.editor.%%a!" l %btn.utf8% "%path.Archive%" | find " %listzip.Dir%\" | findstr /v "\<%listzip.Dir.p%\\.*\\.*" | findstr /r /c:"%%~b"
-			"!path.editor.%%a!" l %btn.utf8% "%path.Archive%" | find " %listzip.Dir%\" | findstr /v "\<%listzip.Dir.p%\\.*\\.*" | findstr /r /c:"%%~c"
+			"!path.editor.%%a!" l %btn.utf.a% "%path.Archive%" | find " %listzip.Dir%\" | findstr /v "\<%listzip.Dir.p%\\.*\\.*" | findstr /r /c:"%%~b"
+			"!path.editor.%%a!" l %btn.utf.a% "%path.Archive%" | find " %listzip.Dir%\" | findstr /v "\<%listzip.Dir.p%\\.*\\.*" | findstr /r /c:"%%~c"
 		) else (
-			"!path.editor.%%a!" l %btn.utf8% "%path.Archive%" | findstr /v "\\" | findstr /r /c:"%%~b"
-			"!path.editor.%%a!" l %btn.utf8% "%path.Archive%" | findstr /v "\\" | findstr /r /c:"%%~c"
+			"!path.editor.%%a!" l %btn.utf.a% "%path.Archive%" | findstr /v "\\" | findstr /r /c:"%%~b"
+			"!path.editor.%%a!" l %btn.utf.a% "%path.Archive%" | findstr /v "\\" | findstr /r /c:"%%~c"
 		)
 	)
 )
@@ -94,9 +104,9 @@ set /a "listzip.LineViewEnd=listzip.LineViewStart+listzip.LineViewBlock-1"
 if %listzip.LineViewEnd% GTR %listzip.LineFileEnd% set /a "listzip.LineViewEnd=listzip.LineFileEnd"
 
 ::计算文件项数和显示页数 
-set /a "listzip.LineFileTotal=listzip.LineFileEnd-listzip.LineFileStart+1"
+set /a "listzip.FileTotal=listzip.LineFileEnd-listzip.LineFileStart+1"
 set /a "listzip.ViewPageNow=((listzip.LineViewStart-listzip.LineFileStart)/listzip.LineViewBlock)+1"
-set /a "listzip.ViewPageTotal=(listzip.LineFileTotal-1)/listzip.LineViewBlock+1"
+set /a "listzip.ViewPageTotal=(listzip.FileTotal-1)/listzip.LineViewBlock+1"
 
 :: 读取文本至变量并处理 	
 if "%type.editor%"=="7z" (
@@ -110,7 +120,7 @@ if "%type.editor%"=="rar" (
 
 cls
 
-::显示压缩档操作选项 
+:: 配置第一列栏 
 
 <nul set /p ="  %txt_e.home%  |  "
 
@@ -147,8 +157,17 @@ if "%listzip.Menu%"=="advance" (
 echo,
 echo,
 
+:: 配置第三列栏 
 for %%i in (7z rar) do if "%type.editor%"=="%%i" (
-	if defined listzip.LineFileSel ( echo=!txt_e.bar.%%i:%txt_sym.squ%=%txt_sym.squ.s%! ) else (echo=!txt_e.bar.%%i! )
+	if %listzip.FileTotal% GTR 0 (
+		if "%listzip.FileSel%"=="%listzip.FileTotal%" (
+			echo,!txt_e.bar.%%i:%txt_sym.squ%=%txt_sym.squ.s%!
+		) else (
+			echo,!txt_e.bar.%%i!
+		)
+	) else (
+		echo,!txt_e.bar.%%i!
+	)
 )
 
 :: 读取变量内容并输出到屏幕 
@@ -168,8 +187,8 @@ for /l %%i in (!listzip.LineFileEnd!,1,!listzip.ViewEchoEnd!) do echo,
 
 ::下方提示栏 
 <nul set /p ="  %listzip.ViewPageNow%/%listzip.ViewPageTotal% %txt_pages%  "
-if "%listzip.Dir%"=="" echo,%listzip.LineFileTotal% %txt_items% %listzip.Info%
-if not "%listzip.Dir%"=="" echo,%listzip.LineFileTotal% %txt_items%  %listzip.Dir:\= ^> %
+if "%listzip.Dir%"=="" echo,%listzip.FileTotal% %txt_items% %listzip.Info%
+if not "%listzip.Dir%"=="" echo,%listzip.FileTotal% %txt_items%  %listzip.Dir:\= ^> %
 
 ::UI--------------------------------------------------
 ::坐标判断 
@@ -188,8 +207,13 @@ if %listzip.LineViewStart% LEQ %listzip.ButtonLine% if %listzip.ButtonLine% LEQ 
 			) do for /f "tokens=1-5 delims=:" %%a in ("%%z") do (
 				if "%type.editor%"=="%%a" (
 					if %%b LEQ %mouse.x% if %mouse.x% LEQ %%c (
-						if defined listzip.LineFileSel.%%i (set "listzip.LineFileSel.%%i=") else (set "listzip.LineFileSel.%%i=%%i")
-						set "listzip.LineFileSel="
+						if defined listzip.FileSel.%%i (
+							set "listzip.FileSel.%%i="
+							set /a "listzip.FileSel-=1"
+						) else (
+							set "listzip.FileSel.%%i=%%i"
+							set /a "listzip.FileSel+=1"
+							)
 						goto :Menu-fast
 					)
 					if %mouse.x% GEQ %%d (
@@ -274,7 +298,7 @@ for /f "skip=%1 delims=" %%a in (%listzip.txt%) do (
 	set "listzip.LineFile.%1=%%a"
 	call set "listzip.LineView.%1=%%listzip.LineFile.%1!:%listzip.Dir%\=%%"
 	if "!listzip.LineFile.%1:~%2,1!"=="D" set "listzip.LineView.%1=!listzip.LineView.%1:~0,%3!  <!listzip.LineView.%1:~%4!>"
-	if defined listzip.LineFileSel.%1 (
+	if defined listzip.FileSel.%1 (
 		set "listzip.LineView.%1=!listzip.LineView.%1:~0,%3!  %txt_sym.squ.s% !listzip.LineView.%1:~%4!"
 	) else (
 		set "listzip.LineView.%1=!listzip.LineView.%1:~0,%3!  %txt_sym.squ% !listzip.LineView.%1:~%4!"
@@ -286,8 +310,7 @@ goto :EOF
 
 :进入 
 if "%~1"=="" (
-	%InputBox% listzip.Dir "%txt_e.type.enterfold%"
-	if not defined listzip.Dir goto :EOF
+	%InputBox-r% listzip.Dir "\%listzip.Dir%" "%txt_e.type.enterfold%"
 	if "!listzip.Dir:~0,1!"=="\" set "listzip.Dir=!listzip.Dir:~1!"
 ) else if "%~1"==".." (
 	if defined listzip.Dir (
@@ -318,17 +341,17 @@ goto :EOF
 
 
 :全选切换 
-if defined listzip.LineFileSel ( call :全不选 ) else ( call :全选 )
+if "%listzip.FileSel%"=="%listzip.FileTotal%" ( call :全不选 ) else ( call :全选 )
 goto :EOF
 
 :全选 
-for /l %%a in (%listzip.LineFileStart%,1,%listzip.LineFileEnd%) do set "listzip.LineFileSel.%%a=%%a"
-set "listzip.LineFileSel=all"
+for /l %%a in (%listzip.LineFileStart%,1,%listzip.LineFileEnd%) do set "listzip.FileSel.%%a=%%a"
+set "listzip.FileSel=%listzip.FileTotal%"
 goto :EOF
 
 :全不选 
-for /f "tokens=1 delims==" %%a in ('2^>nul set "listzip.LineFileSel."') do set "%%a="
-set "listzip.LineFileSel="
+for /f "tokens=1 delims==" %%a in ('2^>nul set "listzip.FileSel."') do set "%%a="
+set "listzip.FileSel=0"
 goto :EOF
 
 

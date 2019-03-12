@@ -1,7 +1,9 @@
 
-if not "!txt_edcode.%errorlevel%!"=="" (
-	call "%dir.jzip%\Function\VbsBox" msgbox "!txt_edcode.%errorlevel%!"
-) else (
-	call "%dir.jzip%\Function\VbsBox" msgbox "%txt_edcode% %errorlevel%"
+(
+	if not "!txt_edcode.%errorlevel%!"=="" (
+		call "%dir.jzip%\Function\VbsBox" msgbox "!txt_edcode.%errorlevel%!"
+	) else (
+		call "%dir.jzip%\Function\VbsBox" msgbox "%txt_edcode% %errorlevel%"
+	)
+	exit /b %errorlevel%
 )
-goto :EOF
