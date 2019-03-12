@@ -24,7 +24,7 @@ JFsoft Zip Tool 是一款命令行版的压缩工具，基于 7Zip Rar 命令行
 
 ### 获取 Jzip 便携版
 
-###### [在这里获取](https://github.com/Dennishaha/JZip/releases)
+###### [在这里获取](https://github.com/Dennishaha/JZip/tree/master/Server)
 
 ````
   下载 .exe 文件并置于空文件夹自解压，运行 Jzip.cmd 可打开 JZip。
