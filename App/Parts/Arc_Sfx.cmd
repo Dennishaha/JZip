@@ -1,6 +1,6 @@
 
 :: 调用 
-for %%i in (rar exe) do if /i "%Archive.exten%"==".%%i" call :menu
+for %%i in (rar exe) do if /i "%Arc.exten%"==".%%i" call :menu
 goto :EOF
 
 :menu
@@ -14,8 +14,8 @@ echo,
 echo,
 echo,
 echo,
-if /i "%Archive.exten%"==".rar" echo,                                    %txt_as.tip.add%
-if /i "%Archive.exten%"==".exe" echo,                                  %txt_as.tip.re%
+if /i "%Arc.exten%"==".rar" echo,                                    %txt_as.tip.add%
+if /i "%Arc.exten%"==".exe" echo,                                  %txt_as.tip.re%
 echo,
 echo,
 %echo%,                              %txt_b13.top%%txt_b8.top%
@@ -29,7 +29,7 @@ echo,
 %echo%,                              %txt_b13.bot%%txt_b8.bot%
 echo,
 echo,
-if /i "%Archive.exten%"==".exe" (
+if /i "%Arc.exten%"==".exe" (
 %echo%,                                   %txt_b16.top%
 %echo%,                                   %txt_b16.emp%
 %echo%,                                   %txt_as.b.add%
@@ -66,16 +66,16 @@ if "%key%"=="1"  ( set "SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\default.sfx"" 
 ) else if "%key%"=="2" ( set "SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\default64.sfx"" & goto :next
 ) else if "%key%"=="3" ( set "SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\wincon.sfx"" & goto :next
 ) else if "%key%"=="4" ( set "SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\wincon64.sfx"" & goto :next
-) else if "%key%"=="5" ( if /i "%Archive.exten%"==".exe" set "SfxOrder=s-" & goto :next
+) else if "%key%"=="5" ( if /i "%Arc.exten%"==".exe" set "SfxOrder=s-" & goto :next
 ) else if "%key%"=="back" ( goto :EOF
 )
 goto :menu
 
 :next
 cls
-md "%dir.jzip.temp%\%random1%" >nul
+md "%dir.jzip.temp%\%Arc.Guid%" >nul
 
-if "%type.editor%"=="rar" "%path.editor.rar%" %SfxOrder% -w%dir.jzip.temp%\%random1% "%path.Archive%" %iferror%
+if "%type.editor%"=="rar" "%path.editor.rar%" %SfxOrder% -w%dir.jzip.temp%\%Arc.Guid% "%Arc.path%" %iferror%
 
-%MsgBox% "转换完成。" " " "路径：%path.Archive%"
+%MsgBox% "转换完成。" " " "路径：%Arc.path%"
 goto :EOF

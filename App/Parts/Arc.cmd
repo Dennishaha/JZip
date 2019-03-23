@@ -1,17 +1,23 @@
 
-::初始变量设定 
+:: 初始变量设定 
 @echo off
 color %Color%
-title %path.Archive% %title%
+title %Arc.path% %title%
 
 set /a Window.Columns=110, Window.Lines=35
 mode %Window.Columns%, %Window.Lines%
-for %%a in (%jzip.spt.write%) do if /i "%Archive.exten%"==".%%a" set "ui.Archive.writeable=y"
-for /f "delims=" %%a in ('cscript //nologo "%dir.jzip%\Function\Create_GUID.vbs"') do set "random1=%%a"
-set "listzip.txt=%dir.jzip.temp%\%random1%.tmp"
-set listzip.Dir=
-set listzip.Menu=basic
-set listzip.FileSel=0
+for %%a in (%jzip.spt.write%) do if /i "%Arc.exten%"==".%%a" set "Arc.Writable=y"
+
+:: 从注册表读取 GUID 配置 
+for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" 2^>nul') do (
+	if /i "%%b"=="REG_SZ" set "%%a=%%c"
+)
+reg delete "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" /f >nul 2>nul
+
+:: 变量设定 
+set "listzip.txt=%dir.jzip.temp%\%Arc.Guid%.tmp"
+if not defined listzip.Menu set listzip.Menu=basic
+if not defined listzip.FileSel set listzip.FileSel=0
 
 :: 设定编码开关 
 for /f "tokens=2 delims=:" %%i in ('chcp') do (
@@ -33,7 +39,7 @@ for /f "tokens=2 delims=:" %%i in ('chcp') do (
 )
 
 :: 压缩文件可用性检测 
-for %%a in (rar 7z cab) do if "%type.editor%"=="%%a" >nul "!path.editor.%%a!" l "%path.Archive%" %iferror%
+for %%a in (rar 7z cab) do if "%type.editor%"=="%%a" >nul "!path.editor.%%a!" l "%Arc.path%" %iferror%
 
 :Menu
 
@@ -41,7 +47,7 @@ for %%a in (rar 7z cab) do if "%type.editor%"=="%%a" >nul "!path.editor.%%a!" l 
 if not defined listzip.Dir (
 	set "listzip.Info="
 	if "%type.editor%"=="rar" (
-		for /f "tokens=2* delims=:" %%i in (' call "%path.editor.rar%" l "%path.Archive%" ^| findstr /r "^Details:" ') do (
+		for /f "tokens=2* delims=:" %%i in (' call "%path.editor.rar%" l "%Arc.path%" ^| findstr /r "^Details:" ') do (
 			set "listzip.Info=%%i"
 			set "listzip.Info=!listzip.Info:solid=%txt_solid%!"
 			set "listzip.Info=!listzip.Info:SFX=%txt_sfx%!"
@@ -49,7 +55,7 @@ if not defined listzip.Dir (
 		)
 	)
 	if "%type.editor%"=="7z" (
-		for /f "tokens=1-2* delims==" %%i in (' call "%path.editor.7z%" l "%path.Archive%" ^| findstr /r "^Type ^Offset ^Method ^Solid " ') do (
+		for /f "tokens=1-2* delims==" %%i in (' call "%path.editor.7z%" l "%Arc.path%" ^| findstr /r "^Type ^Offset ^Method ^Solid " ') do (
 			if "%%i"=="Type " set "listzip.Info=!listzip.Info!%%j"
 			if "%%i"=="Offset " set "listzip.Info=!listzip.Info!, %txt_sfx%"
 			if "%%i"=="Method " set "listzip.Info=!listzip.Info!,%%j"
@@ -59,6 +65,18 @@ if not defined listzip.Dir (
 )
 
 :: 生成压缩档文件列表 
+if defined listzip.Dir (
+	set "listzip.Dir.p=!listzip.Dir:\=\\!"
+	set "listzip.Dir.p=!listzip.Dir.p: =\ !"
+	set "listzip.Dir.p=!listzip.Dir.p:[=\[!"
+	set "listzip.Dir.p=!listzip.Dir.p:]=\]!"
+	set "listzip.Dir.p=!listzip.Dir.p:.=\.!"
+	set "listzip.Dir.p=!listzip.Dir.p:^=\^!"
+	set "listzip.Dir.p=!listzip.Dir.p:$=\$!"
+) else (
+	set "listzip.Dir.p="
+)
+
 for %%z in (
 	rar}"^    ...D... "}"^    ..A\.... "
 	7z}"^.......... ........ D.... "}"^.......... ........ \..... "
@@ -66,11 +84,11 @@ for %%z in (
 	if "%type.editor%"=="%%a" >"%listzip.txt%" (
 		echo,.
 		if defined listzip.Dir (
-			"!path.editor.%%a!" l %btn.utf.a% "%path.Archive%" | find " %listzip.Dir%\" | findstr /v "\<%listzip.Dir.p%\\.*\\.*" | findstr /r /c:"%%~b"
-			"!path.editor.%%a!" l %btn.utf.a% "%path.Archive%" | find " %listzip.Dir%\" | findstr /v "\<%listzip.Dir.p%\\.*\\.*" | findstr /r /c:"%%~c"
+			"!path.editor.%%a!" l %btn.utf.a% "%Arc.path%" | find " %listzip.Dir%\" | findstr /v "\<%listzip.Dir.p%\\.*\\.*" | findstr /r /c:"%%~b"
+			"!path.editor.%%a!" l %btn.utf.a% "%Arc.path%" | find " %listzip.Dir%\" | findstr /v "\<%listzip.Dir.p%\\.*\\.*" | findstr /r /c:"%%~c"
 		) else (
-			"!path.editor.%%a!" l %btn.utf.a% "%path.Archive%" | findstr /v "\\" | findstr /r /c:"%%~b"
-			"!path.editor.%%a!" l %btn.utf.a% "%path.Archive%" | findstr /v "\\" | findstr /r /c:"%%~c"
+			"!path.editor.%%a!" l %btn.utf.a% "%Arc.path%" | findstr /v "\\" | findstr /r /c:"%%~b"
+			"!path.editor.%%a!" l %btn.utf.a% "%Arc.path%" | findstr /v "\\" | findstr /r /c:"%%~c"
 		)
 	)
 )
@@ -126,7 +144,7 @@ cls
 
 if "%listzip.Menu%"=="basic" (
 	<nul set /p =" %txt_e.open% %txt_e.extr% %txt_e.unzip% "
-	if defined ui.Archive.writeable (
+	if defined Arc.Writable (
 		<nul set /p =" %txt_e.add% %txt_e.del% %txt_e.rn% "
 	) else (
 		<nul set /p ="                  "
@@ -177,26 +195,46 @@ for %%a in (%Window.Columns%) do (
 	)
 )
 
-::补充空行 
+:: 补充空行 
 set /a "listzip.ViewEchoEnd=listzip.LineViewStart+listzip.LineViewBlock-2"
 for /l %%i in (!listzip.LineFileEnd!,1,!listzip.ViewEchoEnd!) do echo,
 
-::调试注释，常闭 
+:: 调试注释，常闭 
 ::echo, File {%listzip.LineFileStart%:%listzip.LineFileEnd%} View [%listzip.LineViewStart%:%listzip.LineViewEnd%]
 ::echo,!listzip.Dir!  !listzip.Dir.p!
 
-::下方提示栏 
+:: 下方提示栏 
 <nul set /p ="  %listzip.ViewPageNow%/%listzip.ViewPageTotal% %txt_pages%  "
 if "%listzip.Dir%"=="" echo,%listzip.FileTotal% %txt_items% %listzip.Info%
 if not "%listzip.Dir%"=="" echo,%listzip.FileTotal% %txt_items%  %listzip.Dir:\= ^> %
 
 ::UI--------------------------------------------------
-::坐标判断 
+
+:: Arc.Do 行为判断 
+if defined Arc.Do (
+	for %%z in (
+		Unzip}3}
+		Add}4}
+		Delete}5}
+		ReName}6}
+		Repair}a3}
+		Lock}a4}
+		Note}a5}
+		Sfx}a6}
+	) do for /f "tokens=1-2 delims=}" %%a in ("%%z") do (
+		if /i "%Arc.Do%"=="%%a" (
+			set key=%%b
+			goto :Arc.Do
+		)
+	)
+)
+
+:: 坐标判断 
 %tmouse% /d 0 -1 1
 %tmouse.process%
 ::%tmouse.test%
 
-::压缩档文件列表坐标判断 
+:: 压缩档文件列表坐标判断 
 set /a listzip.ButtonLine=listzip.LineViewStart+mouse.y-3
 if %listzip.LineViewStart% LEQ %listzip.ButtonLine% if %listzip.ButtonLine% LEQ %listzip.LineViewEnd% (
 	for /f %%i in ("%listzip.ButtonLine%") do (
@@ -232,7 +270,7 @@ if %listzip.LineViewStart% LEQ %listzip.ButtonLine% if %listzip.ButtonLine% LEQ 
 	)
 )
 
-::界面操作栏坐标判断 
+:: 界面操作栏坐标判断 
 if "%listzip.Menu%"=="basic" for %%A in (
 	11}14}0}0}1}
 	16}19}0}0}2}
@@ -268,12 +306,14 @@ for %%A in (
 	if %%a LEQ %mouse.x% if %mouse.x% LEQ %%b if %%c LEQ %mouse.y% if %mouse.y% LEQ %%d set "key=%%e"
 )
 
+
+:Arc.Do
 if "%key%"=="1" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Open
 ) else if "%key%"=="2" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Extr
 ) else if "%key%"=="3" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Unzip
-) else if "%key%"=="4" ( if "%ui.Archive.writeable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" Add
-) else if "%key%"=="5" ( if "%ui.Archive.writeable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" Delete
-) else if "%key%"=="6" ( if "%ui.Archive.writeable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" ReName
+) else if "%key%"=="4" ( if "%Arc.Writable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" Add
+) else if "%key%"=="5" ( if "%Arc.Writable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" Delete
+) else if "%key%"=="6" ( if "%Arc.Writable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" ReName
 ) else if "%key%"=="7" ( set "listzip.Menu=advance" & goto :Menu-fast
 ) else if "%key%"=="8" ( set /a "listzip.LineViewStart-=%listzip.LineViewBlock%" & goto :Menu-fast
 ) else if "%key%"=="9" ( set /a "listzip.LineViewStart+=%listzip.LineViewBlock%" & goto :Menu-fast
@@ -284,11 +324,15 @@ if "%key%"=="1" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Open
 ) else if "%key%"=="a3" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Expan.cmd" Repair
 ) else if "%key%"=="a4" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Expan.cmd" Lock
 ) else if "%key%"=="a5" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Expan.cmd" Note
-) else if "%key%"=="a6" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Sfx.cmd"
+) else if "%key%"=="a6" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Expan.cmd" Sfx
 ) else if "%key%"=="s1" ( if "%type.editor%"=="rar" call :全选切换 & goto :Menu-fast
 ) else if "%key%"=="s2" ( if "%type.editor%"=="7z" call :全选切换 & goto :Menu-fast
 ) else if "%key%"=="e" ( start /i cmd /c call "%path.jzip.launcher%" & goto :EOF
 )
+
+:: Arc.Do 结束 
+set Arc.Do=
+
 call :全不选 
 goto :Menu
 
@@ -323,18 +367,6 @@ if "%~1"=="" (
 ) else if not "%~1"=="" (
 	set "listzip.Dir=%~1"
 	)
-
-if defined listzip.Dir (
-	set "listzip.Dir.p=!listzip.Dir:\=\\!"
-	set "listzip.Dir.p=!listzip.Dir.p: =\ !"
-	set "listzip.Dir.p=!listzip.Dir.p:[=\[!"
-	set "listzip.Dir.p=!listzip.Dir.p:]=\]!"
-	set "listzip.Dir.p=!listzip.Dir.p:.=\.!"
-	set "listzip.Dir.p=!listzip.Dir.p:^=\^!"
-	set "listzip.Dir.p=!listzip.Dir.p:$=\$!"
-) else (
-	set "listzip.Dir.p="
-)
 
 set "listzip.LineViewStart="
 goto :EOF

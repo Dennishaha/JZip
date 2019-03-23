@@ -1,6 +1,6 @@
 
 :: µº»Î 
-if /i "%~1"=="import" (
+if /i "%~1"=="-import" (
 	set MsgBox=call "%~0" MsgBox
 	set MsgBox-s=call "%~0" MsgBox-s
 	set InputBox=call "%~0" InputBox

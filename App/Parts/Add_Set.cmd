@@ -4,7 +4,7 @@ call :%*
 goto :EOF
 
 :压缩格式切换 
-set "Archive.exten=.%~1"
+set "Arc.exten=.%~1"
 if /i not "%自解压%"=="" call :自解压 -default
 goto :EOF
 
@@ -60,7 +60,7 @@ goto :EOF
 :自解压 
 if "%~1"=="-default" (
 	set "自解压="
-	for %%i in (rar 7z) do if "%Archive.exten%"==".%%i" set "自解压=a32"
+	for %%i in (rar 7z) do if "%Arc.exten%"==".%%i" set "自解压=a32"
 	goto :EOF
 )
 if "%~1"=="" (
@@ -72,7 +72,7 @@ if "%~1"=="" (
 		zip/a32/a64,zip/a64/a32,
 	) do (
 		for /f "tokens=1,2,3 delims=/" %%a in ("%%A") do (
-			if "%Archive.exten%"==".%%~a" if "%自解压%"=="%%~b" set "自解压=%%~c" & goto :EOF
+			if "%Arc.exten%"==".%%~a" if "%自解压%"=="%%~b" set "自解压=%%~c" & goto :EOF
 		)
 	)
 )
@@ -81,9 +81,9 @@ goto :EOF
 :更改名称 
 %InputBox% key1 "%txt_aas.zipname%"
 if not defined key1 goto :EOF
-set "Archive.name=%key1%"
-for /f "delims=" %%i in ("%Archive.name%") do (
-	if "%Archive.exten%"=="%%~xi" set "Archive.name=%%~ni"
+set "Arc.name=%key1%"
+for /f "delims=" %%i in ("%Arc.name%") do (
+	if "%Arc.exten%"=="%%~xi" set "Arc.name=%%~ni"
 )
 goto :EOF
 
@@ -93,25 +93,26 @@ if not defined key1 goto :EOF
 for /f "delims=" %%i in ("%key1%") do (
 	for %%a in (%jzip.spt.write%) do if /i "%%~xi"==".%%a" (
 		if /i "%%~xi"==".exe" (
-			"%path.editor.7z%" l "%%~i" | findstr /r /c:"^Type = 7z.*" >nul && ( set "Archive.exten=.7z" & set "自解压=y" )
-			"%path.editor.rar%" l "%%~i" | findstr /r /c:"^Details: RAR.*" >nul && ( set "Archive.exten=.rar" & set "自解压=y" )
+			"%path.editor.7z%" l "%%~i" | findstr /r /c:"^Type = 7z.*" >nul && ( set "Arc.exten=.7z" & set "自解压=y" )
+			"%path.editor.rar%" l "%%~i" | findstr /r /c:"^Details: RAR.*" >nul && ( set "Arc.exten=.rar" & set "自解压=y" )
 			if not "!自解压!"=="y" %MsgBox% "%txt_notzip%" " " "%%~i" & goto :EOF
 		) else (
-			set "Archive.exten=%%~xi"
+			set "Arc.exten=%%~xi"
 		)
-		set "Archive.dir=%%~dpi"
-		set "Archive.name=%%~ni"
+		set "Arc.dir=%%~dpi"
+		set "Arc.name=%%~ni"
 		goto :EOF
 	)
-	for %%a in (%jzip.spt.write.noadd%) do if /i "%%~xi"==".%%a" (
+	for %%a in (%jzip.spt.noadd%) do if /i "%%~xi"==".%%a" (
 		%MsgBox% "%txt_cantadd%" " " "%%~i" & goto :EOF
 	)
 	%MsgBox% "%txt_notzip%" " " "%%~i"
 )
 goto :EOF
 
+
 :更改路径 
 call "%dir.jzip%\Function\Select_Folder.cmd" key1
 if not defined key1 goto :EOF
-set "Archive.dir=%key1%\"
+set "Arc.dir=%key1%\"
 goto :EOF

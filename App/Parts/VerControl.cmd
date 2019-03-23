@@ -131,7 +131,7 @@ if defined jzip.Portable (
 		call :MsgBox-s key "%txt_vc.pt.update%" " " "%dir.jzip%" "%txt_vc.path.sure%" " " "%txt_vc.sure%"
 	)
 	if "%1"=="UnInstall" (
-		call :MsgBox-s key "%txt_vc.pt.update%" " " "%dir.jzip%" "%txt_vc.path.sure%" " " "%txt_vc.sure%"
+		call :MsgBox-s key "%txt_vc.path.rd%" " " "%dir.jzip%" "%txt_vc.path.sure%" " " "%txt_vc.sure%"
 	)
 	if not "!key!"=="1" goto :EOF
 )

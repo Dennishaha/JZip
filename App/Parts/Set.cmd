@@ -100,6 +100,11 @@ goto :EOF
 
 
 :Temp_Clean
+
+:: 注册表临时项清理 
+reg delete "HKCU\Software\JFsoft.Jzip\Record\@" /f >nul 2>nul
+
+:: 注册表临时文件夹清理 
 if defined dir.jzip.temp >nul (
 	rd /q /s "%dir.jzip.temp%"
 	md "%dir.jzip.temp%"
@@ -114,7 +119,15 @@ goto :EOF
 :Temp_Set
 call "%dir.jzip%\Function\Select_Folder.cmd" key
 if not defined key goto :EOF
-dir /a /b "!key!" | findstr .* >nul && (
+
+:: GUID 文件夹排除 
+if "%key:~0,2%"=="::" (
+	%msgbox% "%txt_s.need.emp%
+	goto :EOF
+)
+
+:: 空文件夹排除 
+dir /a /b "%key%" | findstr .* >nul && (
 	%msgbox% "%txt_s.need.emp%"
 ) || (
 	set "dir.jzip.temp=!key!"
