@@ -1,7 +1,7 @@
 
 @setlocal EnableExtensions EnableDelayedExpansion
 
-@set "jzip.ver=3.2.7"
+@set "jzip.ver=3.2.8"
 @set "path.jzip.launcher=%~0"
 @set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 @set "dir.jzip.temp=%temp%\JFsoft.Jzip"
@@ -99,9 +99,10 @@ for %%a in (Dir.Jzip.Temp Color FileAssoc ShortCut RightMenu RecentTime) do >nul
 
 :: 配置组件
 color %Color%
-set "iferror=|| ( call "%dir.jzip%\Function\EdCode.cmd" & goto :EOF )"
+set "iferror=|| ( call "%dir.jzip%\Function\EdCode.cmd" & exit /b ^^!errorlevel^^! )"
 call "%dir.jzip%\Function\VbsBox.cmd" -import
 call "%dir.jzip%\Function\sudo.cmd" -import
+call "%dir.jzip%\Function\CapTrans.cmd" -import
 
 ::被调用
 if exist "%~1" call :Set_Info list %* & goto :EOF
@@ -275,19 +276,19 @@ goto :EOF
 
 :-help
 @echo,
-@echo, JFsoft JZip %jzip.ver%   2012-2019 (c) Dennishaha  保留所有权利
+@echo, JFsoft JZip %jzip.ver%   2012-2019 (c) Dennishaha  %txt.rightres%
 @echo,
-@echo, 用法： Jzip ^<开关^> ^<命令^> ^<文件^|压缩档^>
+@echo, %txt.usage%： Jzip ^< %txt.switch% ^> ^< %txt.command% ^> ^< %txt.files% ^| %txt.archives% ^>
 @echo,
-@echo,   ^<开关^>
-@echo,	-help		查看帮助
-@echo,	-su		以管理员权限运行 Jzip
-@echo,	-install	安装模式启动 Jzip
-@echo,	-setting	启动 Jzip 并转到设置页
+@echo,   ^< %txt.switch% ^>
+@echo,	-help		%txt.h.help%
+@echo,	-su		%txt.h.su%
+@echo,	-install	%txt.h.install%
+@echo,	-setting	%txt.h.setting%
 @echo,
-@echo,   ^<命令^>
-@echo,	""		默认缺省查看压缩档
-@echo,	add		添加文件到压缩档
-@echo,	unzip		解压压缩档至子文件夹
+@echo,   ^< %txt.command% ^>
+@echo,	""		%txt.h.@%
+@echo,	add		%txt.h.add%
+@echo,	unzip		%txt.h.unzip%
 @echo,
 @goto :EOF

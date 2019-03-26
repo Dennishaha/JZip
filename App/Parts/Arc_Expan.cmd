@@ -47,7 +47,7 @@ if /i "%~1"=="Unzip" (
 for %%i in (Unzip Add Delete ReName Repair Lock Note Sfx) do if /i "%~1"=="%%i" (
 	if defined Arc.Uac (
 		:: 保存临时配置到注册表
-		for %%a in (dir.release listzip.Dir listzip.Menu listzip.FileSel) do (
+		for %%a in (dir.release lz.Dir lz.Menu lz.FileSel) do (
 			for /f "tokens=1 delims==" %%b in ('2^>nul set "%%a"') do >nul (
 				if "!%%b:~-1!"=="\" (
 					reg add "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" /t REG_SZ /v "%%b" /d "!%%b!\" /f %iferror%
@@ -61,17 +61,8 @@ for %%i in (Unzip Add Delete ReName Repair Lock Note Sfx) do if /i "%~1"=="%%i" 
 	)
 )
 
-:: 单击打开检测 
-for %%i in (Open) do if /i "%~1"=="%%i" (
-	if not "%~2"=="" (
-		set "Arc.file=%~2"
-		call :%*
-		goto :EOF
-	)
-)
-
 :: 空选检测 
->nul 2>nul set "listzip.FileSel." || (
+>nul 2>nul set "lz.FileSel." || (
 	for %%z in (
 		Open\1\"%txt_x.type.open%"
 		ReName\1\"%txt_x.type.rn%"\"%txt_x.wildcard%"
@@ -84,8 +75,8 @@ for %%i in (Open) do if /i "%~1"=="%%i" (
 				%InputBox% Arc.file "%%~c" " " "%%~d" "%%~e"
 				if not defined Arc.file goto :EOF
 				set "ui.Arc.file=!Arc.file!"
-				if defined listzip.Dir set "Arc.file=!listzip.Dir!\!Arc.file!"
-				> "%listzip.txt%o" echo,!Arc.file!
+				if defined lz.Dir set "Arc.file=!lz.Dir!\!Arc.file!"
+				> "%lz.txt%o" echo,!Arc.file!
 			)
 			call :%*
 			goto :EOF
@@ -94,13 +85,13 @@ for %%i in (Open) do if /i "%~1"=="%%i" (
 )
 
 :: 多项检测 
->nul 2>nul set "listzip.FileSel." && (
-	> "%listzip.txt%o" echo,
-	for /f "tokens=2 delims==" %%a in ('2^>nul set "listzip.FileSel."') do (
-		if "%type.editor%"=="7z" set "Arc.file=!listzip.LineFile.%%a:~53!"
-		if "%type.editor%"=="rar" set "Arc.file=!listzip.LineFile.%%a:~41!"
-		set "ui.Arc.file=!Arc.file:%listzip.Dir%\=!"
-		>> "%listzip.txt%o" echo,!Arc.file!
+>nul 2>nul set "lz.FileSel." && (
+	> "%lz.txt%o" echo,
+	for /f "tokens=2 delims==" %%a in ('2^>nul set "lz.FileSel."') do (
+		if "%type.editor%"=="7z" set "Arc.file=!lz.LineFile.%%a:~54!"
+		if "%type.editor%"=="rar" set "Arc.file=!lz.LineFile.%%a:~42!"
+		set "ui.Arc.file=!Arc.file:%lz.Dir%\=!"
+		>> "%lz.txt%o" echo,!Arc.file!
 
 		for %%i in (Open UnZip ReName) do if /i "%~1"=="%%i" (
 			call :%*
@@ -112,7 +103,6 @@ for %%i in (Open) do if /i "%~1"=="%%i" (
 		call :%*
 		goto :EOF
 	)
-	goto :EOF
 )
 
 :: 其他选项检测 
@@ -129,12 +119,12 @@ call "%dir.jzip%\Function\Select_File.cmd" key
 set "path.File=!key!"
 if not defined path.File goto :EOF
 
-if defined listzip.Dir (
+if defined lz.Dir (
 	for /f "delims=" %%i in ('cscript //nologo "%dir.jzip%\Function\Create_GUID.vbs"') do (
-		>nul md "%dir.jzip.temp%\%%i\%listzip.Dir%"
-		xcopy "!path.File!" "%dir.jzip.temp%\%%i\%listzip.Dir%" /s /q /h /k
-		if "%type.editor%"=="7z" "!path.editor.7z!" a -w"%dir.jzip.temp%" "%Arc.path%" "%dir.jzip.temp%\%%i\%listzip.Dir%" %iferror%
-		if "%type.editor%"=="rar" "!path.editor.rar!" a -ep1 -w"%dir.jzip.temp%" "%Arc.path%" "%dir.jzip.temp%\%%i\%listzip.Dir%" %iferror%
+		>nul md "%dir.jzip.temp%\%%i\%lz.Dir%"
+		xcopy "!path.File!" "%dir.jzip.temp%\%%i\%lz.Dir%" /s /q /h /k
+		if "%type.editor%"=="7z" "!path.editor.7z!" a -w"%dir.jzip.temp%" "%Arc.path%" "%dir.jzip.temp%\%%i\%lz.Dir%" %iferror%
+		if "%type.editor%"=="rar" "!path.editor.rar!" a -ep1 -w"%dir.jzip.temp%" "%Arc.path%" "%dir.jzip.temp%\%%i\%lz.Dir%" %iferror%
 		>nul rd /s /q "%dir.jzip.temp%\%%i"
 	)
 ) else (
@@ -166,17 +156,17 @@ for %%i in (cmd bat) do if /i "%Arc.file:~-4%"==".%%i" (
 )
 
 start /i "" "%dir.jzip.temp%\%Arc.Guid%\%Arc.file%"
-if errorlevel 1 start "" "%dir.jzip.temp%\%Arc.Guid%\%listzip.Dir%"
+if errorlevel 1 start "" "%dir.jzip.temp%\%Arc.Guid%\%lz.Dir%"
 exit /b %errorlevel%
 
 
 :: 提取文件 
 :Extr
 cls
-if "%type.editor%"=="rar" "%path.editor.rar%" x %btn.utf.b% -y "%Arc.path%" @"%listzip.txt%o" %dir.jzip.temp%\%Arc.Guid%\ %iferror%
-if "%type.editor%"=="7z" "%path.editor.7z%" x %btn.utf.b% -o"%dir.jzip.temp%\%Arc.Guid%" -y "%Arc.path%"  @"%listzip.txt%o" %iferror%
+if "%type.editor%"=="rar" "%path.editor.rar%" x %btn.utf.b% -y "%Arc.path%" @"%lz.txt%o" %dir.jzip.temp%\%Arc.Guid%\ %iferror%
+if "%type.editor%"=="7z" "%path.editor.7z%" x %btn.utf.b% -o"%dir.jzip.temp%\%Arc.Guid%" -y "%Arc.path%"  @"%lz.txt%o" %iferror%
 
-start "" "%dir.jzip.temp%\%Arc.Guid%\%listzip.Dir%"
+start "" "%dir.jzip.temp%\%Arc.Guid%\%lz.Dir%"
 exit /b %errorlevel%
 
 
@@ -186,12 +176,12 @@ cls
 if not defined Arc.file (
 	set "Arc.file=*"
 )
-if defined listzip.Dir (
+if defined lz.Dir (
 	for /f "delims=" %%i in ('cscript //nologo "%dir.jzip%\Function\Create_GUID.vbs"') do (
 		>nul md "%dir.jzip.temp%\%%i"
 		if "%type.editor%"=="rar" "%path.editor.rar%" x "%Arc.path%" "%Arc.file%" "%dir.jzip.temp%\%%i\" %iferror%
 		if "%type.editor%"=="7z" "%path.editor.7z%" x -o"%dir.jzip.temp%\%%i\" "%Arc.path%" "%Arc.file%" %iferror%
-		xcopy "%dir.jzip.temp%\%%i\%listzip.Dir%" "%dir.release%\*" /e /q /h /k
+		xcopy "%dir.jzip.temp%\%%i\%lz.Dir%" "%dir.release%\*" /e /q /h /k
 		>nul rd /s /q "%dir.jzip.temp%\%%i"
 	)
 ) else (
@@ -203,8 +193,8 @@ exit /b %errorlevel%
 
 :: 删除文件 
 :Delete
-if %listzip.FileSel% GTR 1 (
-	%MsgBox-s% key.e "%txt_x.del.confirm%" " " "%listzip.FileSel% %txt_items%"
+if %lz.FileSel% GTR 1 (
+	%MsgBox-s% key.e "%txt_x.del.confirm%" " " "%lz.FileSel% %txt_items%"
 ) else (
 	%MsgBox-s% key.e "%txt_x.del.confirm%" " " "%ui.Arc.file%"
 )
@@ -212,7 +202,7 @@ if %listzip.FileSel% GTR 1 (
 if "!key.e!"=="1" (
 	cls
 	for %%a in (rar,7z) do if "%type.editor%"=="%%a" (
-		"!path.editor.%%a!" d %btn.utf.b% -w"%dir.jzip.temp%" "%Arc.path%" @"%listzip.txt%o" %iferror%
+		"!path.editor.%%a!" d %btn.utf.b% -w"%dir.jzip.temp%" "%Arc.path%" @"%lz.txt%o" %iferror%
 	)
 	if not exist "%Arc.path%" %MsgBox% "%txt_x.zip.deled%" & exit /b
 )
@@ -224,7 +214,7 @@ exit /b %errorlevel%
 set Arc.file.rn=
 %InputBox-r% Arc.file.rn "%ui.Arc.file%" "%txt_x.type.rn.new%" " " "%ui.Arc.file%" " " "%txt_x.wildcard%"
 if not defined Arc.file.rn set "key.e=2" & goto :EOF
-if defined listzip.Dir set "Arc.file.rn=!listzip.Dir!\!Arc.file.rn!"
+if defined lz.Dir set "Arc.file.rn=!lz.Dir!\!Arc.file.rn!"
 
 cls
 for %%a in (rar,7z) do if "%type.editor%"=="%%a" "!path.editor.%%a!" rn -w"%dir.jzip.temp%" "%Arc.path%" "%Arc.file%" "%Arc.file.rn%" %iferror%
