@@ -1,7 +1,7 @@
 
 @setlocal EnableExtensions EnableDelayedExpansion
 
-@set "jzip.ver=3.2.8 "
+@set "jzip.ver=3.2.8  "
 @set "path.jzip.launcher=%~0"
 @set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 @set "dir.jzip.temp=%temp%\JFsoft.Jzip"
@@ -187,7 +187,7 @@ if not "%~2"=="" (
 	dir "%~2" /b >nul 2>nul && (
 		set "path.raw.!raw.num!=%~2"
 	) || (
-		echo,"%~2" | find "//" >nul && (set "Arc.Guid=%~2" & set "Arc.Guid=!Arc.Guid:~2!")
+		echo,"%~2" | find "//" >nul && (set "Guid=%~2" & set "Guid=!Guid:~2!")
 		echo,"%~2" | find "--" >nul && (set "Arc.Do=%~2" & set "Arc.Do=!Arc.Do:~2!")
 	)
 	set /a "raw.num+=1"
@@ -202,7 +202,9 @@ for %%a in (add add-7z) do if /i "%~1"=="%%a" (
 	)
 
 	:: 生成 GUID 
-	if not defined Arc.Guid (
+	if defined Guid (
+		set "Arc.Guid=%Guid%"
+	) else (
 		for /f "delims=" %%a in ('cscript //nologo "%dir.jzip%\Function\Create_GUID.vbs"') do set "Arc.Guid=%%a"
 	)
 
@@ -233,7 +235,9 @@ for %%a in (list unzip) do if /i "%~1"=="%%a" (
 			set "Arc.exten=%%~xc"
 
 			:: 生成 GUID 
-			if not defined Arc.Guid (
+			if defined Guid (
+				set "Arc.Guid=%Guid%"
+			) else (
 				for /f "delims=" %%a in ('cscript //nologo "%dir.jzip%\Function\Create_GUID.vbs"') do set "Arc.Guid=%%a"
 			)
 
