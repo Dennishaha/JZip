@@ -249,7 +249,7 @@ if %lz.LineViewStart% LEQ %lz.ButtonLine% if %lz.ButtonLine% LEQ %lz.LineViewEnd
 			for %%z in (
 				7z:21:52:54:55:57
 				rar:8:40:42:43:45
-			) do for /f "tokens=1-5 delims=:" %%a in ("%%z") do (
+			) do for /f "tokens=1-6 delims=:" %%a in ("%%z") do (
 				if "%type.editor%"=="%%a" (
 					if %%d LEQ %mouse.x% if %mouse.x% LEQ %%e (
 						if defined lz.FileSel.%%i (
