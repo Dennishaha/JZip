@@ -62,10 +62,10 @@ for %%A in (
 	)
 )
 
-if "%key%"=="1"  ( set "SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\default.sfx"" & goto :next
-) else if "%key%"=="2" ( set "SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\default64.sfx"" & goto :next
-) else if "%key%"=="3" ( set "SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\wincon.sfx"" & goto :next
-) else if "%key%"=="4" ( set "SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\wincon64.sfx"" & goto :next
+if "%key%"=="1"  ( set SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\default.sfx" & goto :next
+) else if "%key%"=="2" ( set SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\default64.sfx" & goto :next
+) else if "%key%"=="3" ( set SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\wincon.sfx" & goto :next
+) else if "%key%"=="4" ( set SfxOrder=s -sfx"%dir.jzip%\Components\Sfx\wincon64.sfx" & goto :next
 ) else if "%key%"=="5" ( if /i "%Arc.exten%"==".exe" set "SfxOrder=s-" & goto :next
 ) else if "%key%"=="back" ( goto :EOF
 )

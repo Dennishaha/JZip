@@ -99,7 +99,7 @@ for /f "tokens=3 delims=:" %%i in ('find /v /c "" "%lz.txt%"') do (
 	if %%i LSS 1 ( set "lz.LineFileEnd=1" ) else ( set /a "lz.LineFileEnd=%%i-1" )
 )
 
-:Fast1 
+:Fast 
 
 :: 动态调整窗口大小，调试时需注释以禁用 
 for /f "tokens=1-2" %%a in ('mode') do (
@@ -133,8 +133,6 @@ if "%type.editor%"=="7z" (
 if "%type.editor%"=="rar" (
 	for /l %%a in (%lz.LineViewStart%,1,%lz.LineViewEnd%) do call :分析一行内容 %%a 8 40 42
 )
-
-:Fast2 
 
 ::UI--------------------------------------------------
 
@@ -247,11 +245,14 @@ if %lz.LineViewStart% LEQ %lz.ButtonLine% if %lz.ButtonLine% LEQ %lz.LineViewEnd
 	for /f %%i in ("%lz.ButtonLine%") do (
 		if defined lz.LineFile.%%i (
 			for %%z in (
-				7z:21:52:54:55:57
-				rar:8:40:42:43:45
+				7z:21:54:56
+				rar:8:42:44
 			) do for /f "tokens=1-6 delims=:" %%a in ("%%z") do (
 				if "%type.editor%"=="%%a" (
-					if %%d LEQ %mouse.x% if %mouse.x% LEQ %%e (
+					if %mouse.x% LSS %%c (
+						call :全不选 
+					)
+					if %mouse.x% LSS %%d (
 						if defined lz.FileSel.%%i (
 							set "lz.FileSel.%%i="
 							set /a "lz.FileSel-=1"
@@ -259,21 +260,19 @@ if %lz.LineViewStart% LEQ %lz.ButtonLine% if %lz.ButtonLine% LEQ %lz.LineViewEnd
 							set "lz.FileSel.%%i=%%i"
 							set /a "lz.FileSel+=1"
 						)
-						call :分析一行内容  %%i %%b %%c %%d
-						goto :Fast2
 					)
-					if %mouse.x% GEQ %%f (
+					if %mouse.x% GTR %%d (
 						call :全不选 
 						if "!lz.LineFile.%%i:~%%b,1!"=="D" (
-							call :进入  "!lz.LineFile.%%i:~%%d!"
+							call :进入  "!lz.LineFile.%%i:~%%c!"
 							goto :Menu
 						) else (
 							set "lz.FileSel.%%i=%%i"
 							set /a "lz.FileSel+=1"
 							call "%dir.jzip%\Parts\Arc_Expan.cmd" Open
-							goto :Fast1
 						)
 					)
+					goto :Fast
 				)
 			)
 		)
@@ -341,10 +340,8 @@ if "%key%"=="1" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Open
 )
 
 :: 快速刷新 
-for %%i in (8 9 s1 s2) do if "%key%"=="%%i" goto :Fast1
-if not defined key call :全不选 & goto :Fast1
-
-for %%i in (7 s1) do if "%key%"=="%%i" goto :Fast2
+for %%i in (7 8 9 a1 s1 s2) do if "%key%"=="%%i" goto :Fast
+if not defined key call :全不选 & goto :Fast
 
 :: Arc.Do 结束 
 set Arc.Do=
