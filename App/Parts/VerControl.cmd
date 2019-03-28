@@ -52,7 +52,11 @@ if /i "%dir.jzip%"=="%dir.jzip.default%" (set "jzip.Portable=") else (set "jzip.
 
 
 :: Mshta 可用性判断 
-mshta /? || ( echo,%txt_vc.err.hta% & echo,%txt_vc.err.info% & pause >nul )
+mshta "vbscript:execute(close)" || (
+	echo,%txt_vc.err.hta%
+	echo,%txt_vc.err.info%
+	pause >nul
+)
 
 
 :: 检测 Bits 组件 
@@ -86,7 +90,9 @@ for %%i in (Install Upgrade) do if "%1"=="%%i" (
 	cls
 	>nul 2>nul dir "%dir.jzip.temp%\ver.ini" /a:-d /b %if.error.2%
 
-	for /f "eol=[ usebackq tokens=1,2* delims==" %%a in (`type "%dir.jzip.temp%\ver.ini"`) do set "%%a=%%b"
+	for /f "eol=[ usebackq tokens=1,* delims==" %%a in (`type "%dir.jzip.temp%\ver.ini"`) do set "%%a=%%b"
+
+	if defined jzip.newver.url set "jzip.newver.url=!jzip.newver.url: =%%20!"
 	set "jzip.newver.page=%dir.jzip.temp%\full.!jzip.newver!.exe"
 )
 
