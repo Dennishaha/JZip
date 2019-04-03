@@ -20,23 +20,23 @@ goto :EOF
 
 :on
 1>"%dir.jzip.temp%\Assoc.cmd" (
-	echo,for %%^%%a in ^(%jzip.spt.assoc%^) do 1^>nul assoc .%%^%%a=JFsoft.Jzip
-	echo,1^>nul ftype JFsoft.Jzip="%path.jzip.launcher%" "%%%%1"
+	echo;for %%^%%a in ^(%jzip.spt.assoc%^) do 1^>nul assoc .%%^%%a=JFsoft.Jzip
+	echo;1^>nul ftype JFsoft.Jzip="%path.jzip.launcher%" "%%%%1"
 )
 if "%1"=="reg" 1>>"%dir.jzip.temp%\Assoc.cmd" (
-	echo,reg add "HKCU\Software\JFsoft.Jzip" /v "FileAssoc" /d "y" /f ^>nul
+	echo;reg add "HKCU\Software\JFsoft.Jzip" /v "FileAssoc" /d "y" /f ^>nul
 )
 goto :Assoc
 
 
 :off
 1>"%dir.jzip.temp%\Assoc.cmd" (
-	echo,for %%^%%a in ^(%jzip.spt.open%^) do 1^>nul assoc .%%^%%a=
-	echo,1^>nul ftype JFsoft.Jzip=
-	echo,reg delete "HKCR\JFsoft.Jzip" /f ^>nul
+	echo;for %%^%%a in ^(%jzip.spt.open%^) do 1^>nul assoc .%%^%%a=
+	echo;1^>nul ftype JFsoft.Jzip=
+	echo;reg delete "HKCR\JFsoft.Jzip" /f ^>nul
 )
 if "%1"=="reg" 1>>"%dir.jzip.temp%\Assoc.cmd" (
-	echo,reg add "HKCU\Software\JFsoft.Jzip" /v "FileAssoc" /d "" /f ^>nul
+	echo;reg add "HKCU\Software\JFsoft.Jzip" /v "FileAssoc" /d "" /f ^>nul
 )
 goto :Assoc
 

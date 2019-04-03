@@ -6,30 +6,30 @@ call "%dir.jzip%\Parts\Set_Assoc.cmd" -info
 call "%dir.jzip%\Parts\Set_UI.cmd" -info
 
 cls
-echo,
-echo,  %txt_sym.back% %txt_setting%
-echo,
-echo,
-echo,		%stat.FileAssoc% %txt_assoc%
-echo,		%stat.Lnk.SendTo% %txt_rightmenu%
-echo,		%stat.Lnk.Desktop% %txt_shortcut%
-echo,
-echo,		%txt_colorset%  ^>	%stat.color.wd% (%stat.color.bg%)
-echo,
-echo,		%txt_langset%  ^>	!txt_lang.%Language%!
-echo,
-echo,		%txt_workdir%
-echo,		 %dir.jzip.temp%
-%echo%,		%txt_b5.top%%txt_b5.top%%txt_b5.top%%txt_b5.top%
-%echo%,		%txt_s.b.open%%txt_s.b.clean%%txt_s.b.ctm%%txt_s.b.def%
-%echo%,		%txt_b5.bot%%txt_b5.bot%%txt_b5.bot%%txt_b5.bot%
-echo,
-echo,		%txt_version% %jzip.ver%
-%echo%,		%txt_b6.top%%txt_b6.top%
-%echo%,		%txt_s.b.chk%%txt_s.b.site% %txt_uninstall%
-%echo%,		%txt_b6.bot%%txt_b6.bot%
-echo,
-echo,
+echo;
+echo;  %txt_sym.back% %txt_setting%
+echo;
+echo;
+echo;		%stat.FileAssoc% %txt_assoc%
+echo;		%stat.Lnk.SendTo% %txt_rightmenu%
+echo;		%stat.Lnk.Desktop% %txt_shortcut%
+echo;
+echo;		%txt_colorset%  ^>	%stat.color.wd% (%stat.color.bg%)
+echo;
+echo;		%txt_langset%  ^>	!txt_lang.%Language%!
+echo;
+echo;		%txt_workdir%
+echo;		 %dir.jzip.temp%
+%echo%;		%txt_b5.top%%txt_b5.top%%txt_b5.top%%txt_b5.top%
+%echo%;		%txt_s.b.open%%txt_s.b.clean%%txt_s.b.ctm%%txt_s.b.def%
+%echo%;		%txt_b5.bot%%txt_b5.bot%%txt_b5.bot%%txt_b5.bot%
+echo;
+echo;		%txt_version% %jzip.ver%
+%echo%;		%txt_b6.top%%txt_b6.top%
+%echo%;		%txt_s.b.chk%%txt_s.b.site% %txt_uninstall%
+%echo%;		%txt_b6.bot%%txt_b6.bot%
+echo;
+echo;
 %tmouse% /d 0 -1 1
 %tmouse.process%
 ::%tmouse.test%
@@ -119,12 +119,6 @@ goto :EOF
 :Temp_Set
 call "%dir.jzip%\Function\Select_Folder.cmd" key
 if not defined key goto :EOF
-
-:: GUID нд╪Ч╪пееЁЩ 
-if "%key:~0,2%"=="::" (
-	%msgbox% "%txt_s.need.emp%
-	goto :EOF
-)
 
 :: ©унд╪Ч╪пееЁЩ 
 dir /a /b "%key%" | findstr .* >nul && (

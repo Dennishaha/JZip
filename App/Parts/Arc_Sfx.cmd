@@ -8,41 +8,41 @@ cls
 
 ::UI--------------------------------------------------
 
-echo,
-echo,
-echo,
-echo,
-echo,
-echo,
-if /i "%Arc.exten%"==".rar" echo,                                    %txt_as.tip.add%
-if /i "%Arc.exten%"==".exe" echo,                                  %txt_as.tip.re%
-echo,
-echo,
-%echo%,                              %txt_b13.top%%txt_b8.top%
-%echo%,                              %txt_b13.emp%%txt_as.b.64%
-%echo%,                              %txt_b13.emp%%txt_b8.bot%
-%echo%,                              %txt_b13.emp%%txt_b8.top%
-%echo%,                              %txt_as.b.sfx%%txt_as.b.con%
-%echo%,                              %txt_b13.emp%%txt_b8.bot%
-%echo%,                              %txt_b13.emp%%txt_b8.top%
-%echo%,                              %txt_b13.emp%%txt_as.b.con64%
-%echo%,                              %txt_b13.bot%%txt_b8.bot%
-echo,
-echo,
+echo;
+echo;
+echo;
+echo;
+echo;
+echo;
+if /i "%Arc.exten%"==".rar" echo;                                    %txt_as.tip.add%
+if /i "%Arc.exten%"==".exe" echo;                                  %txt_as.tip.re%
+echo;
+echo;
+%echo%;                              %txt_b13.top%%txt_b8.top%
+%echo%;                              %txt_b13.emp%%txt_as.b.64%
+%echo%;                              %txt_b13.emp%%txt_b8.bot%
+%echo%;                              %txt_b13.emp%%txt_b8.top%
+%echo%;                              %txt_as.b.sfx%%txt_as.b.con%
+%echo%;                              %txt_b13.emp%%txt_b8.bot%
+%echo%;                              %txt_b13.emp%%txt_b8.top%
+%echo%;                              %txt_b13.emp%%txt_as.b.con64%
+%echo%;                              %txt_b13.bot%%txt_b8.bot%
+echo;
+echo;
 if /i "%Arc.exten%"==".exe" (
-%echo%,                                   %txt_b16.top%
-%echo%,                                   %txt_b16.emp%
-%echo%,                                   %txt_as.b.add%
-%echo%,                                   %txt_b16.emp%
-%echo%,                                   %txt_b16.bot%
-) else echo,& echo,& echo,& echo,& echo,
-echo,
-echo,
-echo,
-echo,
-%echo%,                                                                                         %txt_b7.top%
-%echo%,                                                                                         %txt_b7.cancel%
-%echo%,                                                                                         %txt_b7.bot%
+%echo%;                                   %txt_b16.top%
+%echo%;                                   %txt_b16.emp%
+%echo%;                                   %txt_as.b.add%
+%echo%;                                   %txt_b16.emp%
+%echo%;                                   %txt_b16.bot%
+) else echo;& echo;& echo;& echo;& echo;
+echo;
+echo;
+echo;
+echo;
+%echo%;                                                                                         %txt_b7.top%
+%echo%;                                                                                         %txt_b7.cancel%
+%echo%;                                                                                         %txt_b7.bot%
 
 ::UI--------------------------------------------------
 

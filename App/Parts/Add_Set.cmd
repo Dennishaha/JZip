@@ -131,6 +131,5 @@ goto :EOF
 
 :¸ü¸ÄÂ·¾¶ 
 call "%dir.jzip%\Function\Select_Folder.cmd" key1
-if not defined key1 goto :EOF
-set "Arc.dir=%key1%\"
+if defined key1 set "Arc.dir=%key1%"
 goto :EOF

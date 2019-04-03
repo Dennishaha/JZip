@@ -13,7 +13,7 @@ if /i "%~1"=="Unzip" (
 
 			:: 目标文件夹权限检测 
 			net session >nul 2>nul || >nul 2>nul (
-				>"!dir.release!\%Arc.Guid%.tmp" echo, && (
+				>"!dir.release!\%Arc.Guid%.tmp" echo; && (
 					del /q "!dir.release!\%Arc.Guid%.tmp"
 				) || (
 					set "Arc.Uac=y"
@@ -49,11 +49,7 @@ for %%i in (Unzip Add Delete ReName Repair Lock Note Sfx) do if /i "%~1"=="%%i" 
 		:: 保存临时配置到注册表
 		for %%a in (dir.release lz.Dir lz.Menu lz.FileSel) do (
 			for /f "tokens=1 delims==" %%b in ('2^>nul set "%%a"') do >nul (
-				if "!%%b:~-1!"=="\" (
-					reg add "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" /t REG_SZ /v "%%b" /d "!%%b!\" /f %iferror%
-				) else (
-					reg add "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" /t REG_SZ /v "%%b" /d "!%%b!" /f %iferror%
-				)
+				reg add "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" /t REG_SZ /v "%%b" /d "!%%b!;" /f %iferror%
 			)
 		)
 		%sudo% "%path.jzip.launcher%" list "%Arc.path%" --%%i //%Arc.Guid%
@@ -76,7 +72,7 @@ for %%i in (Unzip Add Delete ReName Repair Lock Note Sfx) do if /i "%~1"=="%%i" 
 				if not defined Arc.file goto :EOF
 				set "ui.Arc.file=!Arc.file!"
 				if defined lz.Dir set "Arc.file=!lz.Dir!\!Arc.file!"
-				> "%lz.txt%o" echo,!Arc.file!
+				> "%lz.txt%\ld" echo;!Arc.file!
 			)
 			call :%*
 			goto :EOF
@@ -86,12 +82,12 @@ for %%i in (Unzip Add Delete ReName Repair Lock Note Sfx) do if /i "%~1"=="%%i" 
 
 :: 多项检测 
 >nul 2>nul set "lz.FileSel." && (
-	> "%lz.txt%o" echo,
+	> "%lz.txt%\ld" echo;
 	for /f "tokens=2 delims==" %%a in ('2^>nul set "lz.FileSel."') do (
-		if "%type.editor%"=="7z" set "Arc.file=!lz.LineFile.%%a:~54!"
-		if "%type.editor%"=="rar" set "Arc.file=!lz.LineFile.%%a:~42!"
+		if "%type.editor%"=="7z" set "Arc.file=!lz.LnRaw.%%a:~54!"
+		if "%type.editor%"=="rar" set "Arc.file=!lz.LnRaw.%%a:~42!"
 		set "ui.Arc.file=!Arc.file:%lz.Dir%\=!"
-		>> "%lz.txt%o" echo,!Arc.file!
+		>> "%lz.txt%\ld" echo;!Arc.file!
 
 		for %%i in (Open UnZip ReName) do if /i "%~1"=="%%i" (
 			call :%*
@@ -163,8 +159,8 @@ exit /b %errorlevel%
 :: 提取文件 
 :Extr
 cls
-if "%type.editor%"=="rar" "%path.editor.rar%" x %btn.utf.b% -y "%Arc.path%" @"%lz.txt%o" %dir.jzip.temp%\%Arc.Guid%\ %iferror%
-if "%type.editor%"=="7z" "%path.editor.7z%" x %btn.utf.b% -o"%dir.jzip.temp%\%Arc.Guid%" -y "%Arc.path%"  @"%lz.txt%o" %iferror%
+if "%type.editor%"=="rar" "%path.editor.rar%" x %btn.utf.b% -y "%Arc.path%" @"%lz.txt%\ld" %dir.jzip.temp%\%Arc.Guid%\ %iferror%
+if "%type.editor%"=="7z" "%path.editor.7z%" x %btn.utf.b% -o"%dir.jzip.temp%\%Arc.Guid%" -y "%Arc.path%"  @"%lz.txt%\ld" %iferror%
 
 start "" "%dir.jzip.temp%\%Arc.Guid%\%lz.Dir%"
 exit /b %errorlevel%
@@ -202,7 +198,7 @@ if %lz.FileSel% GTR 1 (
 if "!key.e!"=="1" (
 	cls
 	for %%a in (rar,7z) do if "%type.editor%"=="%%a" (
-		"!path.editor.%%a!" d %btn.utf.b% -w"%dir.jzip.temp%" "%Arc.path%" @"%lz.txt%o" %iferror%
+		"!path.editor.%%a!" d %btn.utf.b% -w"%dir.jzip.temp%" "%Arc.path%" @"%lz.txt%\ld" %iferror%
 	)
 	if not exist "%Arc.path%" %MsgBox% "%txt_x.zip.deled%" & exit /b
 )
@@ -212,7 +208,7 @@ exit /b %errorlevel%
 :: 重命名文件 
 :ReName
 set Arc.file.rn=
-%InputBox-r% Arc.file.rn "%ui.Arc.file%" "%txt_x.type.rn.new%" " " "%ui.Arc.file%" " " "%txt_x.wildcard%"
+%InputBox-r% Arc.file.rn "%ui.Arc.file%" "%txt_x.type.rn.new%" " " "%txt_x.wildcard%"
 if not defined Arc.file.rn set "key.e=2" & goto :EOF
 if defined lz.Dir set "Arc.file.rn=!lz.Dir!\!Arc.file.rn!"
 

@@ -1,7 +1,15 @@
+
 <!-- :
-if "%~1"=="" echo, Missing parameters %%1. & pause & goto :EOF
+if "%~1"=="" echo; Missing parameters %%1. & pause & goto :EOF
 set "%~1="
 for /f "delims=" %%a in ('mshta "%~f0"') do set "%~1=%%~a"
+if not defined %~1 goto :EOF
+
+:: GUID ÎÄ¼þ¼ÐÅÅ³ý 
+if "!%~1:~0,3!"=="::{" (
+	%msgbox% "%txt_s.fold_invalid%"
+	set "%~1="
+)
 goto :EOF
 -->
 

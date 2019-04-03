@@ -8,12 +8,12 @@ if /i "%Arc.Order%"=="add" (
 		if /i "%%b"=="REG_SZ" set "%%a=%%c"
 	)
 	for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" 2^>nul') do (
-		if /i "%%b"=="REG_SZ" set "%%a=%%c"
+		if /i "%%b"=="REG_SZ" set "%%a=%%c" & set "%%a=!%%a:~0,-1!"
 	)
 	reg delete "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" /f >nul 2>nul && set "Arc.Do=go"
 )
 
-echo,"%jzip.spt.add%" | find "%Arc.exten:~1%" >nul || set "Arc.exten=.7z"
+echo;"%jzip.spt.add%" | find "%Arc.exten:~1%" >nul || set "Arc.exten=.7z"
 
 :Archive_Setting
 
@@ -23,8 +23,12 @@ if defined ×Ô½âÑ¹ ( set "Arc.exten.out=.exe" ) else ( set "Arc.exten.out=%Arc.ex
 :: Ñ¹ËõµµÓëÌí¼ÓÎÄ¼þÃû³ÆÖØ¸´ÅÐ¶Ï 
 if "%path.raw.1%"=="%Arc.dir%\%Arc.name%%Arc.exten.out%" set "Arc.name=%Arc.name% (1)"
 
-set "ui.Arc.ne=%Arc.name%%Arc.exten.out%"
-title %txt_aa.addto% %ui.Arc.ne% %title%
+set "Arc.neo=%Arc.name%%Arc.exten.out%"
+if "%File.Single%"=="n" for %%a in (bz2 gz xz) do if "%Arc.exten%"==".%%a" (
+	set "Arc.neo=%Arc.name%.tar%Arc.exten.out%"
+)
+
+title %txt_aa.addto% %Arc.dir%\%Arc.neo% %title%
 
 :: Âú×ãÖ´ÐÐÌõ¼þ×ªµ½Ö´ÐÐ 
 if /i "%Arc.Order%"=="add-7z" goto :Add_Process
@@ -33,20 +37,20 @@ if defined Arc.Do goto :Add_Process
 ::UI--------------------------------------------------
 
 cls
-echo,
-echo,   %txt_aa.addtozip%
-echo,                                                       [ %txt_aa.setpath% ] [ %txt_aa.scan% ]
-echo,
-echo,	%txt_aa.zipname%	%ui.Arc.ne:~0,40%
-echo,			%ui.Arc.ne:~40,80%
-echo,
+echo;
+echo;   %txt_aa.addtozip%
+echo;                                                       [ %txt_aa.setpath% ] [ %txt_aa.scan% ]
+echo;
+echo;	%txt_aa.zipname%	%Arc.neo:~0,40%
+echo;			%Arc.neo:~40,80%
+echo;
 if /i "%Arc.Order%"=="add" (
 	set "ui.Arc.exten= 7z  rar  zip  tar  bz2  gz  xz  wim  cab "
 	for %%a in (7z rar zip tar bz2 gz xz wim cab) do (
-		if "%Arc.exten%"==".%%a" echo,	%txt_aa.type%	!ui.Arc.exten: %%a =[%%a]!
+		if "%Arc.exten%"==".%%a" echo;	%txt_aa.type%	!ui.Arc.exten: %%a =[%%a]!
 	)
-) else echo,
-echo,
+) else echo;
+echo;
 
 if not defined Add-Level set "Add-Level=3"
 for %%A in (
@@ -58,30 +62,30 @@ for %%A in (
 	5/"^!txt_sym.cir.s^!^!txt_sym.cir.s^!^!txt_sym.cir.s^!^!txt_sym.cir.s^!^!txt_sym.cir.s^!"
 ) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
 	if "%%~a"=="!Add-Level!" for %%i in (rar 7z zip bz2 gz xz cab) do if "%Arc.exten%"==".%%i" (
-		echo,	%txt_aa.eff%		%%~b !txt_aa.eff.%%~a!
+		echo;	%txt_aa.eff%		%%~b !txt_aa.eff.%%~a!
 	)
 	if "%%~a"=="0" for %%i in (tar wim) do if "%Arc.exten%"==".%%i" (
-		echo,	%txt_aa.eff%		%%~b !txt_aa.eff.%%~a!
+		echo;	%txt_aa.eff%		%%~b !txt_aa.eff.%%~a!
 	)
 )
 
 if /i "%Arc.Order%"=="add" (
-	echo,"rar 7z xz" | find "%Arc.exten:~1%" >nul && (
-		if "%Add-Solid%"=="y" echo,	%txt_aa.solid%		%txt_sym.cir.s%
-		if not "%Add-Solid%"=="y" echo,	%txt_aa.solid%		%txt_sym.cir%
-	) || echo,
-) else echo,
+	echo;"rar 7z xz" | find "%Arc.exten:~1%" >nul && (
+		if "%Add-Solid%"=="y" echo;	%txt_aa.solid%		%txt_sym.cir.s%
+		if not "%Add-Solid%"=="y" echo;	%txt_aa.solid%		%txt_sym.cir%
+	) || echo;
+) else echo;
 
 if /i "%Arc.Order%"=="add" (
-	echo,"rar 7z zip tar bz2 gz xz wim" | find "%Arc.exten:~1%" >nul && (
-		if not defined ·Ö¾íÑ¹Ëõ echo,	%txt_aa.split%		%txt_sym.cir%
-		if defined ·Ö¾íÑ¹Ëõ echo,	%txt_aa.split%		%txt_sym.cir.s% %·Ö¾íÑ¹Ëõ%
-	) || echo,
-) else echo,
+	echo;"rar 7z zip tar bz2 gz xz wim" | find "%Arc.exten:~1%" >nul && (
+		if not defined ·Ö¾íÑ¹Ëõ echo;	%txt_aa.split%		%txt_sym.cir%
+		if defined ·Ö¾íÑ¹Ëõ echo;	%txt_aa.split%		%txt_sym.cir.s% %·Ö¾íÑ¹Ëõ%
+	) || echo;
+) else echo;
 
-echo,
+echo;
 if /i "%Arc.Order%"=="add" (
-	echo,"rar 7z" | find "%Arc.exten:~1%" >nul && (
+	echo;"rar 7z" | find "%Arc.exten:~1%" >nul && (
 		for %%A in (
 			""/^!txt_sym.cir^!
 			y/"^!txt_sym.cir.s^! %txt_aa.sfx.origin%"
@@ -90,40 +94,40 @@ if /i "%Arc.Order%"=="add" (
 			b32/"^!txt_sym.cir.s^! %txt_aa.sfx.b%"
 			b64/"^!txt_sym.cir.s^! %txt_aa.sfx.b%%txt_aa.sfx.64%"
 		) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
-			if "%×Ô½âÑ¹%"=="%%~a" echo,	%txt_aa.sfxmode%		%%~b
+			if "%×Ô½âÑ¹%"=="%%~a" echo;	%txt_aa.sfxmode%		%%~b
 		)
-	) || echo,
-) else echo,
+	) || echo;
+) else echo;
 
-echo,
-echo,"rar 7z zip" | find "%Arc.exten:~1%" >nul && (
+echo;
+echo;"rar 7z zip" | find "%Arc.exten:~1%" >nul && (
 	for %%a in (rar 7z zip tar bz2 gz xz wim) do if /i "%Arc.exten%"==".%%a" (
-		if not defined Ñ¹ËõÃÜÂë echo,	%txt_aa.encry%		%txt_sym.cir%
-		if defined Ñ¹ËõÃÜÂë echo,	%txt_aa.encry%		%txt_sym.cir.s% %Ñ¹ËõÃÜÂë%
+		if not defined Ñ¹ËõÃÜÂë echo;	%txt_aa.encry%		%txt_sym.cir%
+		if defined Ñ¹ËõÃÜÂë echo;	%txt_aa.encry%		%txt_sym.cir.s% %Ñ¹ËõÃÜÂë%
 	)
-) || echo,
+) || echo;
 
-echo,
+echo;
 if /i "%Arc.Order%"=="add" (
 	if /i "%Arc.exten%"==".rar" (
 		if not defined Ñ¹Ëõ°æ±¾.rar set "Ñ¹Ëõ°æ±¾.rar=5"
 		for %%A in (
 			4/^!txt_sym.cir.s^!,5/^!txt_sym.cir^!
 		) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
-			if "!Ñ¹Ëõ°æ±¾.rar!"=="%%~a" echo,	%txt_aa.compati%		%%~b
+			if "!Ñ¹Ëõ°æ±¾.rar!"=="%%~a" echo;	%txt_aa.compati%		%%~b
 		)
 		for %%A in (
 			""/^!txt_sym.cir^!,3/"^!txt_sym.cir.s^! 3%%",6/"^!txt_sym.cir.s^! 6%%",9/"^!txt_sym.cir.s^! 9%%"
 		) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
-			if "%Ñ¹Ëõ»Ö¸´¼ÇÂ¼%"=="%%~a" echo,	%txt_aa.record%		%%~b
+			if "%Ñ¹Ëõ»Ö¸´¼ÇÂ¼%"=="%%~a" echo;	%txt_aa.record%		%%~b
 		)
-	) else (echo, & echo,)
+	) else (echo; & echo;)
 )
-echo,
-echo,
-%echo%,						%txt_b7.top%%txt_b7.top%
-%echo%,						%txt_b7.confirm%%txt_b7.cancel%
-%echo%,						%txt_b7.bot%%txt_b7.bot%
+echo;
+echo;
+%echo%;						%txt_b7.top%%txt_b7.top%
+%echo%;						%txt_b7.confirm%%txt_b7.cancel%
+%echo%;						%txt_b7.bot%%txt_b7.bot%
 
 ::UI--------------------------------------------------
 ::×ø±êÅÐ¶Ï 
@@ -206,7 +210,7 @@ if /i not "%Arc.Order%"=="list" (
 	if /i "%Arc.exten%"==".cab" set "type.editor=cab"
 
 	:: ÅäÖÃÑ¹ËõÂ·¾¶ 
-	set "Arc.path=%Arc.dir%\%Arc.name%!Arc.exten.out!"
+	set "Arc.path=%Arc.dir%\%Arc.name%%Arc.exten.out%"
 )
 
 :: ±£´æÑ¹ËõÅäÖÃµ½×¢²á±í 
@@ -218,17 +222,13 @@ if /i "%Arc.Order%"=="add" (
 
 :: ÅÐ¶Ï´´½¨ÎÄ¼þÊÇ·ñÐè¹ÜÀíÔ±È¨ÏÞ 
 net session >nul 2>nul || >nul 2>nul (
-	>"%Arc.dir%\%Arc.Guid%.tmp" echo, && (
+	>"%Arc.dir%\%Arc.Guid%.tmp" echo; && (
 		del /q "%Arc.dir%\%Arc.Guid%.tmp"
 	) || (
 		:: ±£´æ GUID ÅäÖÃµ½×¢²á±í 
 		if /i "%Arc.Order%"=="add" (
 			for %%a in ( Ñ¹ËõÃÜÂë ·Ö¾íÑ¹Ëõ Ñ¹Ëõ°æ±¾.rar Ñ¹Ëõ»Ö¸´¼ÇÂ¼ ×Ô½âÑ¹ Arc.dir Arc.name ) do (
-				if "!%%b:~-1!"=="\" (
-					reg add "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" /t REG_SZ /v "%%a" /d "!%%a!\" /f >nul %iferror%
-				) else (
-					reg add "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" /t REG_SZ /v "%%a" /d "!%%a!" /f >nul %iferror%
-				)
+				reg add "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" /t REG_SZ /v "%%a" /d "!%%a!;" /f >nul %iferror%
 			)
 		)
 		%sudo% "%path.jzip.launcher%" %Arc.Order% %path.File% //%Arc.Guid%
@@ -265,16 +265,27 @@ if defined ×Ô½âÑ¹ (
 	)
 )
 
+:: RAR 
 if "%type.editor%"=="rar" "%path.editor.rar%" a %btn.Ñ¹ËõÃÜÂë% %btn.Ñ¹Ëõ¼¶±ð% %btn.¹ÌÊµÎÄ¼þ% %btn.·Ö¾íÑ¹Ëõ% %btn.Ñ¹Ëõ°æ±¾.rar% -ep1 %btn.Ñ¹Ëõ»Ö¸´¼ÇÂ¼% %btn.×Ô½âÑ¹% -w"%dir.jzip.temp%" "%Arc.path%" %path.File% %iferror%
 
-if "%File.Single%"=="n" for %%a in (bz2 gz xz) do if "%Arc.exten%"==".%%a" (
-	"%path.editor.7z%" a -w"%dir.jzip.temp%" "%dir.jzip.temp%\%Arc.name%.tar" %path.File% %iferror%
-	set "Arc.path=%Arc.dir%\%Arc.name%.tar%Arc.exten%"
-	set "path.File=%dir.jzip.temp%\%Arc.name%.tar"
+:: 7Z 
+if "%type.editor%"=="7z" (
+	if "%File.Single%"=="n" for %%a in (bz2 gz xz) do if "%Arc.exten%"==".%%a" (
+		"%path.editor.7z%" a -w"%dir.jzip.temp%" "%dir.jzip.temp%\%Arc.Guid%\%Arc.name%.tar" %path.File% %iferror%
+		set "Arc.path=%Arc.dir%\%Arc.name%.tar%Arc.exten%"
+		set "path.File=%dir.jzip.temp%\%Arc.Guid%\%Arc.name%.tar"
+	)
 )
 
 if "%type.editor%"=="7z" "%path.editor.7z%" a %btn.Ñ¹ËõÃÜÂë% %btn.Ñ¹Ëõ¼¶±ð% %btn.·Ö¾íÑ¹Ëõ% -w"%dir.jzip.temp%" %btn.×Ô½âÑ¹% "%Arc.path%" %path.File% %iferror%
 
+if "%type.editor%"=="7z" (
+	if "%File.Single%"=="n" for %%a in (bz2 gz xz) do if "%Arc.exten%"==".%%a" (
+		del /q /f /s "%dir.jzip.temp%\%Arc.Guid%\%Arc.name%.tar" >nul
+	)
+)
+
+:: CAB 
 if "%type.editor%"=="cab" "%path.editor.cab%" -r %btn.Ñ¹Ëõ¼¶±ð% n "%Arc.path%" %path.File% %iferror%
 
 set "path.File="

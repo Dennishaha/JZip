@@ -1,7 +1,7 @@
 
 @setlocal EnableExtensions EnableDelayedExpansion
 
-@set "jzip.ver=3.2.8 ...."
+@set "jzip.ver=3.2.9"
 @set "path.jzip.launcher=%~0"
 @set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 @set "dir.jzip.temp=%temp%\JFsoft.Jzip"
@@ -36,6 +36,7 @@
 			reg add "HKCU\Console\JFsoft.Jzip" /t REG_SZ /v "FaceName" /d "%%~e" /f
 			reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "FontSize" /d "%%~f" /f
 			reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "QuickEdit" /d "0x0" /f
+			reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "ColorTable15" /d "0xffffff" /f
 
 			if "%%~g"=="1" set echo=echo
 			if "%%~g"=="2" set echo=call "%dir.jzip%\Function\Echo.cmd" 
@@ -66,11 +67,13 @@ set RightMenu=y
 set "dir.jzip.temp.default=%dir.jzip.temp%"
 
 :: Ttool 配置
-set "tmouse="%dir.jzip%\Components\x86\tmouse.exe""
-set "tmouse.process= set "mouse=^^!errorlevel^^!" & (if "^^!mouse:~0,1^^!"=="-" set "mouse=^^!mouse:~1^^!" ) & set /a "mouse.x=^^!mouse:~0,-3^^!" & set /a "mouse.y=^^!mouse^^!-1000*^^!mouse.x^^!" & set "key=" "
-set "tmouse.test= echo,[^!mouse.x^!,^!mouse.y^!] & ping localhost -n 2 >nul "
-set "tcurs="%dir.jzip%\Components\x86\tcurs.exe""
+set tcol="%dir.jzip%\Components\x86\TCol.exe"
+set tcurs="%dir.jzip%\Components\x86\tcurs.exe"
 %tcurs% /crv 0
+
+set tmouse="%dir.jzip%\Components\x86\tmouse.exe"
+set "tmouse.process= set "mouse=^^!errorlevel^^!" & (if "^^!mouse:~0,1^^!"=="-" set "mouse=^^!mouse:~1^^!" ) & set /a "mouse.x=^^!mouse:~0,-3^^!" & set /a "mouse.y=^^!mouse^^!-1000*^^!mouse.x^^!" & set key="
+set "tmouse.test= echo;[^!mouse.x^!,^!mouse.y^!] Raw: ^!mouse^! & ping localhost -n 2 >nul "
 
 :: Jzip 文件支持类型
 set "jzip.spt.rar=rar"
@@ -104,6 +107,7 @@ call "%dir.jzip%\Function\VbsBox.cmd" -import
 call "%dir.jzip%\Function\sudo.cmd" -import
 call "%dir.jzip%\Function\CapTrans.cmd" -import
 
+
 ::被调用
 if exist "%~1" call :Set_Info list %* & goto :EOF
 if exist "%~2" call :Set_Info %* & goto :EOF
@@ -121,29 +125,29 @@ cls
 ::UI--------------------------------------------------
 
 (
-echo,
-echo,
-echo,
-echo,
-echo,
-echo,
-%echo%,                %txt_b12.top%%txt_b12.top%
-%echo%,                %txt_b12.emp%%txt_b12.emp%
-%echo%,                %txt_b12.emp%%txt_b12.emp%
-%echo%,                %txt_b12.emp%%txt_b12.emp%
-%echo%,                %txt_m.open%%txt_m.add%
-%echo%,                %txt_b12.emp%%txt_b12.emp%
-%echo%,                %txt_b12.emp%%txt_b12.emp%
-%echo%,                %txt_b12.emp%%txt_b12.emp%
-%echo%,                %txt_b12.bot%%txt_b12.bot%
-%echo%,                                        %txt_b12.top%
-%echo%,                                        %txt_m.set%
-%echo%,                                        %txt_b12.bot%
-echo,
-echo,
-echo,
-echo,
-echo,
+echo;
+echo;
+echo;
+echo;
+echo;
+echo;
+%echo%;                %txt_b12.top%%txt_b12.top%
+%echo%;                %txt_b12.emp%%txt_b12.emp%
+%echo%;                %txt_b12.emp%%txt_b12.emp%
+%echo%;                %txt_b12.emp%%txt_b12.emp%
+%echo%;                %txt_m.open%%txt_m.add%
+%echo%;                %txt_b12.emp%%txt_b12.emp%
+%echo%;                %txt_b12.emp%%txt_b12.emp%
+%echo%;                %txt_b12.emp%%txt_b12.emp%
+%echo%;                %txt_b12.bot%%txt_b12.bot%
+%echo%;                                        %txt_b12.top%
+%echo%;                                        %txt_m.set%
+%echo%;                                        %txt_b12.bot%
+echo;
+echo;
+echo;
+echo;
+echo;
 )
 
 ::UI--------------------------------------------------
@@ -187,8 +191,8 @@ if not "%~2"=="" (
 	dir "%~2" /b >nul 2>nul && (
 		set "path.raw.!raw.num!=%~2"
 	) || (
-		echo,"%~2" | find "//" >nul && (set "Guid=%~2" & set "Guid=!Guid:~2!")
-		echo,"%~2" | find "--" >nul && (set "Arc.Do=%~2" & set "Arc.Do=!Arc.Do:~2!")
+		echo;"%~2" | find "//" >nul && (set "Guid=%~2" & set "Guid=!Guid:~2!")
+		echo;"%~2" | find "--" >nul && (set "Arc.Do=%~2" & set "Arc.Do=!Arc.Do:~2!")
 	)
 	set /a "raw.num+=1"
 	shift /2
@@ -279,20 +283,20 @@ goto :EOF
 
 
 :-help
-@echo,
-@echo, JFsoft JZip %jzip.ver%   2012-2019 (c) Dennishaha  %txt.rightres%
-@echo,
-@echo, %txt.usage%： Jzip ^< %txt.switch% ^> ^< %txt.command% ^> ^< %txt.files% ^| %txt.archives% ^>
-@echo,
-@echo,   ^< %txt.switch% ^>
-@echo,	-help		%txt.h.help%
-@echo,	-su		%txt.h.su%
-@echo,	-install	%txt.h.install%
-@echo,	-setting	%txt.h.setting%
-@echo,
-@echo,   ^< %txt.command% ^>
-@echo,	""		%txt.h.@%
-@echo,	add		%txt.h.add%
-@echo,	unzip		%txt.h.unzip%
-@echo,
+@echo;
+@echo; JFsoft JZip %jzip.ver%   2012-2019 (c) Dennishaha  %txt.rightres%
+@echo;
+@echo; %txt.usage%： Jzip ^< %txt.switch% ^> ^< %txt.command% ^> ^< %txt.files% ^| %txt.archives% ^>
+@echo;
+@echo;   ^< %txt.switch% ^>
+@echo;	-help		%txt.h.help%
+@echo;	-su		%txt.h.su%
+@echo;	-install	%txt.h.install%
+@echo;	-setting	%txt.h.setting%
+@echo;
+@echo;   ^< %txt.command% ^>
+@echo;	""		%txt.h.@%
+@echo;	add		%txt.h.add%
+@echo;	unzip		%txt.h.unzip%
+@echo;
 @goto :EOF

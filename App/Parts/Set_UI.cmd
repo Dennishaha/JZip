@@ -13,52 +13,52 @@ if not defined ui.mouse set "ui.mouse=word"
 color %Color%
 cls
 
-echo,
-echo,   %txt_color.title%
-echo,
-echo,
-echo,
+echo;
+echo;   %txt_color.title%
+echo;
+echo;
+echo;
 if "%ui.mouse%"=="word" (
-%echo%,							%txt_b7.top%
-%echo%,		%txt_color.tip%	[ %txt_color.wd% ]	%txt_color.b7.bg%
-%echo%,							%txt_b7.bot%
+%echo%;							%txt_b7.top%
+%echo%;		%txt_color.tip%	[ %txt_color.wd% ]	%txt_color.b7.bg%
+%echo%;							%txt_b7.bot%
 )
 if "%ui.mouse%"=="paper" (
-%echo%,							%txt_b7.top%
-%echo%,		%txt_color.tip%	= %txt_color.bg% =	%txt_color.b7.wd%
-%echo%,							%txt_b7.bot%
+%echo%;							%txt_b7.top%
+%echo%;		%txt_color.tip%	= %txt_color.bg% =	%txt_color.b7.wd%
+%echo%;							%txt_b7.bot%
 )
-echo,
-echo,
-echo,
+echo;
+echo;
+echo;
 set "ui.tmp=   %txt_color.0%     %txt_color.8%    %txt_color.7%     %txt_color.f%   "
 for %%i in (0 8 7 f) do (
 	if "%color:~1,1%"=="%%i" call set "ui.tmp=%%ui.tmp:  !txt_color.%%i!  =[ !txt_color.%%i! ]%%"
 	if "%color:~0,1%"=="%%i" call set "ui.tmp=%%ui.tmp:  !txt_color.%%i!  == !txt_color.%%i! =%%"
 )
-echo,                     !ui.tmp!
-echo,
-echo,
+echo;                     !ui.tmp!
+echo;
+echo;
 set "ui.tmp=   %txt_color.4%      %txt_color.6%      %txt_color.2%      %txt_color.3%      %txt_color.1%      %txt_color.5%   "
 for %%i in (4 6 2 3 1 5) do (
 	if "%color:~1,1%"=="%%i" call set "ui.tmp=%%ui.tmp:  !txt_color.%%i!  =[ !txt_color.%%i! ]%%"
 	if "%color:~0,1%"=="%%i" call set "ui.tmp=%%ui.tmp:  !txt_color.%%i!  == !txt_color.%%i! =%%"
 )
-echo,             !ui.tmp!
-echo,
-echo,
+echo;             !ui.tmp!
+echo;
+echo;
 set "ui.tmp=  %txt_color.c%    %txt_color.e%    %txt_color.a%    %txt_color.b%    %txt_color.9%    %txt_color.d%  "
 for %%i in (c e a b 9 d) do (
 	if "%color:~1,1%"=="%%i" call set "ui.tmp=%%ui.tmp:  !txt_color.%%i!  =[ !txt_color.%%i! ]%%"
 	if "%color:~0,1%"=="%%i" call set "ui.tmp=%%ui.tmp:  !txt_color.%%i!  == !txt_color.%%i! =%%"
 )
-echo,             !ui.tmp!
-echo,
-echo,
-echo,
-%echo%,								%txt_b7.top%
-%echo%,								%txt_b7.finish%
-%echo%,								%txt_b7.bot%
+echo;             !ui.tmp!
+echo;
+echo;
+echo;
+%echo%;								%txt_b7.top%
+%echo%;								%txt_b7.finish%
+%echo%;								%txt_b7.bot%
 
 %tmouse% /d 0 -1 1
 %tmouse.process%

@@ -53,8 +53,8 @@ if /i "%dir.jzip%"=="%dir.jzip.default%" (set "jzip.Portable=") else (set "jzip.
 
 :: Mshta ¿ÉÓÃÐÔÅÐ¶Ï 
 mshta "vbscript:execute(close)" || (
-	echo,%txt_vc.err.hta%
-	echo,%txt_vc.err.info%
+	echo;%txt_vc.err.hta%
+	echo;%txt_vc.err.info%
 	pause >nul
 )
 
@@ -100,17 +100,17 @@ for %%i in (Install Upgrade) do if "%1"=="%%i" (
 ::UI--------------------------------------------------
 
 cls
-echo,
-echo,
-echo,
+echo;
+echo;
+echo;
 
-if "%1"=="Install" echo,	%txt_vc.get% %jzip.newver%
-if "%1"=="Upgrade" if /i not "%jzip.ver%"=="%jzip.newver%" echo,	%txt_vc.getnew% %jzip.newver%
+if "%1"=="Install" echo;	%txt_vc.get% %jzip.newver%
+if "%1"=="Upgrade" if /i not "%jzip.ver%"=="%jzip.newver%" echo;	%txt_vc.getnew% %jzip.newver%
 
 for %%a in (Install Upgrade) do if "%1"=="%%a" if /i not "%jzip.ver%"=="%jzip.newver%" (
-	echo,
-	echo,
-	for %%i in (!jzip.newver.des.%Language%!) do echo,	%%~i
+	echo;
+	echo;
+	for %%i in (!jzip.newver.des.%Language%!) do echo;	%%~i
 )
 
 ::UI--------------------------------------------------
