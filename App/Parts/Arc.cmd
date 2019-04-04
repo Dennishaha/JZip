@@ -67,6 +67,8 @@ if not defined lz.Dir (
 			set "lz.Info=!lz.Info:solid=%txt_solid%!"
 			set "lz.Info=!lz.Info:SFX=%txt_sfx%!"
 			set "lz.Info=!lz.Info:lock=%txt_lock%!"
+			set "lz.Info=!lz.Info:volume=%txt_volume%!"
+			set "lz.Info=!lz.Info:recovery record=%txt_recovery_record%!"
 		)
 	)
 	if "%type.editor%"=="7z" (
@@ -93,7 +95,7 @@ if defined lz.Dir (
 )
 
 for %%z in (
-	rar}"^    ...D... "}"^    ..A\.... "
+	rar}"^.   ...D... "}"^.   ..A[^D]... "
 	7z}"^.......... ........ D.... "}"^.......... ........ \..... "
 ) do for /f "tokens=1-3 delims=}" %%a in ("%%z") do (
 	if "%type.editor%"=="%%a" >"%lz.txt%\lzs" (
