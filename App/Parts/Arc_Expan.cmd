@@ -47,7 +47,7 @@ if /i "%~1"=="Unzip" (
 for %%i in (Unzip Add Delete ReName Repair Lock Note Sfx) do if /i "%~1"=="%%i" (
 	if defined Arc.Uac (
 		:: 保存临时配置到注册表
-		for %%a in (dir.release lz.Dir lz.Menu lz.FileSel) do (
+		for %%a in (dir.release lz.Dir lz.Menu lz.search lz.FileSel) do (
 			for /f "tokens=1 delims==" %%b in ('2^>nul set "%%a"') do >nul (
 				reg add "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" /t REG_SZ /v "%%b" /d "!%%b!;" /f %iferror%
 			)
@@ -72,6 +72,7 @@ for %%i in (Unzip Add Delete ReName Repair Lock Note Sfx) do if /i "%~1"=="%%i" 
 				if not defined Arc.file goto :EOF
 				set "ui.Arc.file=!Arc.file!"
 				if defined lz.Dir set "Arc.file=!lz.Dir!\!Arc.file!"
+				md "%lz.txt%" >nul 2>nul
 				> "%lz.txt%\ld" echo;!Arc.file!
 			)
 			call :%*
@@ -82,22 +83,34 @@ for %%i in (Unzip Add Delete ReName Repair Lock Note Sfx) do if /i "%~1"=="%%i" 
 
 :: 多项检测 
 >nul 2>nul set "lz.FileSel." && (
-	> "%lz.txt%\ld" echo;
-	for /f "tokens=2 delims==" %%a in ('2^>nul set "lz.FileSel."') do (
-		if "%type.editor%"=="7z" set "Arc.file=!lz.LnRaw.%%a:~54!"
-		if "%type.editor%"=="rar" set "Arc.file=!lz.LnRaw.%%a:~42!"
-		set "ui.Arc.file=!Arc.file:%lz.Dir%\=!"
-		>> "%lz.txt%\ld" echo;!Arc.file!
+	<nul set /p =".."
+	md "%lz.txt%" >nul 2>nul && goto :EOF
 
-		for %%i in (Open UnZip ReName) do if /i "%~1"=="%%i" (
-			call :%*
-			if not "!errorlevel!"=="0" goto :EOF
-			if "!key.e!"=="2" goto :EOF
-		)
+	< "%lz.txt%\lzs" (
+		for /l %%i in (0 1 %lz.LnRawEnd%) do set /p lz.LnRaw.%%i=
 	)
-	for %%i in (Extr Delete) do if /i "%~1"=="%%i" (
-		call :%*
-		goto :EOF
+
+	for %%z in (
+		7z:53,rar:41
+	) do for /f "tokens=1-2 delims=:" %%a in ("%%z") do (
+		if "%type.editor%"=="%%a" (
+			> "%lz.txt%\ld" (
+				for /f "tokens=2 delims==" %%i in ('set "lz.FileSel."') do echo;!lz.LnRaw.%%i:~%%b!
+			)
+
+			for /f "tokens=2 delims==" %%i in ('set "lz.FileSel."') do (
+				set "Arc.file=!lz.LnRaw.%%i:~%%b!"
+				if defined lz.Dir (
+					set "ui.Arc.file=!Arc.file:%lz.Dir%\=!"
+				) else (
+					set "ui.Arc.file=!Arc.file!"
+				)
+				call :%*
+				if not "!errorlevel!"=="0" goto :EOF
+				if "!key.e!"=="2" goto :EOF
+				for %%k in (Extr Delete) do if /i "%~1"=="%%k" goto :EOF
+			)
+		)
 	)
 )
 

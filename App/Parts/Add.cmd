@@ -178,20 +178,20 @@ if not defined key goto :Archive_Setting
 
 if /i "%Arc.Order%"=="add" (
 	for %%a in (7z rar zip tar bz2 gz xz wim cab) do (
-		if /i "%key%"=="%%a" call "%dir.jzip%\Parts\Add_Set.cmd" :压缩格式切换 %%a
+		if /i "%key%"=="%%a" call "%dir.jzip%\Parts\Arc_Set.cmd" :压缩格式切换 %%a
 	)
 )
 
-if "%key%"=="a" ( if /i "%Arc.Order%"=="add" call "%dir.jzip%\Parts\Add_Set.cmd" :更改路径
-) else if "%key%"=="b" ( if /i "%Arc.Order%"=="add" call "%dir.jzip%\Parts\Add_Set.cmd" :浏览
-) else if "%key%"=="c" ( if /i "%Arc.Order%"=="add" call "%dir.jzip%\Parts\Add_Set.cmd" :更改名称
-) else if "%key:~0,1%"=="d" ( for %%a in (rar 7z zip bz2 gz xz cab) do if /i "%Arc.exten%"==".%%a" call "%dir.jzip%\Parts\Add_Set.cmd" :Level %key:~1%
-) else if "%key%"=="e" ( if /i "%Arc.Order%"=="add" for %%a in (rar 7z xz) do if /i "%Arc.exten%"==".%%a" call "%dir.jzip%\Parts\Add_Set.cmd" :固实文件
-) else if "%key:~0,1%"=="f" ( for %%a in (rar 7z zip tar bz2 gz xz wim) do if /i "%Arc.exten%"==".%%a" call "%dir.jzip%\Parts\Add_Set.cmd" :分卷压缩 %key:~1%
-) else if "%key:~0,1%"=="g" ( if /i "%Arc.Order%"=="add" for %%a in (rar 7z) do if /i "%Arc.exten%"==".%%a" call "%dir.jzip%\Parts\Add_Set.cmd" :自解压  %key:~1%
-) else if "%key:~0,1%"=="h" ( for %%a in (rar 7z zip) do if /i "%Arc.exten%"==".%%a" call "%dir.jzip%\Parts\Add_Set.cmd" :压缩加密 %key:~1%
-) else if "%key%"=="i" ( if /i "%Arc.Order%"=="add" if /i "%Arc.exten%"==".rar" call "%dir.jzip%\Parts\Add_Set.cmd" :压缩版本.rar
-) else if "%key:~0,1%"=="j" ( if /i "%Arc.Order%"=="add" if /i "%Arc.exten%"==".rar" call "%dir.jzip%\Parts\Add_Set.cmd" :压缩恢复记录 %key:~1%
+if "%key%"=="a" ( if /i "%Arc.Order%"=="add" call "%dir.jzip%\Parts\Arc_Set.cmd" :更改路径
+) else if "%key%"=="b" ( if /i "%Arc.Order%"=="add" call "%dir.jzip%\Parts\Arc_Set.cmd" :浏览
+) else if "%key%"=="c" ( if /i "%Arc.Order%"=="add" call "%dir.jzip%\Parts\Arc_Set.cmd" :更改名称
+) else if "%key:~0,1%"=="d" ( for %%a in (rar 7z zip bz2 gz xz cab) do if /i "%Arc.exten%"==".%%a" call "%dir.jzip%\Parts\Arc_Set.cmd" :Level %key:~1%
+) else if "%key%"=="e" ( if /i "%Arc.Order%"=="add" for %%a in (rar 7z xz) do if /i "%Arc.exten%"==".%%a" call "%dir.jzip%\Parts\Arc_Set.cmd" :固实文件
+) else if "%key:~0,1%"=="f" ( for %%a in (rar 7z zip tar bz2 gz xz wim) do if /i "%Arc.exten%"==".%%a" call "%dir.jzip%\Parts\Arc_Set.cmd" :分卷压缩 %key:~1%
+) else if "%key:~0,1%"=="g" ( if /i "%Arc.Order%"=="add" for %%a in (rar 7z) do if /i "%Arc.exten%"==".%%a" call "%dir.jzip%\Parts\Arc_Set.cmd" :自解压  %key:~1%
+) else if "%key:~0,1%"=="h" ( for %%a in (rar 7z zip) do if /i "%Arc.exten%"==".%%a" call "%dir.jzip%\Parts\Arc_Set.cmd" :压缩加密 %key:~1%
+) else if "%key%"=="i" ( if /i "%Arc.Order%"=="add" if /i "%Arc.exten%"==".rar" call "%dir.jzip%\Parts\Arc_Set.cmd" :压缩版本.rar
+) else if "%key:~0,1%"=="j" ( if /i "%Arc.Order%"=="add" if /i "%Arc.exten%"==".rar" call "%dir.jzip%\Parts\Arc_Set.cmd" :压缩恢复记录 %key:~1%
 ) else if "%key%"=="next"  ( goto :Add_Process
 ) else if "%key%"=="back" ( set "path.File=" & goto :EOF
 )

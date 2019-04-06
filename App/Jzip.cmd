@@ -1,7 +1,7 @@
 
 @setlocal EnableExtensions EnableDelayedExpansion
 
-@set "jzip.ver=3.2.9.1"
+@set "jzip.ver=3.3.0"
 @set "path.jzip.launcher=%~0"
 @set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 @set "dir.jzip.temp=%temp%\JFsoft.Jzip"
@@ -15,9 +15,8 @@
 
 	:: 注册表无语言设定时，则依据目前代码页设定。
 	if not defined Language (
-		for /f "tokens=2 delims=:" %%i in ('chcp') do (
-			if "%%i"==" 936" (set "Language=chs") else (set "Language=en")
-		)
+		for /f "tokens=2 delims=:" %%i in ('chcp') do set /a "chcp=%%i"
+		if "!chcp!"=="936" (set "Language=chs") else (set "Language=en")
 	)
 	reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "Language" /d "!Language!" /f
 
@@ -41,6 +40,7 @@
 			if "%%~g"=="1" set echo=echo
 			if "%%~g"=="2" set echo=call "%dir.jzip%\Function\Echo.cmd" 
 
+			set "chcp=%%~b"
 			for /f "eol=[ tokens=1,*" %%i in ('type "%dir.jzip%\Langs\%%~a.ini"') do set "%%i%%j"
 		)
 	)
@@ -68,7 +68,7 @@ set "dir.jzip.temp.default=%dir.jzip.temp%"
 
 :: Ttool 配置
 set tcol="%dir.jzip%\Components\x86\TCol.exe"
-set tcurs="%dir.jzip%\Components\x86\tcurs.exe"
+set tcurs="%dir.jzip%\Components\x86\Tcurs.exe"
 %tcurs% /crv 0
 
 set tmouse="%dir.jzip%\Components\x86\tmouse.exe"
@@ -103,10 +103,7 @@ for %%a in (Dir.Jzip.Temp Color FileAssoc ShortCut RightMenu RecentTime) do >nul
 :: 配置组件
 color %Color%
 set "iferror=|| ( call "%dir.jzip%\Function\EdCode.cmd" & exit /b ^^!errorlevel^^! )"
-call "%dir.jzip%\Function\VbsBox.cmd" -import
-call "%dir.jzip%\Function\sudo.cmd" -import
-call "%dir.jzip%\Function\CapTrans.cmd" -import
-
+for %%i in (VbsBox SuDo CapTrans) do call "%dir.jzip%\Function\%%i.cmd" -import
 
 ::被调用
 if exist "%~1" call :Set_Info list %* & goto :EOF

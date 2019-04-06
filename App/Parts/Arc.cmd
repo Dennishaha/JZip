@@ -16,25 +16,22 @@ reg delete "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" /f >nul 2>nul
 
 :: 变量设定 
 set "lz.txt=%dir.jzip.temp%\%Arc.Guid%.tmp"
-md "%lz.txt%" >nul
 if not defined lz.Menu set lz.Menu=basic
 if not defined lz.FileSel set lz.FileSel=0
 
 :: 设定编码开关 
-for /f "tokens=2 delims=:" %%i in ('chcp') do (
-	for %%z in (
-		rar}ansi}-sca
-		rar}utf8}-scf
-		7z}ansi}-sccwin}-scswin
-		7z}utf8}-sccutf-8}-scsutf-8
-	) do for /f "tokens=1-4 delims=}" %%a in ("%%z") do (
-		if "%type.editor%"=="%%a" (
-			if "%%b"=="utf8" if "%%i"==" 65001" (
-				set "btn.utf.a=%%c" & set "btn.utf.b=%%d"
-			)
-			if "%%b"=="ansi" if not "%%i"==" 65001" (
-				set "btn.utf.a=%%c" & set "btn.utf.b=%%d"
-			)
+for %%z in (
+	rar}ansi}-sca
+	rar}utf8}-scf
+	7z}ansi}-sccwin}-scswin
+	7z}utf8}-sccutf-8}-scsutf-8
+) do for /f "tokens=1-4 delims=}" %%a in ("%%z") do (
+	if "%type.editor%"=="%%a" (
+		if "%%b"=="utf8" if "%chcp%"=="65001" (
+			set "btn.utf.a=%%c" & set "btn.utf.b=%%d"
+		)
+		if "%%b"=="ansi" if not "%chcp%"=="65001" (
+			set "btn.utf.a=%%c" & set "btn.utf.b=%%d"
 		)
 	)
 )
@@ -49,9 +46,12 @@ for %%z in (
 	)
 )
 
+call :设定行清除 
+
 :Menu
 
 :: 列表输出到文件
+md "%lz.txt%" >nul 2>nul
 for %%i in (rar 7z) do if "%type.editor%"=="%%i" >"%lz.txt%\lz" "!path.editor.%%i!" l %btn.utf.a% "%Arc.path%" %if.error%
 
 :: 配置压缩参数栏，处于压缩文件根目录时  
@@ -95,17 +95,25 @@ if defined lz.Dir (
 )
 
 for %%z in (
-	rar}"^.   ...D... "}"^.   ..A[^D]... "
-	7z}"^.......... ........ D.... "}"^.......... ........ \..... "
-) do for /f "tokens=1-3 delims=}" %%a in ("%%z") do (
+	rar}"^.   ...D... "}"^.   ..A[^D]... "}"^.   ..[A\.][D\.]... "
+	7z}"^.......... ........ D.... "}"^.......... ........ \..... "}"^.......... ........ [D\.].... "
+) do for /f "tokens=1-4 delims=}" %%a in ("%%z") do (
 	if "%type.editor%"=="%%a" >"%lz.txt%\lzs" (
 		echo;.
-		if defined lz.Dir (
-			type "%lz.txt%\lz" | find /i " %lz.Dir%\" | findstr /i /v "\<%lz.Dir.p%\\.*\\.*" | findstr /r /i /c:"%%~b"
-			type "%lz.txt%\lz" | find /i " %lz.Dir%\" | findstr /i /v "\<%lz.Dir.p%\\.*\\.*" | findstr /r /i /c:"%%~c"
+		if "%lz.Menu%"=="search" (
+			if defined lz.Dir (
+				type "%lz.txt%\lz" | find /i " %lz.Dir%\" | findstr /i "%lz.Search%" | findstr /r /i /c:"%%~d"
+			) else (
+				type "%lz.txt%\lz" | findstr /i "%lz.Search%" | findstr /r /i /c:"%%~d"
+			)
 		) else (
-			type "%lz.txt%\lz" | findstr /v "\\" | findstr /r /i /c:"%%~b"
-			type "%lz.txt%\lz" | findstr /v "\\" | findstr /r /i /c:"%%~c"
+			if defined lz.Dir (
+				type "%lz.txt%\lz" | find /i " %lz.Dir%\" | findstr /i /v "\<%lz.Dir.p%\\.*\\.*" | findstr /r /i /c:"%%~b"
+				type "%lz.txt%\lz" | find /i " %lz.Dir%\" | findstr /i /v "\<%lz.Dir.p%\\.*\\.*" | findstr /r /i /c:"%%~c"
+			) else (
+				type "%lz.txt%\lz" | findstr /v "\\" | findstr /r /i /c:"%%~b"
+				type "%lz.txt%\lz" | findstr /v "\\" | findstr /r /i /c:"%%~c"
+			)
 		)
 	)
 )
@@ -138,18 +146,19 @@ set /a "lz.ViewPageNow=((lz.LnViewStart-lz.LnRawStart)/lz.LnViewBlock)+1"
 set /a "lz.ViewPageTotal=(lz.FileTotal-1)/lz.LnViewBlock+1"
 
 :: 读取文本列表至变量 
-set lz.LnView.c=%lz.LnViewStart%
-
 for %%z in (
-	7z}21}52}54}
-	rar}8}40}42}
+	7z}20}52}54}
+	rar}7}40}42}
 ) do for /f "tokens=1-4 delims=}" %%a in ("%%z") do (
 	if "%type.editor%"=="%%a" (
-
 		for /f "skip=%lz.LnViewStart% delims=" %%a in ('type "%lz.txt%\lzs"') do (
-			for /f %%i in ("!lz.LnView.c!") do (
-				set "lz.LnRaw.%%i= %%a"
-				call set "lz.LnView.%%i=%%lz.LnRaw.%%i:%lz.Dir%\=%%"
+			for /f %%i in ("!lz.LnViewStart!") do (
+				set "lz.LnRaw.%%i=%%a"
+				if defined lz.Dir (
+					set "lz.LnView.%%i= !lz.LnRaw.%%i:%lz.Dir%\=!"
+				) else (
+					set "lz.LnView.%%i= !lz.LnRaw.%%i!"
+				)
 				if "!lz.LnRaw.%%i:~%%b,1!"=="D" (
 					set "lz.LnView.%%i=!lz.LnView.%%i:~0,%%c!  // <!lz.LnView.%%i:~%%d!>"
 				) else (
@@ -157,8 +166,11 @@ for %%z in (
 				)
 				for /f "skip=1 delims=:" %%k in ('^(echo;"!lz.LnView.%%i!"^&echo;^)^|findstr /o ".*"') do set /a lz.ViewLen.%%i=%%k-5
 
-				if "%%i"=="%lz.LnViewEnd%" goto :r.loop.end
-				set /a lz.LnView.c+=1
+				if %%i GEQ %lz.LnViewEnd% (
+					set "lz.LnViewStart=%lz.LnViewStart%"
+					goto :r.loop.end
+				)
+				set /a lz.LnViewStart+=1
 			)
 		)
 	)
@@ -182,8 +194,14 @@ for /l %%i in (%lz.LnViewStart%,1,%lz.LnViewEnd%) do (
 :: 配置底部栏 
 set "bar=   %lz.ViewPageNow%/%lz.ViewPageTotal% %txt_pages%  %lz.FileTotal% %txt_items%"
 if %lz.FileSel% GTR 0 set "bar=%bar%  %txt_selected% %lz.FileSel% %txt_item%"
-if defined lz.Dir set "bar=%bar%  > %lz.Dir:\= > %"
-if not defined lz.Dir set "bar=%bar% %lz.Info%"
+if defined lz.Dir (
+	set "bar=%bar%  > %lz.Dir:\= > %"
+) else (
+	if not defined lz.Search set "bar=%bar% %lz.Info%"
+)
+if defined lz.Search (
+	set "bar=%bar%  %txt_e.search%: !lz.Search!"
+)
 for /f "skip=1 delims=:" %%k in ('^(echo;"%bar%"^&echo;^)^|findstr /o ".*"') do set /a bar.Len=%%k-5
 
 ::UI--------------------------------------------------
@@ -194,36 +212,69 @@ cls
 
 <nul set /p ="  %txt_e.home%  |  "
 
-if "%lz.Menu%"=="basic" (
-	<nul set /p =" %txt_e.open% %txt_e.extr% %txt_e.unzip% "
+if not "%lz.Menu%"=="advance" (
+
+	<nul set /p =" %txt_e.open% %txt_e.extr% "
+
+	if "%lz.Menu%"=="search" (
+		<nul set /p ="        "
+	) else (
+		<nul set /p =" %txt_e.unzip% "
+	)
+
 	if defined Arc.Writable (
-		<nul set /p =" %txt_e.add% %txt_e.del% %txt_e.rn% "
+		if "%lz.Menu%"=="search" (
+			<nul set /p ="      "
+		) else (
+			<nul set /p =" %txt_e.add% "
+		)
+		<nul set /p =" %txt_e.del% %txt_e.rn% "
 	) else (
 		<nul set /p ="                  "
 	)
-	<nul set /p =" %txt_e.adv% "
+
+	if "%lz.Menu%"=="search" (
+		<nul set /p ="      "
+	) else (
+		<nul set /p =" %txt_e.adv% "
+	)
+
 	if 1 LSS %lz.ViewPageNow% (
 		<nul set /p =" %txt_e.up% "
 	) else (
 		<nul set /p ="      "
 	)
+
 	if %lz.ViewPageNow% LSS %lz.ViewPageTotal% (
 		<nul set /p =" %txt_e.down% "
 	) else (
 		<nul set /p ="      "
 	)
+
 	<nul set /p =" %txt_e.ent% "
-	if defined lz.Dir (
-		<nul set /p =" %txt_e.back%"
+
+	if "%lz.Menu%"=="search" (
+		<nul set /p =" %txt_e.back% "
 	) else (
-		<nul set /p ="      "
+		if defined lz.Dir (
+			<nul set /p =" %txt_e.back% "
+		) else (
+			<nul set /p ="      "
+		)
 	)
 )
 
 if "%lz.Menu%"=="advance" (
 	<nul set /p =" %txt_e.basic% %txt_e.test% "
-	if "%type.editor%"=="rar" <nul set /p =" %txt_e.fix% %txt_e.lock% %txt_e.rem% %txt_e.sfx%"
+	if "%type.editor%"=="7z" <nul set /p ="                               "
+	if "%type.editor%"=="rar" <nul set /p =" %txt_e.fix% %txt_e.lock% %txt_e.rem% %txt_e.sfx% "
+	<nul set /p ="                    "
 )
+
+if not "%lz.Menu%"=="advance" (
+	<nul set /p =" %txt_e.search% "
+)
+
 echo;
 echo;
 
@@ -245,33 +296,30 @@ for /l %%i in (%lz.LnViewStart%,1,%lz.LnViewEnd%) do (
 	if !lz.ViewLen.%%i! LEQ %Window.Col% (
 		echo;!lz.LnView.%%i!
 	) else (
-		<nul set /p ="!lz.LnView.%%i!"
-		for /l %%z in (%Window.Col%,1,!lz.ViewLen.%%i!) do <nul set /p =""
-		for /l %%z in (%Window.Col%,1,!lz.ViewLen.%%i!) do <nul set /p ="  "
-		for /l %%z in (%Window.Col%,1,!lz.ViewLen.%%i!) do <nul set /p =""
+		<nul set /p ="!lz.LnView.%%i:~0,%Window.Col%!"
+		%clsline%
 	)
 )
 
 :: 应用选定条颜色 
 if defined tcol.do %tcol% %tcol.do%
 
-
 :: 补充空行 
-set /a "lz.ViewEchoEnd=lz.LnViewStart+lz.LnViewBlock-2"
-for /l %%i in (!lz.LnRawEnd!,1,!lz.ViewEchoEnd!) do echo;
+set /a "lz.ViewEchoEnd=lz.LnViewStart+lz.LnViewBlock-1"
+for /l %%i in (!lz.LnViewEnd!,1,!lz.ViewEchoEnd!) do echo;
+
+:: 输出底部栏 
+if %bar.Len% LEQ %Window.Col% (
+	echo;!bar!
+) else (
+	<nul set /p ="!bar:~0,%Window.Col%!"
+	%clsline%
+)
+endlocal
 
 :: 调试注释，常闭 
 ::echo; File {%lz.LnRawStart%:%lz.LnRawEnd%} View [%lz.LnViewStart%:%lz.LnViewEnd%]
 ::echo;!lz.Dir!  !lz.Dir.p!
-
-:: 输出底部栏 
-echo;
-<nul set /p ="!bar!"
-for /l %%z in (%Window.Col%,1,!bar.Len!) do <nul set /p =""
-for /l %%z in (%Window.Col%,1,!bar.Len!) do <nul set /p ="  "
-for /l %%z in (%Window.Col%,1,!bar.Len!) do <nul set /p =""
-
-endlocal
 
 ::UI--------------------------------------------------
 
@@ -300,13 +348,13 @@ if defined Arc.Do (
 ::%tmouse.test%
 
 :: 窗口大小调整检测，调试时需注释以禁用 
-for /f "tokens=1-2" %%a in ('mode') do (
-	if /i "%%a"=="行:　" if !Window.Ln! NEQ %%~b (set "Window.Ln=%%~b" & set "key=rf")
-	if /i "%%a"=="Lines:" if !Window.Ln! NEQ %%~b (set "Window.Ln=%%~b" & set "key=rf")
-	if /i "%%a"=="列:　　" if !Window.Col! NEQ %%~b (set "Window.Col=%%~b" & set "key=rf")
-	if /i "%%a"=="Columns:" if !Window.Col! NEQ %%~b (set "Window.Col=%%~b" & set "key=rf")
+for /f "skip=2 tokens=1-2" %%a in ('mode') do (
+	if /i "%%a"=="行:　" if !Window.Ln! NEQ %%~b (set /a "Window.Ln=%%~b" & set "key=rf")
+	if /i "%%a"=="Lines:" if !Window.Ln! NEQ %%~b (set /a "Window.Ln=%%~b" & set "key=rf")
+	if /i "%%a"=="列:　　" if !Window.Col! NEQ %%~b (set /a "Window.Col=%%~b" & set "key=rf")
+	if /i "%%a"=="Columns:" if !Window.Col! NEQ %%~b (set /a "Window.Col=%%~b" & set "key=rf")
 )
-if "%key%"=="rf" goto :Menu
+if "%key%"=="rf" call :设定行清除  & goto :Fast1
 
 :: 压缩列表坐标判断 
 set /a lz.LnTap=lz.LnViewStart+mouse.y-3
@@ -316,12 +364,12 @@ if %lz.LnViewStart% LEQ %lz.LnTap% if %lz.LnTap% LEQ %lz.LnViewEnd% (
 	for /f %%i in ("%lz.LnTap%") do (
 		if defined lz.LnView.%%%i (
 			for %%z in (
-				7z:21:54:56
-				rar:8:42:44
-			) do for /f "tokens=1-4 delims=:" %%a in ("%%z") do (
+				7z:20:53:54:56
+				rar:7:41:42:44
+			) do for /f "tokens=1-5 delims=:" %%a in ("%%z") do (
 				if "%type.editor%"=="%%a" (
-					if %mouse.x% LSS %%c call :全不选 
-					if %mouse.x% GEQ %%d call :全不选 
+					if %mouse.x% LSS %%d call :全不选 
+					if %mouse.x% GEQ %%e call :全不选 
 
 					if defined lz.FileSel.%%%i (
 						set "lz.FileSel.%%i="
@@ -331,7 +379,7 @@ if %lz.LnViewStart% LEQ %lz.LnTap% if %lz.LnTap% LEQ %lz.LnViewEnd% (
 						set /a "lz.FileSel+=1"
 					)
 
-					if %%d LSS %mouse.x% if %mouse.x% LSS !lz.ViewLen.%%i! ( 
+					if %%e LSS %mouse.x% if %mouse.x% LSS !lz.ViewLen.%%i! ( 
 						if "!lz.LnRaw.%%i:~%%b,1!"=="D" (
 							call :进入  "!lz.LnRaw.%%i:~%%c!"
 							goto :Menu
@@ -347,7 +395,7 @@ if %lz.LnViewStart% LEQ %lz.LnTap% if %lz.LnTap% LEQ %lz.LnViewEnd% (
 )
 
 :: 按钮坐标判断 
-if "%lz.Menu%"=="basic" for %%A in (
+if not "%lz.Menu%"=="advance" for %%A in (
 	11}14}0}0}1}
 	16}19}0}0}2}
 	21}26}0}0}3}
@@ -376,8 +424,9 @@ if "%lz.Menu%"=="advance" for %%A in (
 
 for %%A in (
 	1}6}0}0}e}
-	42}43}2}2}s1}
-	54}55}2}2}s2}
+	70}73}0}0}s}
+	42}43}2}2}t1}
+	54}55}2}2}t2}
 ) do for /f "tokens=1-5 delims=}" %%a in ("%%A") do (
 	if %%a LEQ %mouse.x% if %mouse.x% LEQ %%b if %%c LEQ %mouse.y% if %mouse.y% LEQ %%d set "key=%%e"
 )
@@ -386,11 +435,11 @@ for %%A in (
 :Arc.Do
 if "%key%"=="1" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Open
 ) else if "%key%"=="2" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Extr
-) else if "%key%"=="3" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Unzip
-) else if "%key%"=="4" ( if "%Arc.Writable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" Add
+) else if "%key%"=="3" ( if not "%lz.Menu%"=="search" call "%dir.jzip%\Parts\Arc_Expan.cmd" Unzip
+) else if "%key%"=="4" ( if not "%lz.Menu%"=="search" if "%Arc.Writable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" Add
 ) else if "%key%"=="5" ( if "%Arc.Writable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" Delete
 ) else if "%key%"=="6" ( if "%Arc.Writable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" ReName
-) else if "%key%"=="7" ( set "lz.Menu=advance"
+) else if "%key%"=="7" ( if not "%lz.Menu%"=="search" set "lz.Menu=advance"
 ) else if "%key%"=="8" ( set /a "lz.LnViewStart-=%lz.LnViewBlock%"
 ) else if "%key%"=="9" ( set /a "lz.LnViewStart+=%lz.LnViewBlock%"
 ) else if "%key%"=="10" ( call :进入 
@@ -401,8 +450,9 @@ if "%key%"=="1" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Open
 ) else if "%key%"=="a4" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Expan.cmd" Lock
 ) else if "%key%"=="a5" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Expan.cmd" Note
 ) else if "%key%"=="a6" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Expan.cmd" Sfx
-) else if "%key%"=="s1" ( if "%type.editor%"=="rar" call :全选切换 
-) else if "%key%"=="s2" ( if "%type.editor%"=="7z" call :全选切换 
+) else if "%key%"=="t1" ( if "%type.editor%"=="rar" call :全选切换 
+) else if "%key%"=="t2" ( if "%type.editor%"=="7z" call :全选切换 
+) else if "%key%"=="s" ( call :Search
 ) else if "%key%"=="e" ( start /b /i cmd /c call "%path.jzip.launcher%" & goto :EOF
 )
 
@@ -412,7 +462,7 @@ set Arc.Do=
 :: 快速刷新 
 for %%i in (8 9) do if "%key%"=="%%i" goto :Fast1
 if not defined key goto :Fast2
-for %%i in (7 a1 s1 s2) do if "%key%"=="%%i" goto :Fast2
+for %%i in (1 2 3 7 a1 t1 t2) do if "%key%"=="%%i" goto :Fast2
 
 goto :Menu
 
@@ -420,24 +470,46 @@ goto :Menu
 :进入 
 if "%~1"=="" (
 	%InputBox-r% lz.Dir "\%lz.Dir%" "%txt_e.type.enterfold%"
-) else if "%~1"==".." (
-	for /f "delims=" %%i in ("!lz.Dir!") do (
-		set "lz.Dir=%%~i"
-		if not "%%~nxi"=="" (
-			set "lz.Dir=!lz.Dir:%%~nxi=!"
+)
+if "%~1"==".." (
+	if not "%lz.Menu%"=="search" (
+		for /f "delims=" %%i in ("!lz.Dir!") do (
+			set "lz.Dir=%%~i"
+			if not "%%~nxi"=="" (
+				set "lz.Dir=!lz.Dir:%%~nxi=!"
+			)
 		)
 	)
 ) else if not "%~1"=="" (
 	set "lz.Dir=%~1"
-	)
+)
+
+call :全不选 
+set lz.LnViewStart=
+if "%lz.Menu%"=="search" call :Search ..
 
 if not defined lz.Dir goto :EOF
 
 if "!lz.Dir:~0,1!"=="\" set "lz.Dir=!lz.Dir:~1!"
 if "!lz.Dir:~-1!"=="\" set "lz.Dir=!lz.Dir:~0,-1!"
 
-set "lz.LnViewStart="
+goto :EOF
+
+
+:Search 
+(
+	set lz.Search=
+	if "%~1"=="" %InputBox-r% lz.Search "%lz.Search%" "%txt_e.type.search%"
+)
+
 call :全不选 
+set lz.LnViewStart=
+
+if defined lz.Search (
+	set lz.Menu=search
+) else (
+	set lz.Menu=basic
+)
 goto :EOF
 
 
@@ -446,14 +518,26 @@ if "%lz.FileSel%"=="%lz.FileTotal%" ( call :全不选 ) else ( call :全选 )
 goto :EOF
 
 :全选 
+if %lz.LnRawEnd% GEQ 1000 <nul set /p =".."
 for /l %%a in (%lz.LnRawStart%,1,%lz.LnRawEnd%) do set "lz.FileSel.%%a=%%a"
 set "lz.FileSel=%lz.FileTotal%"
 goto :EOF
 
 :全不选 
+if %lz.LnRawEnd% GEQ 1000 <nul set /p =".."
 for /f "tokens=1 delims==" %%a in ('2^>nul set "lz.FileSel."') do set "%%a="
 set "lz.FileSel=0"
 goto :EOF
 
 
+:设定行清除 
+setlocal
+if "%chcp%"=="936" (
+	for /l %%i in (1,1,%Window.Col%) do (
+		set "backs=!backs!"
+		set "space=!space! "
+	)
+)
+endlocal & set "clsline=<nul set /p =%backs%%space%%backs%"
+goto :EOF
 

@@ -100,6 +100,7 @@ goto :EOF
 
 
 :Temp_Clean
+<nul set /p =".."
 
 :: 注册表临时项清理 
 reg delete "HKCU\Software\JFsoft.Jzip\Record\@" /f >nul 2>nul
