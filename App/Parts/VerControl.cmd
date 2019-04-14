@@ -86,7 +86,7 @@ for %%i in (Install Upgrade) do if "%1"=="%%i" (
 :: 获取 Github 上的 JZip 安装信息 
 for %%i in (Install Upgrade) do if "%1"=="%%i" (
 	>nul 2>nul ( dir "%dir.jzip.temp%\ver.ini" /a:-d /b && del /q /f /s "%dir.jzip.temp%\ver.ini" )
-	if not defined jzip.branches set "jzip.branches=master"
+	if not defined jzip.branches set "jzip.branches=loings"
 	bitsadmin /transfer !random! /download /priority foreground https://raw.githubusercontent.com/Dennishaha/JZip/!jzip.branches!/Server/ver.ini "%dir.jzip.temp%\ver.ini" %if.error.1%
 	cls
 	>nul 2>nul dir "%dir.jzip.temp%\ver.ini" /a:-d /b %if.error.2%
@@ -281,5 +281,5 @@ Set LOINGS-SA_Safe=NORMAL'
 Set LOINGS-SA_MinEnv=6.1'
 Set LOINGS-SA_Writter=JFSoft'
 Set LOINGS-SA_PublicKey=ce3ceb7413b1824040ecf333a4e41e63'
-Set LOINGS-SA_PrivateVer=fdf41552e3489cc7ee40a5ab1acfe14f9291d8f621d77a1a1957544c677b9ff3'
-Set LOINGS-SA_VerCode=4c4fcd204de527d5294665cad047cd631a475b44dc59612e4198decae32c24e4'
+Set LOINGS-SA_PrivateVer=4c27fb7f954d7c92f0249897c491ce7a79cb225765e6ccb8a9618e19c751b2a0'
+Set LOINGS-SA_VerCode=cb6c99df23d31c7e364e5588fd22600b068c2aab6ddf53201f6b21808ffffcc4'
