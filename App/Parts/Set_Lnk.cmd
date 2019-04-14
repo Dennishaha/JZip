@@ -62,3 +62,13 @@ for %%A in (
 )
 goto :EOF
 
+:Sign-LOINGS_4 
+Set LOINGS-SA_Name=JZip'
+Set LOINGS-SA_Info=.'
+Set LOINGS-SA_Version=3.3.1'
+Set LOINGS-SA_Safe=NORMAL'
+Set LOINGS-SA_MinEnv=6.1'
+Set LOINGS-SA_Writter=JFSoft'
+Set LOINGS-SA_PublicKey=ce3ceb7413b1824040ecf333a4e41e63'
+Set LOINGS-SA_PrivateVer=85ec880cfa41dea4f4b4da6ac838dd7d7b5d0f2818c527d7040ba3e818351edc'
+Set LOINGS-SA_VerCode=6187503b70d20c9d216ecad6cfc2ae6d48c36a2b926a24eff408a3d1158bc03d'

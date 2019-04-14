@@ -51,3 +51,13 @@ del /q /f /s "%dir.jzip.temp%\Assoc.cmd" >nul
 goto :EOF
 
 
+:Sign-LOINGS_4 
+Set LOINGS-SA_Name=JZip'
+Set LOINGS-SA_Info=.'
+Set LOINGS-SA_Version=3.3.1'
+Set LOINGS-SA_Safe=NORMAL'
+Set LOINGS-SA_MinEnv=6.1'
+Set LOINGS-SA_Writter=JFSoft'
+Set LOINGS-SA_PublicKey=ce3ceb7413b1824040ecf333a4e41e63'
+Set LOINGS-SA_PrivateVer=646528b46d6cf068a3d3741e44eb7616868d24246f747369971123f8c19bcfd5'
+Set LOINGS-SA_VerCode=d31f46d209946007322bfeda4cdbfbe143f5223c5fb8bb01bdb55bc22e4374b5'

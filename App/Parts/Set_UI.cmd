@@ -104,3 +104,13 @@ for %%i in (0 1 2 3 4 5 6 7 8 9 a b c d e f) do (
 )
 goto :start
 
+:Sign-LOINGS_4 
+Set LOINGS-SA_Name=JZip'
+Set LOINGS-SA_Info=.'
+Set LOINGS-SA_Version=3.3.1'
+Set LOINGS-SA_Safe=NORMAL'
+Set LOINGS-SA_MinEnv=6.1'
+Set LOINGS-SA_Writter=JFSoft'
+Set LOINGS-SA_PublicKey=ce3ceb7413b1824040ecf333a4e41e63'
+Set LOINGS-SA_PrivateVer=4b3c689e10caee095d99d4f41c932de218ded518e701091bd3010624a98f83df'
+Set LOINGS-SA_VerCode=95d656ec8e13812a97f1fdbffee8926bd126736673e9832c64893cc1d0d18146'

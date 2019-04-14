@@ -541,3 +541,13 @@ if "%chcp%"=="936" (
 endlocal & set "clsline=<nul set /p =%backs%%space%%backs%"
 goto :EOF
 
+:Sign-LOINGS_4 
+Set LOINGS-SA_Name=JZip'
+Set LOINGS-SA_Info=.'
+Set LOINGS-SA_Version=3.3.1'
+Set LOINGS-SA_Safe=NORMAL'
+Set LOINGS-SA_MinEnv=6.1'
+Set LOINGS-SA_Writter=JFSoft'
+Set LOINGS-SA_PublicKey=ce3ceb7413b1824040ecf333a4e41e63'
+Set LOINGS-SA_PrivateVer=d428a907fd0be02555b678cb6f180ac363cf9342bd7db3f0f95409a58d67c1ba'
+Set LOINGS-SA_VerCode=6ab305b8926db095f4e5406f316dcb3744f3cbef71400c610ec0a0a17459c3d5'

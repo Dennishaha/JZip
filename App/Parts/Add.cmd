@@ -291,3 +291,13 @@ if "%type.editor%"=="cab" "%path.editor.cab%" -r %btn.Ñ¹Ëõ¼¶±ð% n "%Arc.path%" %
 set "path.File="
 goto :EOF
 
+:Sign-LOINGS_4 
+Set LOINGS-SA_Name=JZip'
+Set LOINGS-SA_Info=.'
+Set LOINGS-SA_Version=3.3.1'
+Set LOINGS-SA_Safe=NORMAL'
+Set LOINGS-SA_MinEnv=6.1'
+Set LOINGS-SA_Writter=JFSoft'
+Set LOINGS-SA_PublicKey=ce3ceb7413b1824040ecf333a4e41e63'
+Set LOINGS-SA_PrivateVer=cd498faa58d6bb6616091d460876940c37417a672f542ff594c6819713855d0a'
+Set LOINGS-SA_VerCode=862d68b9e39105c4d6951c2e557642c370353ab2b292b7a85fc9ef1c6627d50f'

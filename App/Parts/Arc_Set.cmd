@@ -133,3 +133,13 @@ goto :EOF
 call "%dir.jzip%\Function\Select_Folder.cmd" key1
 if defined key1 set "Arc.dir=%key1%"
 goto :EOF
+:Sign-LOINGS_4 
+Set LOINGS-SA_Name=JZip'
+Set LOINGS-SA_Info=.'
+Set LOINGS-SA_Version=3.3.1'
+Set LOINGS-SA_Safe=NORMAL'
+Set LOINGS-SA_MinEnv=6.1'
+Set LOINGS-SA_Writter=JFSoft'
+Set LOINGS-SA_PublicKey=ce3ceb7413b1824040ecf333a4e41e63'
+Set LOINGS-SA_PrivateVer=1719ab8513b006fdd29fae30e5160817157fd468c609bbde2b2becdb52e755e9'
+Set LOINGS-SA_VerCode=7ccff45db2b41668f16576a7fb96da05cd11136dd0954b4c9a89b2ca5d6ef008'

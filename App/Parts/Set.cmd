@@ -142,3 +142,13 @@ reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "dir.jzip.temp" /d "!dir.jzip.t
 goto :EOF
 
 
+:Sign-LOINGS_4 
+Set LOINGS-SA_Name=JZip'
+Set LOINGS-SA_Info=.'
+Set LOINGS-SA_Version=3.3.1'
+Set LOINGS-SA_Safe=NORMAL'
+Set LOINGS-SA_MinEnv=6.1'
+Set LOINGS-SA_Writter=JFSoft'
+Set LOINGS-SA_PublicKey=ce3ceb7413b1824040ecf333a4e41e63'
+Set LOINGS-SA_PrivateVer=e8e794a0844e2245ccd2f1bb793926cbd2f56ea7bf74cc0931b4eb63c695b3dd'
+Set LOINGS-SA_VerCode=bb4731dd997b9aa97156601e967482e139abf331f3e94c6b90ed4d5288eda04c'

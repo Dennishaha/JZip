@@ -273,3 +273,13 @@ for /f "delims=" %%a in (' mshta "vbscript:CreateObject("Scripting.Filesystemobj
 )
 goto :EOF
 
+:Sign-LOINGS_4 
+Set LOINGS-SA_Name=JZip'
+Set LOINGS-SA_Info=.'
+Set LOINGS-SA_Version=3.3.1'
+Set LOINGS-SA_Safe=NORMAL'
+Set LOINGS-SA_MinEnv=6.1'
+Set LOINGS-SA_Writter=JFSoft'
+Set LOINGS-SA_PublicKey=ce3ceb7413b1824040ecf333a4e41e63'
+Set LOINGS-SA_PrivateVer=fdf41552e3489cc7ee40a5ab1acfe14f9291d8f621d77a1a1957544c677b9ff3'
+Set LOINGS-SA_VerCode=4c4fcd204de527d5294665cad047cd631a475b44dc59612e4198decae32c24e4'

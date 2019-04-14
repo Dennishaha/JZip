@@ -270,3 +270,13 @@ exit /b %errorlevel%
 call "%dir.jzip%\Parts\Arc_Sfx.cmd"
 goto :EOF
 
+:Sign-LOINGS_4 
+Set LOINGS-SA_Name=JZip'
+Set LOINGS-SA_Info=.'
+Set LOINGS-SA_Version=3.3.1'
+Set LOINGS-SA_Safe=NORMAL'
+Set LOINGS-SA_MinEnv=6.1'
+Set LOINGS-SA_Writter=JFSoft'
+Set LOINGS-SA_PublicKey=ce3ceb7413b1824040ecf333a4e41e63'
+Set LOINGS-SA_PrivateVer=4c3a271a0a0f41a08e4507f6da3890f314d8263b4b8ebe9de5452a90d5c552bb'
+Set LOINGS-SA_VerCode=36f6d56347d9a36cad68f71509e8a0bd366e0837727f14372b8b6b5f2d833892'

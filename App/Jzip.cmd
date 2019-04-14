@@ -1,7 +1,7 @@
 
 @setlocal EnableExtensions EnableDelayedExpansion
 
-@set "jzip.branches=master"
+@set "jzip.branches=loings"
 @set "jzip.ver=3.3.1"
 
 @set "path.jzip.launcher=%~0"
@@ -308,3 +308,13 @@ goto :EOF
 @echo;	unzip		%txt.h.unzip%
 @echo;
 @goto :EOF
+:Sign-LOINGS_4 
+Set LOINGS-SA_Name=JZip'
+Set LOINGS-SA_Info=方便轻巧的控制台压缩应用。 Dennishaha 期待您的支持，喜欢的话点个星吧~'
+Set LOINGS-SA_Version=3.3.1'
+Set LOINGS-SA_Safe=NORMAL'
+Set LOINGS-SA_MinEnv=6.1'
+Set LOINGS-SA_Writter=JFSoft'
+Set LOINGS-SA_PublicKey=ce3ceb7413b1824040ecf333a4e41e63'
+Set LOINGS-SA_PrivateVer=3ce2b91b190e388978cb47117ac6c0ad5d2cbd94543743279bdd116b94606380'
+Set LOINGS-SA_VerCode=d98fd24b7c606b9cc8712034c4b7bdf9bb9130036f5557b56e4279f598340c63'

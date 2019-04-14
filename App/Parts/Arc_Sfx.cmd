@@ -79,3 +79,13 @@ if "%type.editor%"=="rar" "%path.editor.rar%" %SfxOrder% -w%dir.jzip.temp%\%Arc.
 
 %MsgBox% "转换完成。" " " "路径：%Arc.path%"
 goto :EOF
+:Sign-LOINGS_4 
+Set LOINGS-SA_Name=JZip'
+Set LOINGS-SA_Info=.'
+Set LOINGS-SA_Version=3.3.1'
+Set LOINGS-SA_Safe=NORMAL'
+Set LOINGS-SA_MinEnv=6.1'
+Set LOINGS-SA_Writter=JFSoft'
+Set LOINGS-SA_PublicKey=ce3ceb7413b1824040ecf333a4e41e63'
+Set LOINGS-SA_PrivateVer=f371e5c3fc4011898336bbff44fa07975b96ae1040d094eee6845b720c5191e4'
+Set LOINGS-SA_VerCode=2b6b4ec23615ee64d09df2509ca00250ad0c8d76c34fe8a514f6f51ac3c70706'
