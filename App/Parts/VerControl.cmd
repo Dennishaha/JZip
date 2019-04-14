@@ -86,7 +86,8 @@ for %%i in (Install Upgrade) do if "%1"=="%%i" (
 :: 获取 Github 上的 JZip 安装信息 
 for %%i in (Install Upgrade) do if "%1"=="%%i" (
 	>nul 2>nul ( dir "%dir.jzip.temp%\ver.ini" /a:-d /b && del /q /f /s "%dir.jzip.temp%\ver.ini" )
-	bitsadmin /transfer !random! /download /priority foreground https://raw.githubusercontent.com/Dennishaha/JZip/master/Server/ver.ini "%dir.jzip.temp%\ver.ini" %if.error.1%
+	if not defined jzip.branches set "jzip.branches=master"
+	bitsadmin /transfer !random! /download /priority foreground https://raw.githubusercontent.com/Dennishaha/JZip/!jzip.branches!/Server/ver.ini "%dir.jzip.temp%\ver.ini" %if.error.1%
 	cls
 	>nul 2>nul dir "%dir.jzip.temp%\ver.ini" /a:-d /b %if.error.2%
 

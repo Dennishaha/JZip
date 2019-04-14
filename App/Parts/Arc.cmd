@@ -533,7 +533,7 @@ goto :EOF
 :设定行清除 
 setlocal
 if "%chcp%"=="936" (
-	for /l %%i in (1,1,%Window.Col%) do (
+	for /l %%i in (2,1,%Window.Col%) do (
 		set "backs=!backs!"
 		set "space=!space! "
 	)

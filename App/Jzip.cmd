@@ -1,7 +1,9 @@
 
 @setlocal EnableExtensions EnableDelayedExpansion
 
-@set "jzip.ver=3.3.0"
+@set "jzip.branches=master"
+@set "jzip.ver=3.3.1"
+
 @set "path.jzip.launcher=%~0"
 @set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 @set "dir.jzip.temp=%temp%\JFsoft.Jzip"
@@ -78,7 +80,6 @@ set "tmouse.test= echo;[^!mouse.x^!,^!mouse.y^!] Raw: ^!mouse^! & ping localhost
 :: Jzip 文件支持类型
 set "jzip.spt.rar=rar"
 set "jzip.spt.7z=7z zip bz2 gz tgz tar wim xz 001 cab iso img dll msi chm cpio deb dmg lzh lzma rpm udf vhd xar"
-set "jzip.spt.exe=exe"
 set "jzip.spt.assoc=rar 7z zip bz2 gz tgz tar wim xz 001 cab"
 set "jzip.spt.write=exe rar 7z zip tar wim"
 set "jzip.spt.noadd=bz2 gz xz cab"
@@ -235,36 +236,46 @@ for %%a in (list unzip) do if /i "%~1"=="%%a" (
 			set "Arc.name=%%~nc"
 			set "Arc.exten=%%~xc"
 
-			:: 生成 GUID 
-			if defined Guid (
-				set "Arc.Guid=%Guid%"
-			) else (
-				for /f "delims=" %%a in ('cscript //nologo "%dir.jzip%\Function\Create_GUID.vbs"') do set "Arc.Guid=%%a"
-			)
-
-			:: 访问权限判断
+			:: 分析文件类型
 			>nul 2>nul (
-				net session || (ren "%%~c" "%%~nxc" || set "Arc.Uac=y")
-			)
-
-			dir "!Arc.path!" /a:-d /b >nul 2>nul && (
-			for %%A in (%jzip.spt.7z%) do if /i "!Arc.exten!"==".%%A" set "type.editor=7z"
-			for %%A in (%jzip.spt.rar%) do if /i "!Arc.exten!"==".%%A" set "type.editor=rar"
-			for %%A in (%jzip.spt.exe%) do if /i "!Arc.exten!"==".%%A" (
-				"%path.editor.7z%" l "!Arc.path!" | findstr /r "^   Date" >nul && set "type.editor=7z"
-				"%path.editor.rar%" l "!Arc.path!" | findstr /r "^Details:" >nul && set "type.editor=rar"
+				dir "%%~c" /a:d /b || (
+					dir "%%~c" /a:-d /b  && (
+						for %%A in (%jzip.spt.7z%) do if /i "!Arc.exten!"==".%%A" set "type.editor=7z"
+						for %%A in (%jzip.spt.rar%) do if /i "!Arc.exten!"==".%%A" set "type.editor=rar"
+						if not defined type.editor (
+							"%path.editor.7z%" l "!Arc.path!" | findstr /r /c:"^   Date" >nul && set "type.editor=7z"
+							"%path.editor.rar%" l "!Arc.path!" | findstr /r /c:"^Details:" >nul && set "type.editor=rar"
+						)
+					)
 				)
 			)
-	
+
 			if defined type.editor (
+
+				:: 生成 GUID 
+				if defined Guid (
+					set "Arc.Guid=%Guid%"
+				) else (
+					for /f "delims=" %%a in ('cscript //nologo "%dir.jzip%\Function\Create_GUID.vbs"') do set "Arc.Guid=%%a"
+				)
+
+				:: 访问权限判断
+				>nul 2>nul (
+					net session || (ren "%%~c" "%%~nxc" || set "Arc.Uac=y")
+				)
+
 				if /i "%~1"=="list" (
-					if defined path.raw.2 start "JFsoft.Jzip" cmd /e:on /v:on /c "%dir.jzip%\Parts\Arc.cmd"
-					if not defined path.raw.2 "%dir.jzip%\Parts\Arc.cmd" & exit 0
+					if defined path.raw.2 (
+						start "JFsoft.Jzip" cmd /e:on /v:on /c "%dir.jzip%\Parts\Arc.cmd"
+					) else (
+						"%dir.jzip%\Parts\Arc.cmd" & exit 0
 					)
+				)
 				if /i "%~1"=="unzip" call "%dir.jzip%\Parts\Arc_Expan.cmd" Unzip /unzip
 				set "type.editor="
+
 			) else (
-				set "ui.nospt=!ui.nospt! "%%~nxc""
+				set ui.nospt=!ui.nospt! "%%~nxc"
 			)
 		)
 	)

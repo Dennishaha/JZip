@@ -24,7 +24,11 @@ echo;		 %dir.jzip.temp%
 %echo%;		%txt_s.b.open%%txt_s.b.clean%%txt_s.b.ctm%%txt_s.b.def%
 %echo%;		%txt_b5.bot%%txt_b5.bot%%txt_b5.bot%%txt_b5.bot%
 echo;
-echo;		%txt_version% %jzip.ver%
+if "%jzip.branches%"=="master" (
+	echo;		%txt_version% !jzip.ver!
+) else (
+	echo;		%txt_version% !jzip.ver! !jzip.branches!
+)
 %echo%;		%txt_b6.top%%txt_b6.top%
 %echo%;		%txt_s.b.chk%%txt_s.b.site% %txt_uninstall%
 %echo%;		%txt_b6.bot%%txt_b6.bot%
