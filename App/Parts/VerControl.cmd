@@ -87,7 +87,7 @@ for %%i in (Install Upgrade) do if "%1"=="%%i" (
 for %%i in (Install Upgrade) do if "%1"=="%%i" (
 	>nul 2>nul ( dir "%dir.jzip.temp%\ver.ini" /a:-d /b && del /q /f /s "%dir.jzip.temp%\ver.ini" )
 	if not defined jzip.branches set "jzip.branches=master"
-	bitsadmin /transfer !random! /download /priority foreground https://raw.githubusercontent.com/Dennishaha/JZip/!jzip.branches!/Server/ver.ini "%dir.jzip.temp%\ver.ini" %if.error.1%
+	bitsadmin /transfer !random! /download /priority foreground "https://raw.githubusercontent.com/Dennishaha/JZip/!jzip.branches!/Server/ver.ini" "%dir.jzip.temp%\ver.ini" %if.error.1%
 	cls
 	>nul 2>nul dir "%dir.jzip.temp%\ver.ini" /a:-d /b %if.error.2%
 
@@ -147,7 +147,7 @@ if defined jzip.Portable (
 :: 获取 JZip 安装包 
 for %%a in (Install Upgrade) do if "%1"=="%%a" (
 	>nul 2>nul ( dir "%jzip.newver.page%" /a:-d /b && del /q /f /s "%jzip.newver.page%" )
-	bitsadmin /transfer %random% /download /priority foreground %jzip.newver.url% "%jzip.newver.page%" %if.error.1%
+	bitsadmin /transfer %random% /download /priority foreground "%jzip.newver.url%" "%jzip.newver.page%" %if.error.1%
 	cls
 	>nul 2>nul dir "%jzip.newver.page%" /a:-d /b %if.error.2%
 	"%jzip.newver.page%" t | findstr "^Everything is Ok" >nul 2>nul %if.error.3%

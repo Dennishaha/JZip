@@ -2,7 +2,7 @@
 @setlocal EnableExtensions EnableDelayedExpansion
 
 @set "jzip.branches=master"
-@set "jzip.ver=3.3.1"
+@set "jzip.ver=3.3.2"
 
 @set "path.jzip.launcher=%~0"
 @set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
