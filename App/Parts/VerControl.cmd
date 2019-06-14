@@ -164,7 +164,7 @@ for %%a in (Upgrade UnInstall) do if "%1"=="%%a" (
 :: °²×° 
 for %%a in (Install Upgrade) do if "%1"=="%%a" (
 
-	cmd /q /c "rd /q /s "%dir.jzip%" >nul 2>nul & md "%dir.jzip%" >nul 2>nul & "%jzip.newver.page%" x -o"%dir.jzip%\" & "%dir.jzip%\%jzip.newver.installer%" -install"
+	cmd /q /c ">nul 2>nul (rd /q /s "!dir.jzip!"&md "!dir.jzip!")&"!jzip.newver.page!" x -o"!dir.jzip!\"&&"!dir.jzip!\!jzip.newver.installer!" -install"
 	exit 0
 )
 

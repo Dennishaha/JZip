@@ -2,7 +2,7 @@
 @setlocal EnableExtensions EnableDelayedExpansion
 
 @set "jzip.branches=master"
-@set "jzip.ver=3.3.2"
+@set "jzip.ver=3.3.3"
 
 @set "path.jzip.launcher=%~0"
 @set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
@@ -51,7 +51,7 @@
 @if /i "%~1"=="-su" call :%* & goto :EOF
 @if /i "%~1"=="-help" call :%* & goto :EOF
 
-@if not "%~1"==":s" start "JFsoft.Jzip" cmd /c call "%~0" :s %* & goto :EOF
+@if not "%~1"==":s" start "JFsoft.Jzip" cmd /d /c call "%~0" :s %* & goto :EOF
 
 :: ‘§≈‰÷√ Jzip ª∑æ≥
 
