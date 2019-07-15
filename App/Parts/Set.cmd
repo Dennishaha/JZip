@@ -29,9 +29,9 @@ if "%jzip.branches%"=="master" (
 ) else (
 	echo;		%txt_version% !jzip.ver! !jzip.branches!
 )
-%echo%;		%txt_b6.top%%txt_b6.top%
-%echo%;		%txt_s.b.chk%%txt_s.b.site% %txt_uninstall%
-%echo%;		%txt_b6.bot%%txt_b6.bot%
+%echo%;		%txt_b6.top%%txt_b6.top%%txt_b6.top%
+%echo%;		%txt_s.b.chk%%txt_s.b.bm%%txt_s.b.site% %txt_uninstall%
+%echo%;		%txt_b6.bot%%txt_b6.bot%%txt_b6.bot%
 echo;
 echo;
 %tmouse% /d 0 -1 1
@@ -50,8 +50,9 @@ for %%A in (
 	37}44}14}16}w3}
 	47}54}14}16}w4}
 	17}26}19}21}ver}
-	29}38}19}21}web}
-	41}49}20}20}rid}
+	29}38}19}21}bm}
+	41}50}19}21}web}
+	53}62}20}20}rid}
 ) do for /f "tokens=1-5 delims=}" %%a in ("%%A") do (
 	if defined mouse.x if defined mouse.y (
 		if %mouse.x% GEQ %%~a if %mouse.x% LEQ %%~b if %mouse.y% GEQ %%~c if %mouse.y% LEQ %%~d set "key=%%~e"
@@ -69,6 +70,7 @@ if "%key%"== "1" ( goto :EOF
 ) else if "%key%"== "w4" ( call :Temp_Reset
 ) else if "%key%"== "lang-s" ( call :lang-s
 ) else if "%key%"== "ver" ( call "%dir.jzip%\Parts\VerControl.cmd" -upgrade
+) else if "%key%"== "bm" ( call :Benchmark
 ) else if "%key%"== "web" ( explorer "https://github.com/dennishaha/Jzip"
 ) else if "%key%"== "rid" ( call "%dir.jzip%\Parts\VerControl.cmd" -uninstall
 )
@@ -142,3 +144,6 @@ reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "dir.jzip.temp" /d "!dir.jzip.t
 goto :EOF
 
 
+:Benchmark
+start "JFsoft.Jzip" cmd /d /c "mode 70,28 & color %color% & title & "%path.editor.7z%" b & echo. & echo.%txt_s.bm.ok% & %tmouse% /d 0 -1 1"
+goto :EOF
