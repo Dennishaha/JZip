@@ -2,7 +2,7 @@
 @setlocal EnableExtensions EnableDelayedExpansion
 
 @set "jzip.branches=master"
-@set "jzip.ver=3.3.4"
+@set "jzip.ver=3.3.5"
 
 @set "path.jzip.launcher=%~0"
 @set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
@@ -88,12 +88,12 @@ set "jzip.spt.add=%jzip.spt.write% %jzip.spt.noadd%"
 :: 压缩编辑器配置
 if "%processor_architecture%"=="AMD64" (
 	set "path.editor.7z=%dir.jzip%\Components\x64\7z.exe"
-	set "path.editor.rar=%dir.jzip%\Components\x64\rar.exe"
+	set "path.editor.rar=%dir.jzip%\Components\x64\Rar.exe"
 ) else (
 	set "path.editor.7z=%dir.jzip%\Components\x86\7z.exe"
-	set "path.editor.rar=%dir.jzip%\Components\x86\rar.exe"
+	set "path.editor.rar=%dir.jzip%\Components\x86\Rar.exe"
 )
-set "path.editor.cab=%dir.jzip%\Components\x86\cabarc.exe"
+set "path.editor.cab=%dir.jzip%\Components\x86\Cabarc.exe"
 
 :: 加载用户配置信息及临时文件夹
 for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip" 2^>nul') do if /i "%%b"=="REG_SZ" set "%%a=%%c"

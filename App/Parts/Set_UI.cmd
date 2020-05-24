@@ -66,7 +66,7 @@ echo;
 
 for %%A in (
 	65}74}21}23}back}
-	57}68}5}7}change}
+	57}68}5}7}switch}
 	14}19}13}15}4}
 	14}19}16}18}c}
 	22}27}10}12}0}
@@ -89,7 +89,7 @@ for %%A in (
 	)
 )
 
-if "%key%"=="change" (
+if "%key%"=="switch" (
 	if "%ui.mouse%"=="paper" set "ui.mouse=word"
 	if "%ui.mouse%"=="word" set "ui.mouse=paper"
 )
@@ -97,8 +97,16 @@ if "%key%"=="back" goto :EOF
 
 for %%i in (0 1 2 3 4 5 6 7 8 9 a b c d e f) do (
 	if "%key%"=="%%i" (
-		if "%ui.mouse%"=="word" if not "%Color:~0,1%"=="%%i" set "Color=%Color:~0,1%%%i"
-		if "%ui.mouse%"=="paper" if not "%Color:~1,1%"=="%%i" set "Color=%%i%Color:~1,1%"
+		if "%ui.mouse%"=="word" if "%Color:~0,1%"=="%%i" (
+				set "Color=%Color:~1,1%%%i"
+			) else (
+				set "Color=%color:~0,1%%%i"
+			)
+		if "%ui.mouse%"=="paper" if "%Color:~1,1%"=="%%i" (
+				set "Color=%%i%Color:~0,1%"
+			) else (
+				set "Color=%%i%Color:~1,1%"
+			)
 		reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "Color" /d "!Color!" /f >nul
 	)
 )

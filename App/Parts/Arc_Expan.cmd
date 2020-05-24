@@ -13,8 +13,8 @@ if /i "%~1"=="Unzip" (
 
 			:: 目标文件夹权限检测 
 			net session >nul 2>nul || >nul 2>nul (
-				>"!dir.release!\%Arc.Guid%.tmp" echo; && (
-					del /q "!dir.release!\%Arc.Guid%.tmp"
+				>"!dir.release!%Arc.Guid%.tmp" echo; && (
+					del /q "!dir.release!%Arc.Guid%.tmp"
 				) || (
 					set "Arc.Uac=y"
 				)
@@ -43,7 +43,7 @@ if /i "%~1"=="Unzip" (
 	)
 )
 
-:: JZip 权限检测 
+:: JZip 权限提升准备 
 for %%i in (Unzip Add Delete ReName Repair Lock Note Sfx) do if /i "%~1"=="%%i" (
 	if defined Arc.Uac (
 		:: 保存临时配置到注册表
