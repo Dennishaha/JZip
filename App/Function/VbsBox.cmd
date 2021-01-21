@@ -53,7 +53,7 @@ goto :EOF
 
 ::Ö´ÐÐ 
 :MsgBox
-mshta vbscript:execute^("msgbox(%msgbox.t1%,64,""%txt_tips%"")(close)"^)
+start /b "" mshta vbscript:execute^("msgbox(%msgbox.t1%,64,""%txt_tips%"")(close)"^)
 
 goto :EOF
 

@@ -30,5 +30,5 @@
 :: 以管理员身份运行命令
 :: 
 :: 用法
-:: %su% command
-:: %su% command1 ? command2
+:: %sudo% command
+:: %sudo% command1 ? command2

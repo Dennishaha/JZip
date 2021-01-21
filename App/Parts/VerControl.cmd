@@ -2,6 +2,15 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 
+::预设安装信息源
+if not defined jzip.branches set "jzip.branches=master"
+
+set jz.urlfix.1=https://raw.githubusercontent.com/Dennishaha/JZip/!jzip.branches!
+set jz.urlfix.2=https://gitee.com/Dennishaha/JZip/raw/!jzip.branches!
+set jz.urlfix.3=https://gitlab.com/Dennishaha/JZip/-/raw/!jzip.branches!
+
+set jz.insini.urldir=Server/ver.ini
+
 ::调用
 if /i "%1"=="" call :Wizard Install
 if /i "%1"=="-upgrade" call :Wizard Upgrade
@@ -10,9 +19,7 @@ if /i "%1"=="-install" start "" cmd /c ""%dir.jzip%\Jzip.cmd" -install"
 goto :EOF
 
 :Wizard
-title Jzip Installer
 cls
-
 
 :: 若未设定语言，依据目前代码页设定 
 if not defined Language (
@@ -32,10 +39,11 @@ if /i "%Language%"=="chs" (call :Langs-chs) else (call :Langs-en)
 
 
 :: 预设错误代码 
-for /l %%i in (1,1,4) do set "if.error.%%i=|| (call :MsgBox "!txt_vc.err.%%i!" "%txt_vc.err.info%" & goto :EOF)"
+for /l %%i in (1,1,4) do set "if.error.%%i=(call :MsgBox "!txt_vc.err.%%i!" "%txt_vc.err.info%" & exit /b %%i)"
 
 
 :: 配置路径和窗口 
+title %txt_vc.title%
 set "dir.jzip.default=%appdata%\JFsoft\JZip\App"
 
 if "%1"=="Install" (
@@ -59,44 +67,21 @@ mshta "vbscript:execute(close)" || (
 )
 
 
-:: 检测 Bits 组件 
-for %%i in (Install Upgrade) do if "%1"=="%%i" (
-	bitsadmin /? >nul 2>nul %if.error.4%
-
-	:: 若 Bits 服务被禁用，询问开启 
-	sc qc bits | findstr /i "DISABLED" >nul && (
-		if "%1"=="Install" call :MsgBox-s key "%txt_vc.bits.n.in%" "%txt_vc.bits.acc%"
-		if "%1"=="Upgrade" call :MsgBox-s key "%txt_vc.bits.n.up%" "%txt_vc.bits.acc%"
-
-		if "!key!"=="1" (
-			:: 启用 Bits 服务 
-			net session >nul 2>nul && (sc config bits start= demand >nul)
-			net session >nul 2>nul || (
-				mshta vbscript:CreateObject^("Shell.Application"^).ShellExecute^("cmd.exe","/c sc config bits start= demand >nul","","runas",1^)^(window.close^)
-			)
-			ping localhost -n 2 >nul
-		) else (
-			call :MsgBox "%txt_vc.err.fail%" "%txt_vc.err.info%"
-			goto :EOF
-		)
-	)
-)
+:: Powershell 可用性判断 
+powershell -? >nul 2>nul
+if not "%ERRORLEVEL%"=="0" %if.error.4%
 
 
 :: 获取 Github 上的 JZip 安装信息 
-for %%i in (Install Upgrade) do if "%1"=="%%i" (
+for %%Z in (Install Upgrade) do if "%1"=="%%Z" (
 	>nul 2>nul ( dir "%dir.jzip.temp%\ver.ini" /a:-d /b && del /q /f /s "%dir.jzip.temp%\ver.ini" )
-	if not defined jzip.branches set "jzip.branches=master"
-	bitsadmin /transfer !random! /download /priority foreground "https://raw.githubusercontent.com/Dennishaha/JZip/!jzip.branches!/Server/ver.ini" "%dir.jzip.temp%\ver.ini" %if.error.1%
-	cls
-	>nul 2>nul dir "%dir.jzip.temp%\ver.ini" /a:-d /b %if.error.2%
+
+	call :psdl "jz.urlfix." "!jz.insini.urldir!" "%dir.jzip.temp%\ver.ini"
+	if "!ERRORLEVEL!"=="1" %if.error.1%
 
 	for /f "eol=[ usebackq tokens=1,* delims==" %%a in (`type "%dir.jzip.temp%\ver.ini"`) do set "%%a=%%b"
-
-	if defined jzip.newver.url set "jzip.newver.url=!jzip.newver.url: =%%20!"
-	set "jzip.newver.page=%dir.jzip.temp%\full.!jzip.newver!.exe"
+	for /f "tokens=1,* delims==" %%a in ('set jzip.newver.url') do set "%%a=!%%a: =%%20!"
 )
-
 
 ::UI--------------------------------------------------
 
@@ -145,12 +130,21 @@ if defined jzip.Portable (
 
 
 :: 获取 JZip 安装包 
+
 for %%a in (Install Upgrade) do if "%1"=="%%a" (
-	>nul 2>nul ( dir "%jzip.newver.page%" /a:-d /b && del /q /f /s "%jzip.newver.page%" )
-	bitsadmin /transfer %random% /download /priority foreground "%jzip.newver.url%" "%jzip.newver.page%" %if.error.1%
+	>nul 2>nul (
+		del /q /f /s "%dir.jzip.temp%\%jz.7zcab.pag%"
+		del /q /f /s "%dir.jzip.temp%\%jz.nvzip.pag%"
+	)
+
+	call :psdl "jz.urlfix." "!jz.7zcab.urldir!" "%dir.jzip.temp%\%jz.7zcab.pag%" "%jz.7zcab.sha1%"
+	if "!ERRORLEVEL!"=="1" %if.error.2%
+	call :psdl "jz.urlfix." "!jz.nvzip.urldir!" "%dir.jzip.temp%\%jz.nvzip.pag%" "%jz.nvzip.sha1%"
+	if "!ERRORLEVEL!"=="1" %if.error.2%
+
 	cls
-	>nul 2>nul dir "%jzip.newver.page%" /a:-d /b %if.error.2%
-	"%jzip.newver.page%" t | findstr "^Everything is Ok" >nul 2>nul %if.error.3%
+	expand -r "%dir.jzip.temp%\%jz.7zcab.pag%" >nul || %if.error.3%
+	>nul 2>nul dir "%dir.jzip.temp%\%jz.nv7z.exe%" /a:-d /b || %if.error.3%
 )
 
 
@@ -163,8 +157,9 @@ for %%a in (Upgrade UnInstall) do if "%1"=="%%a" (
 
 :: 安装 
 for %%a in (Install Upgrade) do if "%1"=="%%a" (
-
-	cmd /q /c ">nul 2>nul (rd /q /s "!dir.jzip!"&md "!dir.jzip!")&"!jzip.newver.page!" x -o"!dir.jzip!\"&&"!dir.jzip!\!jzip.newver.installer!" -install"
+	
+	cls
+	cmd /q /c ">nul 2>nul (rd /q /s "!dir.jzip!"&md "!dir.jzip!")&"!dir.jzip.temp!\!jz.nv7z.exe!" x "!dir.jzip.temp!\!jz.nvzip.pag!" -y -o"!dir.jzip!\"&&"!dir.jzip!\!jzip.newver.installer!" -install"
 	exit 0
 )
 
@@ -183,48 +178,40 @@ goto :EOF
 
 :: 语言包 
 :Langs-chs
-set txt_vc.err.info=您可以在 https://github.com/Dennishaha/JZip 上了解更多信息。
-set txt_vc.err.1=取得 安装信息 失败。
-set txt_vc.err.2=下载的文件不存在，请重新尝试。
-set txt_vc.err.3=更新包出现错误，请重新尝试。
-set txt_vc.err.4=缺失 Bitsadmin 组件，在早期版本 Windows 中不存在。
-set txt_vc.err.hta=Mshta 不可用，无法安装 JZip。
-set txt_vc.err.fail=抱歉，无法安装 JZip。
+set txt_vc.err.info=您可以在 github.com/Dennishaha/JZip 上用其他方法安装以及了解更多信息。 
+set txt_vc.err.1=哎呀，网路不太通畅耶，要疏通一下。 
+set txt_vc.err.2=嘤嘤嘤，服务器大哥帮了我找一下，那个文件躲猫猫了耶。 
+set txt_vc.err.3=文件明明下载下来了但是丢了，Windows Defender 大哥可能觉得我不行。 
+set txt_vc.err.4=好奇怪，Powershell 组件调用不了耶。 
+set txt_vc.err.hta=Mshta 不可用，JZip 装不了哟。 
 
-set txt_vc.bits.n.in=Jzip 安装过程需要 Bits 服务。
-set txt_vc.bits.n.up=Jzip 更新过程需要 Bits 服务。
-set txt_vc.bits.acc=您是否允许 Jzip 启用服务？
+set txt_vc.title=JFsoft Zip 压缩 安装器
+set txt_vc.get=现在可以安装 Jzip 
+set txt_vc.rid=确实要解除安装 JZip 吗？ 
+set txt_vc.getnew=现在可以获取新版本 
+set txt_vc.getauto=我们愉快的开始吧。 
+set txt_vc.newest=是最新的。 
 
-set txt_vc.get=现在可以安装 Jzip
-set txt_vc.rid=确实要解除安装 JZip 吗？
-set txt_vc.getnew=现在可以获取新版本
-set txt_vc.getauto=安装将自动开始。
-set txt_vc.newest=是最新的。
+set txt_vc.pt.update=您正使用 JZip 便携版，更新前将清空 JZip 所在文件夹。 
+set txt_vc.pt.uninstall=已完成 Jzip 便携版解除安装。 
 
-set txt_vc.pt.update=您正使用 JZip 便携版，更新前将清空 JZip 所在文件夹。
-set txt_vc.pt.uninstall=已完成 Jzip 便携版解除安装。
+set txt_vc.path.rd=移除 JZip 所在路径吗？ 
+set txt_vc.path.sure=请确保路径不含个人文件。 
+set txt_vc.sure=确定吗？ 
 
-set txt_vc.path.rd=移除 JZip 所在路径吗？
-set txt_vc.path.sure=请确保路径不含个人文件。
-set txt_vc.sure=确定吗？
-
-set txt_vc.notice=提示
+set txt_vc.notice=
 goto :EOF
 
 
 :Langs-en
-set txt_vc.err.info=You can find out more at https://github.com/Dennishaha/JZip .
-set txt_vc.err.1=Get installation information Failed.
-set txt_vc.err.2=The downloaded file does not exist, please try again.
-set txt_vc.err.3=An error occurred in the update package, please try again.
-set txt_vc.err.4=The Bitsadmin component is missing, which does not exist in earlier versions of Windows.
-set txt_vc.err.hta=Mshta is not available and JZip cannot be installed.
-set txt_vc.err.fail=Sorry, so JZip cannot be installed.
+set txt_vc.err.info=You can install it in other ways and learn more about it on github.com/Dennishaha/JZip.
+set txt_vc.err.1=Oops, the internet is not smooth, so I need to clear it up.
+set txt_vc.err.2=Hey, the server elder brother helped me find the file, and the file was hidden.
+set txt_vc.err.3=The file was downloaded but disappeared. Windows Defender might think I can't do it.
+set txt_vc.err.4=It's strange, the Powershell component can't be called.
+set txt_vc.err.hta=Mshta is not available, and JZip cannot be installed.
 
-set txt_vc.bits.n.in=The installation process of Jzip requires the Bits service.
-set txt_vc.bits.n.up=The update process of Jzip requires the Bits service.
-set txt_vc.bits.acc=Do you allow Jzip to enable the service?
-
+set txt_vc.title=JFsoft Zip Installer
 set txt_vc.get=Now, You can install Jzip
 set txt_vc.rid=Are you sure you want to uninstall JZip?
 set txt_vc.getnew=Now, you can get the new version 
@@ -238,7 +225,7 @@ set txt_vc.path.rd=Remove the path to JZip?
 set txt_vc.path.sure=Make sure?
 set txt_vc.sure=
 
-set txt_vc.notice=Notice
+set txt_vc.notice=
 goto :EOF
 
 
@@ -271,5 +258,21 @@ if not "%~2"=="" (
 for /f "delims=" %%a in (' mshta "vbscript:CreateObject("Scripting.Filesystemobject").GetStandardStream(1).Write(msgbox(%msgbox.t1:`?`="%,1+64+4096,"%txt_vc.notice%"))(close)" ') do (
 	set "%~1=%%a"
 )
+goto :EOF
+
+::  Powershell Downloader   
+::  用法 call :psdl "URL前缀" "文件目录" "存放路径" "比对sha1值（可选）"
+
+:psdl
+for /f "tokens=1,* delims==" %%a in ('set %~1') do (
+	<nul set /p ="."
+	2>nul powershell "&{(new-object System.Net.WebClient).DownloadFile('%%~b/%~2', '%~3')}"
+	if "%~4"=="" (
+		>nul 2>nul dir "%~3" /a:-d /b && exit /b 0
+	) else (
+	certutil -hashfile "%~3" sha1 | >nul findstr "\<%~4\>" && exit /b 0)
+	)
+)
+exit /b 1
 goto :EOF
 
