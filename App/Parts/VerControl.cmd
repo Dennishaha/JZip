@@ -234,7 +234,7 @@ goto :EOF
 
 :: ²å¼þ 
 :MsgBox
-mshta vbscript:execute^("msgbox(""%~1""&vbCrLf&vbCrLf&""%~2"",64+4096,"")(close)"^)
+mshta vbscript:execute^("msgbox(""%~1""&vbCrLf&vbCrLf&""%~2"",64+4096)(close)"^)
 goto :EOF
 
 :MsgBox-s
