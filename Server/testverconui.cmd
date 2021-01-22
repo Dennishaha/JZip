@@ -20,6 +20,8 @@ echo;        现在可以安装 Jzip  x.x.x
 echo;
 echo;
 for %%i in (!jzip.newver.des.chs!) do echo;	%%~i
+echo;
+echo;
 
 ::UI--------------------------------------------------
 

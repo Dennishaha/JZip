@@ -6,8 +6,9 @@ setlocal EnableExtensions EnableDelayedExpansion
 if not defined jzip.branches set "jzip.branches=master"
 
 set jz.urlfix.1=https://raw.githubusercontent.com/Dennishaha/JZip/!jzip.branches!
-set jz.urlfix.2=https://gitee.com/Dennishaha/JZip/raw/!jzip.branches!
-set jz.urlfix.3=https://gitlab.com/Dennishaha/JZip/-/raw/!jzip.branches!
+set jz.urlfix.2=https://dennishaha.oss-cn-shenzhen.aliyuncs.com/JZip/!jzip.branches!
+set jz.urlfix.3=https://gitee.com/Dennishaha/JZip/raw/!jzip.branches!
+set jz.urlfix.4=https://gitlab.com/Dennishaha/JZip/-/raw/!jzip.branches!
 
 set jz.insini.urldir=Server/ver.ini
 
@@ -80,7 +81,6 @@ for %%Z in (Install Upgrade) do if "%1"=="%%Z" (
 	if "!ERRORLEVEL!"=="1" %if.error.1%
 
 	for /f "eol=[ usebackq tokens=1,* delims==" %%a in (`type "%dir.jzip.temp%\ver.ini"`) do set "%%a=%%b"
-	for /f "tokens=1,* delims==" %%a in ('set jzip.newver.url') do set "%%a=!%%a: =%%20!"
 )
 
 ::UI--------------------------------------------------
@@ -98,6 +98,8 @@ for %%a in (Install Upgrade) do if "%1"=="%%a" if /i not "%jzip.ver%"=="%jzip.ne
 	echo;
 	for %%i in (!jzip.newver.des.%Language%!) do echo;	%%~i
 )
+echo;
+echo;
 
 ::UI--------------------------------------------------
 
@@ -199,7 +201,7 @@ set txt_vc.path.rd=移除 JZip 所在路径吗？
 set txt_vc.path.sure=请确保路径不含个人文件。 
 set txt_vc.sure=确定吗？ 
 
-set txt_vc.notice=
+set txt_vc.loading=^>^>^>^> 加载中
 goto :EOF
 
 
@@ -225,14 +227,14 @@ set txt_vc.path.rd=Remove the path to JZip?
 set txt_vc.path.sure=Make sure?
 set txt_vc.sure=
 
-set txt_vc.notice=
+set txt_vc.loading=^>^>^> loading
 goto :EOF
 
 
 
 :: 插件 
 :MsgBox
-mshta vbscript:execute^("msgbox(""%~1""&vbCrLf&vbCrLf&""%~2"",64+4096,""%txt_vc.notice%"")(close)"^)
+mshta vbscript:execute^("msgbox(""%~1""&vbCrLf&vbCrLf&""%~2"",64+4096,"")(close)"^)
 goto :EOF
 
 :MsgBox-s
@@ -265,7 +267,7 @@ goto :EOF
 
 :psdl
 for /f "tokens=1,* delims==" %%a in ('set %~1') do (
-	<nul set /p ="."
+	<nul set /p ="%txt_vc.loading%"
 	2>nul powershell "&{(new-object System.Net.WebClient).DownloadFile('%%~b/%~2', '%~3')}"
 	if "%~4"=="" (
 		>nul 2>nul dir "%~3" /a:-d /b && exit /b 0
