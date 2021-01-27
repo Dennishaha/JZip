@@ -16,7 +16,7 @@ set jz.insini.urldir=Server/ver.ini
 if /i "%1"=="" call :Wizard Install
 if /i "%1"=="-upgrade" call :Wizard Upgrade
 if /i "%1"=="-uninstall" call :Wizard UnInstall
-if /i "%1"=="-install" start "" cmd /c ""%dir.jzip%\Jzip.cmd" -install"
+if /i "%1"=="-install" start "" %ComSpec% /c ""%dir.jzip%\Jzip.cmd" -install"
 goto :EOF
 
 :Wizard
@@ -61,10 +61,14 @@ if /i "%dir.jzip%"=="%dir.jzip.default%" (set "jzip.Portable=") else (set "jzip.
 
 
 :: Mshta 可用性判断 
-mshta "vbscript:execute(close)" || (
-	echo;%txt_vc.err.hta%
-	echo;%txt_vc.err.info%
-	pause >nul
+2>nul (
+	mshta "vbscript:execute(close)" || path %path%;%SystemRoot%\SysWOW64
+	mshta "vbscript:execute(close)" || (
+		echo;%txt_vc.err.hta%
+		echo;%txt_vc.err.info%
+		pause >nul
+		exit /b 1
+	)
 )
 
 
@@ -77,7 +81,7 @@ if not "%ERRORLEVEL%"=="0" %if.error.4%
 for %%Z in (Install Upgrade) do if "%1"=="%%Z" (
 	>nul 2>nul ( dir "%dir.jzip.temp%\ver.ini" /a:-d /b && del /q /f /s "%dir.jzip.temp%\ver.ini" )
 
-	call :psdl "jz.urlfix." "!jz.insini.urldir!" "%dir.jzip.temp%\ver.ini"
+	call :psdl "!jz.insini.urldir!" "%dir.jzip.temp%\ver.ini"
 	if "!ERRORLEVEL!"=="1" %if.error.1%
 
 	for /f "eol=[ usebackq tokens=1,* delims==" %%a in (`type "%dir.jzip.temp%\ver.ini"`) do set "%%a=%%b"
@@ -132,16 +136,15 @@ if defined jzip.Portable (
 
 
 :: 获取 JZip 安装包 
-
 for %%a in (Install Upgrade) do if "%1"=="%%a" (
 	>nul 2>nul (
 		del /q /f /s "%dir.jzip.temp%\%jz.7zcab.pag%"
 		del /q /f /s "%dir.jzip.temp%\%jz.nvzip.pag%"
 	)
 
-	call :psdl "jz.urlfix." "!jz.7zcab.urldir!" "%dir.jzip.temp%\%jz.7zcab.pag%" "%jz.7zcab.sha1%"
+	call :psdl "!jz.7zcab.urldir!" "%dir.jzip.temp%\%jz.7zcab.pag%" "%jz.7zcab.sha1%"
 	if "!ERRORLEVEL!"=="1" %if.error.2%
-	call :psdl "jz.urlfix." "!jz.nvzip.urldir!" "%dir.jzip.temp%\%jz.nvzip.pag%" "%jz.nvzip.sha1%"
+	call :psdl "!jz.nvzip.urldir!" "%dir.jzip.temp%\%jz.nvzip.pag%" "%jz.nvzip.sha1%"
 	if "!ERRORLEVEL!"=="1" %if.error.2%
 
 	cls
@@ -152,8 +155,8 @@ for %%a in (Install Upgrade) do if "%1"=="%%a" (
 
 :: 解除安装 
 for %%a in (Upgrade UnInstall) do if "%1"=="%%a" (
-	call "%dir.jzip%\Parts\Set_Lnk.cmd" -off all
-	call "%dir.jzip%\Parts\Set_Assoc.cmd" -off
+	call "%dir.jzip%\Part\Set_Lnk.cmd" -off all
+	call "%dir.jzip%\Part\Set_Assoc.cmd" -off
 )
 
 
@@ -161,7 +164,7 @@ for %%a in (Upgrade UnInstall) do if "%1"=="%%a" (
 for %%a in (Install Upgrade) do if "%1"=="%%a" (
 	
 	cls
-	cmd /q /c ">nul 2>nul (rd /q /s "!dir.jzip!"&md "!dir.jzip!")&"!dir.jzip.temp!\!jz.nv7z.exe!" x "!dir.jzip.temp!\!jz.nvzip.pag!" -y -o"!dir.jzip!\"&&"!dir.jzip!\!jzip.newver.installer!" -install"
+	%ComSpec% /q /c ">nul 2>nul (rd /q /s "!dir.jzip!"&md "!dir.jzip!")&"!dir.jzip.temp!\!jz.nv7z.exe!" x "!dir.jzip.temp!\!jz.nvzip.pag!" -y -o"!dir.jzip!\"&&"!dir.jzip!\!jzip.newver.installer!" -install"
 	exit 0
 )
 
@@ -172,7 +175,7 @@ if "%1"=="UnInstall" (
 		reg delete "HKCU\Console\JFsoft.Jzip" /f
 		reg delete "HKCU\Software\JFsoft.Jzip" /f
 	)
-	start "" /min cmd /q /c ">nul rd /q /s "%dir.jzip%""
+	start "" /min %ComSpec% /q /c ">nul rd /q /s "%dir.jzip%""
 )
 goto :EOF
 
@@ -257,23 +260,24 @@ if not "%~2"=="" (
 	shift /2
 	goto :MsgBox-s_c
 )
-for /f "delims=" %%a in (' mshta "vbscript:CreateObject("Scripting.Filesystemobject").GetStandardStream(1).Write(msgbox(%msgbox.t1:`?`="%,1+64+4096,"%txt_vc.notice%"))(close)" ') do (
+for /f "delims=" %%a in (' mshta "vbscript:CreateObject("Scripting.Filesystemobject").GetStandardStream(1).Write(msgbox(%msgbox.t1:`?`="%,1+64+4096))(close)" ') do (
 	set "%~1=%%a"
 )
 goto :EOF
 
 ::  Powershell Downloader   
-::  用法 call :psdl "URL前缀" "文件目录" "存放路径" "比对sha1值（可选）"
+::  用法 call :psdl "文件目录" "存放路径" "比对sha1值（可选）"
 
 :psdl
-for /f "tokens=1,* delims==" %%a in ('set %~1') do (
+for /f "tokens=1,* delims==" %%a in ('set jz.urlfix.') do (
 	<nul set /p ="%txt_vc.loading%"
-	2>nul powershell "&{(new-object System.Net.WebClient).DownloadFile('%%~b/%~2', '%~3')}"
-	if "%~4"=="" (
-		>nul 2>nul dir "%~3" /a:-d /b && exit /b 0
+	2>nul powershell "&{(new-object System.Net.WebClient).DownloadFile('%%~b/%~1', '%~2')}"
+	if "%~3"=="" (
+		>nul 2>nul dir "%~2" /a:-d /b && exit /b 0
 	) else (
-	certutil -hashfile "%~3" sha1 | >nul findstr "\<%~4\>" && exit /b 0)
+	certutil -hashfile "%~2" sha1 | >nul findstr "\<%~3\>" && exit /b 0
 	)
+	set "%%a="
 )
 exit /b 1
 goto :EOF

@@ -1,0 +1,188 @@
+
+@echo off
+
+:: 调用 
+%tcurs% /crv 0
+mode 80,27
+color %color%
+
+:: 安装配置 
+if /i "%~2"=="-setting" call "%dir.jzip%\Part\Set.cmd"
+if /i "%~2"=="-install" (
+	call "%dir.jzip%\Part\Set_Lnk.cmd" -reon
+	call "%dir.jzip%\Part\Set_Assoc.cmd" -reon
+	call "%dir.jzip%\Part\Set.cmd"
+	goto :Main
+)
+
+call %*
+exit /b 0
+
+:Main
+title %txt_title%
+cls
+
+::UI--------------------------------------------------
+
+(
+echo;
+echo;
+echo;
+echo;
+echo;
+echo;
+echo;
+%echo%;                %txt_b12.top%%txt_b12.top%
+%echo%;                %txt_b12.emp%%txt_b12.emp%
+%echo%;                %txt_b12.emp%%txt_b12.emp%
+%echo%;                %txt_b12.emp%%txt_b12.emp%
+%echo%;                %txt_m.open%%txt_m.add%
+%echo%;                %txt_b12.emp%%txt_b12.emp%
+%echo%;                %txt_b12.emp%%txt_b12.emp%
+%echo%;                %txt_b12.emp%%txt_b12.emp%
+%echo%;                %txt_b12.bot%%txt_b12.bot%
+%echo%;                                        %txt_b12.top%
+%echo%;                                        %txt_m.set%
+%echo%;                                        %txt_b12.bot%
+echo;
+echo;
+echo;
+echo;
+echo;
+)
+
+::UI--------------------------------------------------
+
+%tmouse% /d 0 -1 1
+%tmouse.process%
+::%tmouse.test%
+
+for %%A in (
+	17}38}7}15}1}
+	41}62}7}15}2}
+	41}62}16}18}3}
+) do for /f "tokens=1-5 delims=}" %%a in ("%%A") do (
+	if defined mouse.x if defined mouse.y (
+		if %%a LEQ %mouse.x% if %mouse.x% LEQ %%b if %%c LEQ %mouse.y% if %mouse.y% LEQ %%d set "key=%%e"
+	)
+)
+
+if "%key%"== "1" ( call :SetPath list
+) else if "%key%"== "2" ( call :SetPath add
+) else if "%key%"== "3" ( call "%dir.jzip%\Part\Set.cmd"
+)
+goto :Main
+
+
+:SetPath
+set key=
+call "%dir.jzip%\Function\Select_File.cmd" key
+if defined key call :Set_Info %~1 "!key!"
+goto :EOF
+
+
+:Set_Info
+setlocal
+for %%a in (list unzip add add-7z) do if /i "%~1"=="%%a" set "Arc.Order=%%a"
+set raw.num=1
+set ui.nospt=
+
+:Set_Info_Cycle
+if not "%~2"=="" (
+	dir "%~2" /b >nul 2>nul && (
+		set "path.raw.!raw.num!=%~2"
+	) || (
+		echo;"%~2" | find "//" >nul && (set "Guid=%~2" & set "Guid=!Guid:~2!")
+		echo;"%~2" | find "--" >nul && (set "Arc.Do=%~2" & set "Arc.Do=!Arc.Do:~2!")
+	)
+	set /a "raw.num+=1"
+	shift /2
+	goto :Set_Info_Cycle
+)
+
+for %%a in (add add-7z) do if /i "%~1"=="%%a" (
+	
+	for /f "usebackq delims== tokens=1,*" %%a in (`set "path.raw."`) do (
+		set "path.File=!path.File! "%%~b""
+	)
+
+	:: 生成 GUID 
+	if defined Guid (
+		set "Arc.Guid=%Guid%"
+	) else (
+		for /f "delims=" %%a in ('cscript //nologo "%dir.jzip%\Function\Create_GUID.vbs"') do set "Arc.Guid=%%a"
+	)
+
+	:: 添加文件数判断 
+	dir "!path.raw.1!" /a:d /b >nul 2>nul && set "File.Single=n"
+	if defined path.raw.2 dir "!path.raw.2!" /b >nul 2>nul && set "File.Single=n"
+	
+	for /f "delims=" %%i in ("!path.raw.1!") do (
+
+		set "Arc.dir=%%~dpi" & set "Arc.dir=!Arc.dir:~0,-1!"
+
+		:: 压缩文件名判断
+		dir "!path.raw.1!" /a:d /b >nul 2>nul && set "Arc.name=%%~nxi" || set "Arc.name=%%~ni"
+
+		)
+	)
+
+	if defined path.File call "%dir.jzip%\Part\Add.cmd"
+)
+
+for %%a in (list unzip) do if /i "%~1"=="%%a" (
+	for /l %%b in (1,1,%raw.num%) do (
+		for /f "delims=" %%c in ("!path.raw.%%b!") do (
+			
+			set "Arc.path=%%~c"
+			set "Arc.dir=%%~dpc" & set "Arc.dir=!Arc.dir:~0,-1!"
+			set "Arc.name=%%~nc"
+			set "Arc.exten=%%~xc"
+
+			:: 分析文件类型
+			>nul 2>nul (
+				dir "%%~c" /a:d /b || (
+					dir "%%~c" /a:-d /b  && (
+						for %%A in (%jzip.spt.7z%) do if /i "!Arc.exten!"==".%%A" set "type.editor=7z"
+						for %%A in (%jzip.spt.rar%) do if /i "!Arc.exten!"==".%%A" set "type.editor=rar"
+						if not defined type.editor (
+							"%path.editor.7z%" l "!Arc.path!" | findstr /r /c:"^   Date" >nul && set "type.editor=7z"
+							"%path.editor.rar%" l "!Arc.path!" | findstr /r /c:"^Details:" >nul && set "type.editor=rar"
+						)
+					)
+				)
+			)
+
+			if defined type.editor (
+
+				:: 生成 GUID 
+				if defined Guid (
+					set "Arc.Guid=%Guid%"
+				) else (
+					for /f "delims=" %%a in ('cscript //nologo "%dir.jzip%\Function\Create_GUID.vbs"') do set "Arc.Guid=%%a"
+				)
+
+				:: 访问权限判断
+				>nul 2>nul (
+					net session || (ren "%%~c" "%%~nxc" || set "Arc.Uac=y")
+				)
+
+				if /i "%~1"=="list" (
+					if defined path.raw.2 (
+						start "JFsoft.Jzip" %ComSpec% /e:on /v:on /d /c "%dir.jzip%\Part\Arc.cmd"
+					) else (
+						%ComSpec% /e:on /v:on /d /c "%dir.jzip%\Part\Arc.cmd" & exit 0
+					)
+				)
+				if /i "%~1"=="unzip" call "%dir.jzip%\Part\Arc_Expan.cmd" Unzip /unzip
+				set "type.editor="
+
+			) else (
+				set ui.nospt=!ui.nospt! "%%~nxc"
+			)
+		)
+	)
+)
+if defined ui.nospt start /min "" %ComSpec% /q /v:on /c %MsgBox% "%txt_notzip%" " " %ui.nospt%
+endlocal
+goto :EOF

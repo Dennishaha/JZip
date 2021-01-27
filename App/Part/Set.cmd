@@ -1,9 +1,9 @@
 
 :more
 title %txt_title%
-call "%dir.jzip%\Parts\Set_Lnk.cmd" -info
-call "%dir.jzip%\Parts\Set_Assoc.cmd" -info
-call "%dir.jzip%\Parts\Set_UI.cmd" -info
+call "%dir.jzip%\Part\Set_Lnk.cmd" -info
+call "%dir.jzip%\Part\Set_Assoc.cmd" -info
+call "%dir.jzip%\Part\Set_UI.cmd" -info
 
 cls
 echo;
@@ -15,6 +15,8 @@ echo;		%stat.Lnk.SendTo% %txt_rightmenu%
 echo;		%stat.Lnk.Desktop% %txt_shortcut%
 echo;
 echo;		%txt_colorset%  ^>	%stat.color.wd% (%stat.color.bg%)
+echo;
+echo;		%txt_uiratio%   	%stat.uiratio%		[ + ] [ - ]
 echo;
 echo;		%txt_langset%  ^>	!txt_lang.%Language%!
 echo;
@@ -33,7 +35,6 @@ if "%jzip.branches%"=="master" (
 %echo%;		%txt_s.b.chk%%txt_s.b.bm%%txt_s.b.site% %txt_uninstall%
 %echo%;		%txt_b6.bot%%txt_b6.bot%%txt_b6.bot%
 echo;
-echo;
 %tmouse% /d 0 -1 1
 %tmouse.process%
 ::%tmouse.test%
@@ -44,15 +45,17 @@ for %%A in (
 	16}17}5}5}3}
 	16}17}6}6}4}
 	16}47}8}8}c}
-	16}47}10}10}lang-s}
-	17}24}14}16}w1}
-	27}34}14}16}w2}
-	37}44}14}16}w3}
-	47}54}14}16}w4}
-	17}26}19}21}ver}
-	29}38}19}21}bm}
-	41}50}19}21}web}
-	53}62}20}20}rid}
+	48}52}10}10}ui+}
+	54}58}10}10}ui-}
+	16}47}12}12}lang-s}
+	17}24}16}18}w1}
+	27}34}16}18}w2}
+	37}44}16}18}w3}
+	47}54}16}18}w4}
+	17}26}21}23}ver}
+	29}38}21}23}bm}
+	41}50}21}23}web}
+	53}62}22}22}rid}
 ) do for /f "tokens=1-5 delims=}" %%a in ("%%A") do (
 	if defined mouse.x if defined mouse.y (
 		if %mouse.x% GEQ %%~a if %mouse.x% LEQ %%~b if %mouse.y% GEQ %%~c if %mouse.y% LEQ %%~d set "key=%%~e"
@@ -60,19 +63,21 @@ for %%A in (
 )
 
 if "%key%"== "1" ( goto :EOF
-) else if "%key%"== "2" ( call "%dir.jzip%\Parts\Set_Assoc.cmd" -switch
-) else if "%key%"== "3" ( call "%dir.jzip%\Parts\Set_Lnk.cmd" -switch sendto
-) else if "%key%"== "4" ( call "%dir.jzip%\Parts\Set_Lnk.cmd" -switch desktop
-) else if "%key%"== "c" ( call "%dir.jzip%\Parts\Set_UI.cmd"
+) else if "%key%"== "2" ( call "%dir.jzip%\Part\Set_Assoc.cmd" -switch
+) else if "%key%"== "3" ( call "%dir.jzip%\Part\Set_Lnk.cmd" -switch sendto
+) else if "%key%"== "4" ( call "%dir.jzip%\Part\Set_Lnk.cmd" -switch desktop
+) else if "%key%"== "c" ( call "%dir.jzip%\Part\Set_UI.cmd" color
+) else if "%key%"== "ui+" ( call "%dir.jzip%\Part\Set_UI.cmd" uiratio +
+) else if "%key%"== "ui-" ( call "%dir.jzip%\Part\Set_UI.cmd" uiratio -
 ) else if "%key%"== "w1" ( start "" "%dir.jzip.temp%"
 ) else if "%key%"== "w2" ( call :Temp_Clean
 ) else if "%key%"== "w3" ( call :Temp_Set
 ) else if "%key%"== "w4" ( call :Temp_Reset
 ) else if "%key%"== "lang-s" ( call :lang-s
-) else if "%key%"== "ver" ( call "%dir.jzip%\Parts\VerControl.cmd" -upgrade
+) else if "%key%"== "ver" ( call "%dir.jzip%\Part\VerControl.cmd" -upgrade
 ) else if "%key%"== "bm" ( call :Benchmark
 ) else if "%key%"== "web" ( explorer "https://github.com/dennishaha/Jzip"
-) else if "%key%"== "rid" ( call "%dir.jzip%\Parts\VerControl.cmd" -uninstall
+) else if "%key%"== "rid" ( call "%dir.jzip%\Part\VerControl.cmd" -uninstall
 )
 goto :more
 
@@ -82,9 +87,9 @@ if /i "%Language%"=="chs" chcp 437 >nul && (
 	chcp 936 >nul
 	%MsgBox-s% key "显示语言切换为%txt_lang.en%，JZip 将重新启动。"
 	if "!key!"=="1" (
-		call "%dir.jzip%\Parts\Set_Lnk.cmd" -off all
+		call "%dir.jzip%\Part\Set_Lnk.cmd" -off all
 		>nul reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "Language" /d "en" /f
-		start /i "" cmd /c call "%path.jzip.launcher%" -install
+		start /i /min "" %ComSpec% /c call "%path.jzip.launcher%" -install
 		exit 0
 	)
 ) || (
@@ -94,9 +99,9 @@ if /i "%Language%"=="en" chcp 936 >nul && (
 	chcp 437 >nul
 	%MsgBox-s% key "The display language switches to %txt_lang.chs% and JZip will restart."
 	if "!key!"=="1" (
-		call "%dir.jzip%\Parts\Set_Lnk.cmd" -off all
+		call "%dir.jzip%\Part\Set_Lnk.cmd" -off all
 		>nul reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "Language" /d "chs" /f
-		start /i "" cmd /c call "%path.jzip.launcher%" -install
+		start /i /min "" %ComSpec% /c call "%path.jzip.launcher%" -install
 		exit 0
 	)
 ) || (
@@ -145,5 +150,5 @@ goto :EOF
 
 
 :Benchmark
-start "JFsoft.Jzip" cmd /d /c "mode 70,28 & color %color% & title & "%path.editor.7z%" b & echo. & echo.%txt_s.bm.ok% & %tmouse% /d 0 -1 1"
+start "JFsoft.Jzip" %ComSpec% /d /c "mode 70,28 & color %color% & title & "%path.editor.7z%" b & echo. & echo.%txt_s.bm.ok% & %tmouse% /d 0 -1 1"
 goto :EOF

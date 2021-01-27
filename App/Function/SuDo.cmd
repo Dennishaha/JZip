@@ -20,7 +20,7 @@
 		!params!
 	) || (
 		::取得管理员权限 
-		mshta vbscript:CreateObject^("Shell.Application"^).ShellExecute^("cmd.exe","/c call !params!","","runas",1^)^(window.close^)
+		mshta vbscript:CreateObject^("Shell.Application"^).ShellExecute^("%ComSpec%","/c call !params!","","runas",1^)^(window.close^)
 	)
 )
 

@@ -6,7 +6,7 @@
 	echo;Ink.TargetPath = "%~2"
 	echo;Ink.Arguments = "%~3"
 	echo;Ink.WindowStyle = "%~4"
-	echo;Ink.IconLocation = "%dir.jzip%\Components\Icon\%~5"
+	echo;Ink.IconLocation = "%dir.jzip%\Bin\Icon\%~5"
 	echo;Ink.WorkingDirectory = "%~6"
 	echo;Ink.Description = "%~7"
 	echo;Ink.Save

@@ -384,7 +384,7 @@ if %lz.LnViewStart% LEQ %lz.LnTap% if %lz.LnTap% LEQ %lz.LnViewEnd% (
 							call :进入  "!lz.LnRaw.%%i:~%%c!"
 							goto :Menu
 						) else (
-							call "%dir.jzip%\Parts\Arc_Expan.cmd" Open
+							call "%dir.jzip%\Part\Arc_Expan.cmd" Open
 						)
 					)
 					goto :Fast2
@@ -433,27 +433,27 @@ for %%A in (
 
 
 :Arc.Do
-if "%key%"=="1" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Open
-) else if "%key%"=="2" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Extr
-) else if "%key%"=="3" ( if not "%lz.Menu%"=="search" call "%dir.jzip%\Parts\Arc_Expan.cmd" Unzip
-) else if "%key%"=="4" ( if not "%lz.Menu%"=="search" if "%Arc.Writable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" Add
-) else if "%key%"=="5" ( if "%Arc.Writable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" Delete
-) else if "%key%"=="6" ( if "%Arc.Writable%"=="y" call "%dir.jzip%\Parts\Arc_Expan.cmd" ReName
+if "%key%"=="1" ( call "%dir.jzip%\Part\Arc_Expan.cmd" Open
+) else if "%key%"=="2" ( call "%dir.jzip%\Part\Arc_Expan.cmd" Extr
+) else if "%key%"=="3" ( if not "%lz.Menu%"=="search" call "%dir.jzip%\Part\Arc_Expan.cmd" Unzip
+) else if "%key%"=="4" ( if not "%lz.Menu%"=="search" if "%Arc.Writable%"=="y" call "%dir.jzip%\Part\Arc_Expan.cmd" Add
+) else if "%key%"=="5" ( if "%Arc.Writable%"=="y" call "%dir.jzip%\Part\Arc_Expan.cmd" Delete
+) else if "%key%"=="6" ( if "%Arc.Writable%"=="y" call "%dir.jzip%\Part\Arc_Expan.cmd" ReName
 ) else if "%key%"=="7" ( if not "%lz.Menu%"=="search" set "lz.Menu=advance"
 ) else if "%key%"=="8" ( set /a "lz.LnViewStart-=%lz.LnViewBlock%"
 ) else if "%key%"=="9" ( set /a "lz.LnViewStart+=%lz.LnViewBlock%"
 ) else if "%key%"=="10" ( call :进入 
 ) else if "%key%"=="11" ( call :进入  ..
 ) else if "%key%"=="a1" ( set "lz.Menu=basic"
-) else if "%key%"=="a2" ( call "%dir.jzip%\Parts\Arc_Expan.cmd" Check
-) else if "%key%"=="a3" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Expan.cmd" Repair
-) else if "%key%"=="a4" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Expan.cmd" Lock
-) else if "%key%"=="a5" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Expan.cmd" Note
-) else if "%key%"=="a6" ( if "%type.editor%"=="rar" call "%dir.jzip%\Parts\Arc_Expan.cmd" Sfx
+) else if "%key%"=="a2" ( call "%dir.jzip%\Part\Arc_Expan.cmd" Check
+) else if "%key%"=="a3" ( if "%type.editor%"=="rar" call "%dir.jzip%\Part\Arc_Expan.cmd" Repair
+) else if "%key%"=="a4" ( if "%type.editor%"=="rar" call "%dir.jzip%\Part\Arc_Expan.cmd" Lock
+) else if "%key%"=="a5" ( if "%type.editor%"=="rar" call "%dir.jzip%\Part\Arc_Expan.cmd" Note
+) else if "%key%"=="a6" ( if "%type.editor%"=="rar" call "%dir.jzip%\Part\Arc_Expan.cmd" Sfx
 ) else if "%key%"=="t1" ( if "%type.editor%"=="rar" call :全选切换 
 ) else if "%key%"=="t2" ( if "%type.editor%"=="7z" call :全选切换 
 ) else if "%key%"=="s" ( call :Search
-) else if "%key%"=="e" ( start /b /i cmd /c call "%path.jzip.launcher%" & goto :EOF
+) else if "%key%"=="e" ( start /b /i %ComSpec% /c call "%path.jzip.launcher%" & goto :EOF
 )
 
 :: Arc.Do 结束 

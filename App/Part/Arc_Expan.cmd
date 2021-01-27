@@ -159,8 +159,8 @@ if "%key.e%"=="1" (
 )
 
 :: 批处理 类型判断 
-for %%i in (cmd bat) do if /i "%Arc.file:~-4%"==".%%i" (
-	start /i cmd /c call "%dir.jzip.temp%\%Arc.Guid%\%Arc.file%"
+for %%i in (cmd bat ps1) do if /i "%Arc.file:~-4%"==".%%i" (
+	start /i %ComSpec% /c call "%dir.jzip.temp%\%Arc.Guid%\%Arc.file%"
 	goto :EOF
 )
 
@@ -267,6 +267,6 @@ exit /b %errorlevel%
 
 :: 自解压文件 
 :Sfx
-call "%dir.jzip%\Parts\Arc_Sfx.cmd"
+call "%dir.jzip%\Part\Arc_Sfx.cmd"
 goto :EOF
 

@@ -44,7 +44,7 @@ goto :Assoc
 :Assoc
 net session >nul 2>nul && call "%dir.jzip.temp%\Assoc.cmd"
 net session >nul 2>nul || (
-	mshta vbscript:CreateObject^("Shell.Application"^).ShellExecute^("cmd.exe","/q /c call ""%dir.jzip.temp%\Assoc.cmd""","","runas",1^)^(window.close^)
+	call %sudo% start "" /min %ComSpec% /c "%dir.jzip.temp%\Assoc.cmd"
 	cls & ping localhost -n 2 >nul
 )
 del /q /f /s "%dir.jzip.temp%\Assoc.cmd" >nul
