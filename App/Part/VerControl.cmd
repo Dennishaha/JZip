@@ -51,8 +51,8 @@ if "%1"=="Install" (
 	set "dir.jzip=%dir.jzip.default%"
 	set "dir.jzip.temp=%temp%\JFsoft.JZip"
 	>nul 2>nul md !dir.jzip.temp!
+	>nul 2>nul (reg query "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" | find "0x0") && color 0f || color f0
 	mode 80, 25
-	color f0
 )
 
 

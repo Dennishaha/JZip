@@ -14,7 +14,7 @@ echo;		%stat.FileAssoc% %txt_assoc%
 echo;		%stat.Lnk.SendTo% %txt_rightmenu%
 echo;		%stat.Lnk.Desktop% %txt_shortcut%
 echo;
-echo;		%txt_colorset%  ^>	%stat.color.wd% (%stat.color.bg%)
+echo;		%txt_colorset%  ^>	%stat.color%
 echo;
 echo;		%txt_uiratio%   	%stat.uiratio%		[ + ] [ - ]
 echo;
