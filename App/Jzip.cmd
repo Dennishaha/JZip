@@ -79,6 +79,7 @@ for %%Z in (
 		for /f "eol=[ tokens=1,*" %%x in ('type "%dir.jzip%\Lang\%%~a.ini"') do set "%%x%%y"
 	)
 )
+reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "ColorTable00" /d "0x000000" /f  >nul
 reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "ColorTable15" /d "0xffffff" /f  >nul
 reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "QuickEdit" /d "0x0" /f  >nul
 reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "WindowSize" /d "0x1b0050" /f  >nul
