@@ -56,7 +56,7 @@ if /i "%dir.jzip%"=="%dir.jzip.default%" (set "jzip.Portable=") else (set "jzip.
 
 :: Mshta 可用性判断 
 2>nul (
-	mshta "vbscript:execute(close)" || path "%path%;%SystemRoot%\SysWOW64"
+	mshta "vbscript:execute(close)" || path %path%;"%SystemRoot%\SysWOW64"
 	mshta "vbscript:execute(close)" || (
 		echo;%txt_vc.err.hta%
 		echo;%txt_vc.err.info%

@@ -9,7 +9,7 @@
 @set "dir.jzip.temp=%temp%\JFsoft.Jzip"
 
 :: Mshta 配置 
-@mshta "vbscript:execute(close)" 2>nul || path %path%;%SystemRoot%\SysWOW64
+@mshta "vbscript:execute(close)" 2>nul || path %path%;"%SystemRoot%\SysWOW64"
 @mshta "vbscript:execute(close)" || (
 	echo;Mstha was not found, and JZip can no longer work.
 	pause >nul
