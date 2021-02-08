@@ -73,9 +73,22 @@ goto :menu
 
 :next
 cls
-md "%dir.jzip.temp%\%Arc.Guid%" >nul
+md "%dir.jzip.temp%\%Arc.Guid%" >nul 2>nul
 
-if "%type.editor%"=="rar" "%path.editor.rar%" %SfxOrder% -w%dir.jzip.temp%\%Arc.Guid% "%Arc.path%" %iferror%
+if "%type.editor%"=="rar" (
+	for %%Z in ("s "/exe/ s-/rar
+	) do for /f "tokens=1-2 delims=/" %%a in ("%%Z") do (
+		if /i "!SfxOrder:~0,2!"=="%%~a" (
+			dir "%Arc.dir%\%Arc.name%.%%b" /b >nul && (
+				%msgbox-s% key "%txt_as.tip.path%%Arc.dir%\%Arc.name%.%%b" " " "%txt_as.tip.recover%"
+				if not "!key!"=="1" exit /b 1
+			)
+			
+			"%path.editor.rar%" %SfxOrder% -w%dir.jzip.temp%\%Arc.Guid% -y "%Arc.path%" %iferror%
 
-%MsgBox% "转换完成。" " " "路径：%Arc.path%"
+			%MsgBox% "%txt_as.tip.transok%" " " "%txt_as.tip.path%%Arc.dir%\%Arc.name%.%%b"
+		)
+	)
+)
+
 goto :EOF

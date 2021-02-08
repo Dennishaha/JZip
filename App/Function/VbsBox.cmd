@@ -1,5 +1,5 @@
 
-:: µº»Î 
+:: ÂØºÂÖ• 
 if /i "%~1"=="-import" (
 	set MsgBox=call "%~0" MsgBox
 	set MsgBox-s=call "%~0" MsgBox-s
@@ -8,7 +8,7 @@ if /i "%~1"=="-import" (
 	goto :EOF
 )
 
-:: µ˜”√ 
+:: Ë∞ÉÁî® 
 set msgbox.restr=
 
 if /i "%~1"=="MsgBox" set msgbox.t1=""""
@@ -51,7 +51,7 @@ call :%*
 goto :EOF
 
 
-::÷¥–– 
+::ÊâßË°å 
 :MsgBox
 start /b "" mshta vbscript:execute^("msgbox(%msgbox.t1%,64,""%txt_tips%"")(close)"^)
 
@@ -59,6 +59,7 @@ goto :EOF
 
 
 :MsgBox-s
+set "%~1="
 for /f "delims=" %%a in ('mshta "vbscript:CreateObject("Scripting.Filesystemobject").GetStandardStream(1).Write(msgbox(%msgbox.t1:`?`="%,1+64,"%txt_tips%"))(close)"') do (
 	set "%~1=%%a"
 )
@@ -74,13 +75,14 @@ goto :EOF
 
 :InputBox-r
 if not defined msgbox.restr goto :InputBox
+set "%~1="
 for /f "delims=" %%a in ('mshta "vbscript:CreateObject("Scripting.Filesystemobject").GetStandardStream(1).Write(inputbox(%msgbox.t1:`?`="%,"%txt_tips%","%msgbox.restr:`?`="%"))(close)"') do (
 	set "%~1=%%~a"
 )
 goto :EOF
 
 
-::◊÷∑˚¥ÆÃÊªªµ˜”√ 
+::Â≠óÁ¨¶‰∏≤ÊõøÊç¢Ë∞ÉÁî® 
 :replace
 if defined %~1 (
 	set "%~1=!%~1:(=^(!"

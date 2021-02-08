@@ -2,13 +2,13 @@
 @setlocal EnableExtensions EnableDelayedExpansion
 
 @set "jzip.branches=master"
-@set "jzip.ver=3.3.8"
+@set "jzip.ver=3.3.9"
 
 @set "path.jzip.launcher=%~0"
 @set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
 @set "dir.jzip.temp=%temp%\JFsoft.Jzip"
 
-:: Mshta ≈‰÷√ 
+:: Mshta ÈÖçÁΩÆ 
 @mshta "vbscript:execute(close)" 2>nul || path %path%;%SystemRoot%\SysWOW64
 @mshta "vbscript:execute(close)" || (
 	echo;Mstha was not found, and JZip can no longer work.
@@ -16,37 +16,36 @@
 	exit /b 1
 )
 
-@for %%a in (-su -help) do @if /i "%~1"=="%%a" (call :%%a & goto :EOF)
+@for %%a in (-su -help) do @if /i "%~1"=="%%a" (call :%* & goto :EOF)
 
 @echo off
 
-:: …Ë÷√ ComSpec 
+:: ËÆæÁΩÆ ComSpec 
 >nul 2>nul dir "%SystemRoot%\system32\cmd.exe" /a:-d /b && set "ComSpec=%SystemRoot%\system32\cmd.exe"
 
-:: ‘§≈‰÷√ Jzip ª∑æ≥ 
+:: È¢ÑÈÖçÁΩÆ Jzip ÁéØÂ¢É 
 set "dir.jzip.temp.default=%dir.jzip.temp%"
 set title=-- Jzip
 set FileAssoc=
 set ShortCut=y
 set RightMenu=y
 set UIRatio=m
+set Color=f0
 set ColorAuto=y
 
-:: º”‘ÿ”√ªß≈‰÷√–≈œ¢º∞¡Ÿ ±Œƒº˛º– 
+:: Âä†ËΩΩÁî®Êà∑ÈÖçÁΩÆ‰ø°ÊÅØÂèä‰∏¥Êó∂Êñá‰ª∂Â§π 
 for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip" 2^>nul') do set "%%a=%%c"
 for %%a in (Dir.Jzip.Temp Color FileAssoc ShortCut RightMenu RecentTime) do >nul reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "%%a" /d "!%%a!" /f 
 >nul reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "RecentTime" /d "%date:~0,10% %time%" /f
 >nul 2>nul (dir "%dir.jzip.temp%" /a:d /b || ( md "%dir.jzip.temp%" || (set "dir.jzip.temp=%dir.jzip.temp.default%" & md "!dir.jzip.temp!") ) )
 
-:: …Ó«≥…´ƒ£ Ω≈‰÷√ 
+:: Ê∑±ÊµÖËâ≤Ê®°ÂºèÈÖçÁΩÆ 
 if /i "!ColorAuto!"=="y" (
-	for /f "skip=2 tokens=3" %%a in ('reg query "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" 2^>nul') do (
-		(echo;"%%~a" | find "0x") >nul || set "ColorAuto=n"
-		(echo;"%%~a" | find "0x0") >nul && set "Color=0f" || set "Color=f0"
-	)
-)
+reg query "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" | find "0x" || set "ColorAuto=n"
+reg query "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" | find "0x0" && set "Color=0f" || set "Color=f0"
+) >nul 2>nul
 
-:: ◊¢≤·±ÌŒﬁ”Ô—‘…Ë∂® ±£¨‘Ú“¿æ›ƒø«∞¥˙¬Î“≥…Ë∂®°£ 
+:: Ê≥®ÂÜåË°®Êó†ËØ≠Ë®ÄËÆæÂÆöÊó∂ÔºåÂàô‰æùÊçÆÁõÆÂâç‰ª£Á†ÅÈ°µËÆæÂÆö„ÄÇ 
 if not defined Language (
 	for /f "tokens=2 delims=:" %%i in ('chcp') do set /a "chcp=%%i"
 	if "!chcp!"=="936" (set "Language=chs") else (set "Language=en")
@@ -54,16 +53,18 @@ if not defined Language (
 reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "Language" /d "!Language!" /f >nul
 
 
-:: ºÏ≤‚”Ô—‘/øÿ÷∆Ã®£¨…Ë∂®¥˙¬Î“≥/◊÷ÃÂ/¥Û–°/øÏÀŸ±‡º≠£¨º”‘ÿ÷∆±Ì∑˚≤π≥•/”Ô—‘≈‰÷√ 
+:: Ê£ÄÊµãËØ≠Ë®Ä/ÊéßÂà∂Âè∞ÔºåËÆæÂÆö‰ª£Á†ÅÈ°µ/Â≠ó‰Ωì/Â§ßÂ∞è/Âø´ÈÄüÁºñËæëÔºåÂä†ËΩΩÂà∂Ë°®Á¨¶Ë°•ÂÅø/ËØ≠Ë®ÄÈÖçÁΩÆ 
 reg query "HKCU\Console" /v "ForceV2" 2>nul | find "0x1" >nul && set "Console.ver=2" || set "Console.ver=1"
 
+chcp 65001 >nul 
+
 for %%Z in (
-	chs/936/1/n/0x36/""/0x0d0000/0x0f0000/0x110000
-	chs/936/2/y/0x36/"∫⁄ÃÂ"/0x0d0000/0x0f0000/0x110000
-	en/437/1/y/0x30/""/0x080006/0x0c0007/0x12000a
+	chs/936/1/n/0x36/"Êñ∞ÂÆã‰Ωì"/0x0d0000/0x0f0000/0x110000
+	chs/936/2/y/0x36/"Èªë‰Ωì"/0x0d0000/0x0f0000/0x110000
+	en/437/1/y/0x36/"Consolas"/0x0e0000/0x100000/0x120000
 	en/437/2/y/0x36/"Consolas"/0x0e0000/0x100000/0x120000
 ) do for /f "tokens=1-9 delims=/" %%a in ("%%Z") do (
-	if /i "!Language!"=="%%~a" if "!Console.ver!"=="%%~c" >nul (
+	if /i "!Language!"=="%%~a" if "!Console.ver!"=="%%~c" (
 		reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "CodePage" /d "%%~b" /f
 		reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "FontFamily" /d "%%~e" /f
 		reg add "HKCU\Console\JFsoft.Jzip" /t REG_SZ /v "FaceName" /d "%%~f" /f
@@ -76,23 +77,29 @@ for %%Z in (
 		if "%%~d"=="y" set echo=call "%dir.jzip%\Function\Echo.cmd"
 
 		set "chcp=%%~b"
-		for /f "eol=[ tokens=1,*" %%x in ('type "%dir.jzip%\Lang\%%~a.ini"') do set "%%x%%y"
-	)
+	) >nul
 )
-reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "ColorTable00" /d "0x000000" /f  >nul
-reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "ColorTable15" /d "0xffffff" /f  >nul
-reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "QuickEdit" /d "0x0" /f  >nul
-reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "WindowSize" /d "0x1b0050" /f  >nul
 
+for %%Z in (
+	ColorTable00/0x0
+	ColorTable15/0xffffff
+	LineWrap/0x0
+	QuickEdit/0x0
+	WindowSize/0x1b0050
+) do for /f "tokens=1-2 delims=/" %%a in ("%%Z") do (
+	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "%%~a" /d "%%~b" /f  >nul
+)
 
-:: Ttool ≈‰÷√ 
+for /f "eol=[ tokens=1,*" %%x in ('type "%dir.jzip%\Lang\!Language!.ini"') do set "%%x%%y"
+
+:: Ttool ÈÖçÁΩÆ 
 set tcol="%dir.jzip%\Bin\x86\TCol.exe"
 set tcurs="%dir.jzip%\Bin\x86\Tcurs.exe"
 set tmouse="%dir.jzip%\Bin\x86\tmouse.exe"
 set "tmouse.process= set "mouse=^^!errorlevel^^!" & (if "^^!mouse:~0,1^^!"=="-" set "mouse=^^!mouse:~1^^!" ) & set /a "mouse.x=^^!mouse:~0,-3^^!" & set /a "mouse.y=^^!mouse^^!-1000*^^!mouse.x^^!" & set key="
 set "tmouse.test= echo;[^!mouse.x^!,^!mouse.y^!] Raw: ^!mouse^! & ping localhost -n 2 >nul "
 
-:: Jzip Œƒº˛÷ß≥÷¿‡–Õ 
+:: Jzip Êñá‰ª∂ÊîØÊåÅÁ±ªÂûã 
 set "jzip.spt.rar=rar"
 set "jzip.spt.7z=7z zip bz2 gz tgz tar wim xz 001 cab iso img dll msi chm cpio deb dmg lzh lzma rpm udf vhd xar"
 set "jzip.spt.assoc=rar 7z zip bz2 gz tgz tar wim xz 001 cab"
@@ -100,26 +107,30 @@ set "jzip.spt.write=exe rar 7z zip tar wim"
 set "jzip.spt.noadd=bz2 gz xz cab"
 set "jzip.spt.add=%jzip.spt.write% %jzip.spt.noadd%"
 
-:: —πÀı±‡º≠∆˜≈‰÷√
+:: ÂéãÁº©ÁºñËæëÂô®ÈÖçÁΩÆ
 set "path.editor.7z=%dir.jzip%\Bin\x86\7z.exe"
 set "path.editor.rar=%dir.jzip%\Bin\x86\Rar.exe"
 set "path.editor.cab=%dir.jzip%\Bin\x86\Cabarc.exe"
 
 for /f "skip=2 tokens=3" %%a in ('reg query "HKLM\System\CurrentControlSet\Control\Session Manager\Environment" /v PROCESSOR_ARCHITECTURE 2^>nul') do (
 	echo;"%%~a" | find /i "AMD64" >nul && (
-		set "path.editor.7z=%dir.jzip%\Bin\x64\7z.exe"
-		set "path.editor.rar=%dir.jzip%\Bin\x64\Rar.exe"
+		if exist "%dir.jzip%\Bin\x64\7z.exe" set "path.editor.7z=%dir.jzip%\Bin\x64\7z.exe"
+		if exist "%dir.jzip%\Bin\x64\Rar.exe" set "path.editor.rar=%dir.jzip%\Bin\x64\Rar.exe"
+	)
+	echo;"%%~a" | find /i "ARM" >nul && (
+		if exist "%dir.jzip%\Bin\arm\7z.exe" set "path.editor.7z=%dir.jzip%\Bin\arm\7z.exe"
 	)
 	echo;"%%~a" | find /i "ARM64" >nul && (
-		set "path.editor.7z=%dir.jzip%\Bin\arm64\7z.exe"
+		if exist "%dir.jzip%\Bin\arm64\7z.exe" set "path.editor.7z=%dir.jzip%\Bin\arm64\7z.exe"
 	)
 )
 
-:: ≈‰÷√◊Èº˛ 
-set "iferror=|| ( call "%dir.jzip%\Function\EdCode.cmd" & exit /b ^^!errorlevel^^! )"
+:: ÈÖçÁΩÆÁªÑ‰ª∂ 
+set iferror=|| (call "%dir.jzip%\Function\EdCode.cmd" & exit /b ^^!errorlevel^^! )
+set echocut=call "%dir.jzip%\Function\EchoCut.cmd"
 for %%i in (VbsBox SuDo CapTrans) do call "%dir.jzip%\Function\%%i.cmd" -import
 
-::±ªµ˜”√ 
+::Ë¢´Ë∞ÉÁî® 
 set start.jz=start "JFsoft.Jzip" "%ComSpec%" /e:on /v:on /d /c call "%dir.jzip%\Part\main.cmd"
 if exist "%~1" %start.jz% :Set_Info list %* & goto :EOF
 if exist "%~2" %start.jz% :Set_Info %* & goto :EOF
@@ -136,7 +147,7 @@ exit /b 0
 @echo;
 @echo; JFsoft JZip %jzip.ver%   2012-2021 (c) Dennishaha  %txt.rightres%
 @echo;
-@echo; %txt.usage%£∫ Jzip ^< %txt.switch% ^> ^< %txt.command% ^> ^< %txt.files% ^| %txt.archives% ^>
+@echo; %txt.usage%Ôºö Jzip ^< %txt.switch% ^> ^< %txt.command% ^> ^< %txt.files% ^| %txt.archives% ^>
 @echo;
 @echo;   ^< %txt.switch% ^>
 @echo;	-help		%txt.h.help%

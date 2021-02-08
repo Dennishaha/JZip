@@ -32,7 +32,7 @@ if /i "%~1"=="Unzip" (
 			net session >nul 2>nul || >nul 2>nul (
 				ren "%Arc.path%" "%Arc.name%%Arc.exten%" || (
 					%sudo% "%path.jzip.launcher%" unzip "%Arc.path%" 
-					exit 0
+					if "!sudoback!"=="1" (exit /b) else (exit)
 				)
 			)
 		)
@@ -49,11 +49,11 @@ for %%i in (Unzip Add Delete ReName Repair Lock Note Sfx) do if /i "%~1"=="%%i" 
 		:: 保存临时配置到注册表
 		for %%a in (dir.release lz.Dir lz.Menu lz.search lz.FileSel) do (
 			for /f "tokens=1 delims==" %%b in ('2^>nul set "%%a"') do >nul (
-				reg add "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" /t REG_SZ /v "%%b" /d "!%%b!;" /f %iferror%
+				reg add "HKCU\Software\JFsoft.Jzip\Recent\@\%Arc.Guid%" /t REG_SZ /v "%%b" /d "!%%b!;" /f %iferror%
 			)
 		)
 		%sudo% "%path.jzip.launcher%" list "%Arc.path%" --%%i //%Arc.Guid%
-		exit 0
+		if "!sudoback!"=="1" (exit /b) else (exit)
 	)
 )
 
@@ -129,7 +129,7 @@ set "path.File=!key!"
 if not defined path.File goto :EOF
 
 if defined lz.Dir (
-	for /f "delims=" %%i in ('cscript //nologo "%dir.jzip%\Function\Create_GUID.vbs"') do (
+	for /f "delims=" %%i in ('powershell -noprofile -command "&{ [guid]::NewGuid().ToString()}"') do (
 		>nul md "%dir.jzip.temp%\%%i\%lz.Dir%"
 		xcopy "!path.File!" "%dir.jzip.temp%\%%i\%lz.Dir%" /s /q /h /k
 		if "%type.editor%"=="7z" "!path.editor.7z!" a -w"%dir.jzip.temp%" "%Arc.path%" "%dir.jzip.temp%\%%i\%lz.Dir%" %iferror%
@@ -160,7 +160,7 @@ if "%key.e%"=="1" (
 
 :: 批处理 类型判断 
 for %%i in (cmd bat ps1) do if /i "%Arc.file:~-4%"==".%%i" (
-	start /i %ComSpec% /c call "%dir.jzip.temp%\%Arc.Guid%\%Arc.file%"
+	start /i "%ComSpec%" /c call "%dir.jzip.temp%\%Arc.Guid%\%Arc.file%"
 	goto :EOF
 )
 
@@ -186,7 +186,7 @@ if not defined Arc.file (
 	set "Arc.file=*"
 )
 if defined lz.Dir (
-	for /f "delims=" %%i in ('cscript //nologo "%dir.jzip%\Function\Create_GUID.vbs"') do (
+	for /f "delims=" %%i in ('powershell -noprofile -command "&{ [guid]::NewGuid().ToString()}"') do (
 		>nul md "%dir.jzip.temp%\%%i"
 		if "%type.editor%"=="rar" "%path.editor.rar%" x "%Arc.path%" "%Arc.file%" "%dir.jzip.temp%\%%i\" %iferror%
 		if "%type.editor%"=="7z" "%path.editor.7z%" x -o"%dir.jzip.temp%\%%i\" "%Arc.path%" "%Arc.file%" %iferror%

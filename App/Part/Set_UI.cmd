@@ -139,11 +139,13 @@ for %%i in (0 1 2 3 4 5 6 7 8 9 a b c d e f) do (
 if "%key%"=="lm" set "ColorAuto=n" & set "Color=f0" 
 if "%key%"=="dm" set "ColorAuto=n" & set "Color=0f"
 if "%key%"=="auto" (
-	for /f "skip=2 tokens=3" %%a in ('reg query "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" 2^>nul') do (
-		(echo;"%%~a" | find "0x" >nul) && set "ColorAuto=y" || set "ColorAuto=n"
-		if "!ColorAuto!"=="y" (echo;"%%~a" | find "0x0" >nul) && set "Color=0f" || set "Color=f0"
+	reg query "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" | find "0x" && (
+		set "ColorAuto=y") || (set "ColorAuto=n" & goto :color)
+	if /i "!ColorAuto!"=="y" (
+		reg query "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" | find "0x0" && (
+			set "Color=0f") || set "Color=f0"
 	)
-)
+) >nul 2>nul
 
 :: 更新颜色和注册表 
 reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "Color" /d "%Color%" /f >nul
@@ -166,7 +168,7 @@ for %%A in (
 	if "%~1"=="+" set "UIRatio=%%c"
 	if not "!UIRatio!"=="%%a" (
 		reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "UIRatio" /d "!UIRatio!" /f >nul
-		start /i /min "" %ComSpec% /c call "%path.jzip.launcher%" -setting
+		start /i /min "" "%ComSpec%" /c call "%path.jzip.launcher%" -setting
 		exit 0
 	)
 )

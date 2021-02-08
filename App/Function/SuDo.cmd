@@ -1,34 +1,34 @@
 
 
-:: µ¼Èë 
+:: å¯¼å…¥ 
 @if /i "%~1"=="-import" (
 	set sudo=call "%~0"
 	goto :EOF
 )
 
-:: µ÷ÓÃ 
+:: è°ƒç”¨ 
 @(
-	setlocal enabledelayedexpansion
 	set params=%*
 	if defined params (
-		set "params=!params:"=""!"
+		set "params=!params:'=''!"
+		set "params=!params:"="""!"
 		set "params=!params:?=&!"
 	)
 
-	:: µ±Ç°È¨ÏŞÅĞ¶Ï
+	:: å½“å‰æƒé™åˆ¤æ–­
 	@net session >nul 2>nul && (
 		!params!
 	) || (
-		::È¡µÃ¹ÜÀíÔ±È¨ÏŞ 
-		mshta vbscript:CreateObject^("Shell.Application"^).ShellExecute^("%ComSpec%","/c call !params!","","runas",1^)^(window.close^)
-	)
+		:: å–å¾—ç®¡ç†å‘˜æƒé™ 
+		powershell -noprofile -command "&{ start-process %ComSpec% -ArgumentList '/c call !params!' -verb RunAs}" 2>&1 | findstr "." && set "sudoback=1" || set "sudoback=0"
+	) >nul 2>nul
 )
 
-@endlocal & exit /b %errorlevel%
+set params=
+exit /b
 
-
-:: ÒÔ¹ÜÀíÔ±Éí·İÔËĞĞÃüÁî
+:: ä»¥ç®¡ç†å‘˜èº«ä»½è¿è¡Œå‘½ä»¤
 :: 
-:: ÓÃ·¨
+:: ç”¨æ³•
 :: %sudo% command
 :: %sudo% command1 ? command2

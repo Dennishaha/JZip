@@ -1,4 +1,7 @@
 
+:: 被调用 
+if "%~1"=="assoc" call "%dir.jzip%\Part\Set_Assoc.cmd" "%~2" "%~3"
+
 :more
 title %txt_title%
 call "%dir.jzip%\Part\Set_Lnk.cmd" -info
@@ -83,17 +86,14 @@ goto :more
 
 
 :lang-s
-if /i "%Language%"=="chs" chcp 437 >nul && (
-	chcp 936 >nul
-	%MsgBox-s% key "显示语言切换为%txt_lang.en%，JZip 将重新启动。"
+if /i "%Language%"=="chs" (
+	%MsgBox-s% key "%txt_langset.tip%"
 	if "!key!"=="1" (
 		call "%dir.jzip%\Part\Set_Lnk.cmd" -off all
 		>nul reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "Language" /d "en" /f
-		start /i /min "" %ComSpec% /c call "%path.jzip.launcher%" -install
+		start /i /min "" "%ComSpec%" /c call "%path.jzip.launcher%" -install
 		exit 0
 	)
-) || (
-	%MsgBox% "Jzip 切换该语言不成功。"
 )
 if /i "%Language%"=="en" chcp 936 >nul && (
 	chcp 437 >nul
@@ -101,11 +101,9 @@ if /i "%Language%"=="en" chcp 936 >nul && (
 	if "!key!"=="1" (
 		call "%dir.jzip%\Part\Set_Lnk.cmd" -off all
 		>nul reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "Language" /d "chs" /f
-		start /i /min "" %ComSpec% /c call "%path.jzip.launcher%" -install
+		start /i /min "" "%ComSpec%" /c call "%path.jzip.launcher%" -install
 		exit 0
 	)
-) || (
-	%MsgBox% "Jzip switching the language was unsuccessful."
 )
 goto :EOF
 
@@ -113,8 +111,11 @@ goto :EOF
 :Temp_Clean
 <nul set /p =".."
 
+:: 历史记录清理 
+call "%dir.jzip%\Part\Main.cmd" :History-del all
+
 :: 注册表临时项清理 
-reg delete "HKCU\Software\JFsoft.Jzip\Record\@" /f >nul 2>nul
+reg delete "HKCU\Software\JFsoft.Jzip\Recent\@" /f >nul 2>nul
 
 :: 注册表临时文件夹清理 
 if defined dir.jzip.temp >nul (
@@ -150,5 +151,5 @@ goto :EOF
 
 
 :Benchmark
-start "JFsoft.Jzip" %ComSpec% /d /c "mode 70,28 & color %color% & title & "%path.editor.7z%" b & echo. & echo.%txt_s.bm.ok% & %tmouse% /d 0 -1 1"
+start "JFsoft.Jzip" "%ComSpec%" /d /c "mode 70,28 & color %color% & title & "%path.editor.7z%" b & echo. & echo.%txt_s.bm.ok% & %tmouse% /d 0 -1 1"
 goto :EOF

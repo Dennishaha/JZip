@@ -2,7 +2,7 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 
-::Ô¤Éè°²×°ĞÅÏ¢Ô´
+::é¢„è®¾å®‰è£…ä¿¡æ¯æº
 if not defined jzip.branches set "jzip.branches=master"
 
 set jz.urlfix.1=https://raw.githubusercontent.com/Dennishaha/JZip/!jzip.branches!
@@ -12,38 +12,32 @@ set jz.urlfix.4=https://gitlab.com/Dennishaha/JZip/-/raw/!jzip.branches!
 
 set jz.insini.urldir=Server/ver.ini
 
-::µ÷ÓÃ
+::è°ƒç”¨
 if /i "%1"=="" call :Wizard Install
 if /i "%1"=="-upgrade" call :Wizard Upgrade
 if /i "%1"=="-uninstall" call :Wizard UnInstall
-if /i "%1"=="-install" start "" %ComSpec% /c ""%dir.jzip%\Jzip.cmd" -install"
+if /i "%1"=="-install" start "" "%ComSpec%" /c "%dir.jzip%\Jzip.cmd" -install
 goto :EOF
 
 :Wizard
 cls
 
-:: ÈôÎ´Éè¶¨ÓïÑÔ£¬ÒÀ¾İÄ¿Ç°´úÂëÒ³Éè¶¨ 
+:: è‹¥æœªè®¾å®šè¯­è¨€ï¼Œä¾æ®ç›®å‰ä»£ç é¡µè®¾å®š  
 if not defined Language (
-	for /f "tokens=2 delims=:" %%i in ('chcp') do (
-		if "%%i"==" 936" (
-			set "Language=chs"
-		) else ( 
-			set "Language=en"
-			chcp 437 >nul
-		)
-	)
+	for /f "tokens=2 delims=:" %%i in ('chcp') do set /a "chcp=%%i"
+	if "!chcp!"=="936" (set "Language=chs") else (set "Language=en")
 )
 
-
-:: ÒÀ¾İÉè¶¨ÓïÑÔ£¬µ¼ÈëÓïÑÔ°ü 
+:: ä¾æ®è®¾å®šè¯­è¨€ï¼Œå¯¼å…¥è¯­è¨€åŒ…  
+chcp 65001 >nul 
 if /i "%Language%"=="chs" (call :Langs-chs) else (call :Langs-en)
+chcp %chcp% >nul 
 
-
-:: Ô¤Éè´íÎó´úÂë 
+:: é¢„è®¾é”™è¯¯ä»£ç  
 for /l %%i in (1,1,4) do set "if.error.%%i=(call :MsgBox "!txt_vc.err.%%i!" "%txt_vc.err.info%" & exit /b %%i)"
 
 
-:: ÅäÖÃÂ·¾¶ºÍ´°¿Ú 
+:: é…ç½®è·¯å¾„å’Œçª—å£ 
 title %txt_vc.title%
 set "dir.jzip.default=%appdata%\JFsoft\JZip\App"
 
@@ -56,13 +50,13 @@ if "%1"=="Install" (
 )
 
 
-:: Jzip ±ãĞ¯°æÅĞ¶Ï 
+:: Jzip ä¾¿æºç‰ˆåˆ¤æ–­ 
 if /i "%dir.jzip%"=="%dir.jzip.default%" (set "jzip.Portable=") else (set "jzip.Portable=1")
 
 
-:: Mshta ¿ÉÓÃĞÔÅĞ¶Ï 
+:: Mshta å¯ç”¨æ€§åˆ¤æ–­ 
 2>nul (
-	mshta "vbscript:execute(close)" || path %path%;%SystemRoot%\SysWOW64
+	mshta "vbscript:execute(close)" || path "%path%;%SystemRoot%\SysWOW64"
 	mshta "vbscript:execute(close)" || (
 		echo;%txt_vc.err.hta%
 		echo;%txt_vc.err.info%
@@ -72,12 +66,12 @@ if /i "%dir.jzip%"=="%dir.jzip.default%" (set "jzip.Portable=") else (set "jzip.
 )
 
 
-:: Powershell ¿ÉÓÃĞÔÅĞ¶Ï 
+:: Powershell å¯ç”¨æ€§åˆ¤æ–­ 
 powershell -? >nul 2>nul
 if not "%ERRORLEVEL%"=="0" %if.error.4%
 
 
-:: »ñÈ¡ Github ÉÏµÄ JZip °²×°ĞÅÏ¢ 
+:: è·å– Github ä¸Šçš„ JZip å®‰è£…ä¿¡æ¯ 
 for %%Z in (Install Upgrade) do if "%1"=="%%Z" (
 	>nul 2>nul ( dir "%dir.jzip.temp%\ver.ini" /a:-d /b && del /q /f /s "%dir.jzip.temp%\ver.ini" )
 
@@ -108,7 +102,7 @@ echo;
 ::UI--------------------------------------------------
 
 
-:: µ¯³öÑ¡Ôñ¿ò 
+:: å¼¹å‡ºé€‰æ‹©æ¡† 
 set "key="
 if "%1"=="Install" call :MsgBox-s key "%txt_vc.get% %jzip.newver%" " " "%txt_vc.getauto%"
 if "%1"=="UnInstall" call :MsgBox-s key "%txt_vc.rid%"
@@ -122,7 +116,7 @@ if "%1"=="Upgrade" (
 if not "%key%"=="1" goto :EOF
 
 
-:: Jzip ±ãĞ¯°æÅĞ¶Ï£¬Ä¿Â¼Çå¿Õ/ÒÆ³ıÑ¯ÎÊ 
+:: Jzip ä¾¿æºç‰ˆåˆ¤æ–­ï¼Œç›®å½•æ¸…ç©º/ç§»é™¤è¯¢é—® 
 set "key="
 if defined jzip.Portable (
 	for %%a in (Install Upgrade) do if "%1"=="%%a" (
@@ -135,7 +129,7 @@ if defined jzip.Portable (
 )
 
 
-:: »ñÈ¡ JZip °²×°°ü 
+:: è·å– JZip å®‰è£…åŒ… 
 for %%a in (Install Upgrade) do if "%1"=="%%a" (
 	>nul 2>nul (
 		del /q /f /s "%dir.jzip.temp%\%jz.7zcab.pag%"
@@ -153,58 +147,58 @@ for %%a in (Install Upgrade) do if "%1"=="%%a" (
 )
 
 
-:: ½â³ı°²×° 
+:: è§£é™¤å®‰è£… 
 for %%a in (Upgrade UnInstall) do if "%1"=="%%a" (
 	call "%dir.jzip%\Part\Set_Lnk.cmd" -off all
 	call "%dir.jzip%\Part\Set_Assoc.cmd" -off
 )
 
 
-:: °²×° 
+:: å®‰è£… 
 for %%a in (Install Upgrade) do if "%1"=="%%a" (
 	
 	cls
-	%ComSpec% /q /c ">nul 2>nul (rd /q /s "!dir.jzip!"&md "!dir.jzip!")&"!dir.jzip.temp!\!jz.nv7z.exe!" x "!dir.jzip.temp!\!jz.nvzip.pag!" -y -o"!dir.jzip!\"&&"!dir.jzip!\!jzip.newver.installer!" -install"
+	"%ComSpec%" /q /c ">nul 2>nul (rd /q /s "!dir.jzip!"&md "!dir.jzip!")&"!dir.jzip.temp!\!jz.nv7z.exe!" x "!dir.jzip.temp!\!jz.nvzip.pag!" -y -o"!dir.jzip!\"&&"!dir.jzip!\!jzip.newver.installer!" -install"
 	exit 0
 )
 
 
-:: É¾³ı JZip ×¢²á±íÏîºÍÄ¿Â¼ 
+:: åˆ é™¤ JZip æ³¨å†Œè¡¨é¡¹å’Œç›®å½• 
 if "%1"=="UnInstall" (
 	>nul (
 		reg delete "HKCU\Console\JFsoft.Jzip" /f
 		reg delete "HKCU\Software\JFsoft.Jzip" /f
 	)
-	start "" /min %ComSpec% /q /c ">nul rd /q /s "%dir.jzip%""
+	start "" /min "%ComSpec%" /q /c ">nul rd /q /s "%dir.jzip%""
 )
-goto :EOF
+exit /b
 
 
 
-:: ÓïÑÔ°ü 
+:: è¯­è¨€åŒ… 
 :Langs-chs
-set txt_vc.err.info=Äú¿ÉÒÔÔÚ github.com/Dennishaha/JZip ÉÏÓÃÆäËû·½·¨°²×°ÒÔ¼°ÁË½â¸ü¶àĞÅÏ¢¡£ 
-set txt_vc.err.1=°¥Ñ½£¬ÍøÂ·²»Ì«Í¨³©Ò®£¬ÒªÊèÍ¨Ò»ÏÂ¡£ 
-set txt_vc.err.2=àÓàÓàÓ£¬·şÎñÆ÷´ó¸ç°ïÁËÎÒÕÒÒ»ÏÂ£¬ÄÇ¸öÎÄ¼ş¶ãÃ¨Ã¨ÁËÒ®¡£ 
-set txt_vc.err.3=ÎÄ¼şÃ÷Ã÷ÏÂÔØÏÂÀ´ÁËµ«ÊÇ¶ªÁË£¬Windows Defender ´ó¸ç¿ÉÄÜ¾õµÃÎÒ²»ĞĞ¡£ 
-set txt_vc.err.4=ºÃÆæ¹Ö£¬Powershell ×é¼şµ÷ÓÃ²»ÁËÒ®¡£ 
-set txt_vc.err.hta=Mshta ²»¿ÉÓÃ£¬JZip ×°²»ÁËÓ´¡£ 
+set txt_vc.err.info=æ‚¨å¯ä»¥åœ¨ github.com/Dennishaha/JZip ä¸Šç”¨å…¶ä»–æ–¹æ³•å®‰è£…ä»¥åŠäº†è§£æ›´å¤šä¿¡æ¯ã€‚ 
+set txt_vc.err.1=å“å‘€ï¼Œç½‘è·¯ä¸å¤ªé€šç•…è€¶ï¼Œè¦ç–é€šä¸€ä¸‹ã€‚ 
+set txt_vc.err.2=å˜¤å˜¤å˜¤ï¼ŒæœåŠ¡å™¨å¤§å“¥å¸®äº†æˆ‘æ‰¾ä¸€ä¸‹ï¼Œé‚£ä¸ªæ–‡ä»¶èº²çŒ«çŒ«äº†è€¶ã€‚ 
+set txt_vc.err.3=æ–‡ä»¶æ˜æ˜ä¸‹è½½ä¸‹æ¥äº†ä½†æ˜¯ä¸¢äº†ï¼ŒWindows Defender å¤§å“¥å¯èƒ½è§‰å¾—æˆ‘ä¸è¡Œã€‚ 
+set txt_vc.err.4=å¥½å¥‡æ€ªï¼ŒPowershell ç»„ä»¶è°ƒç”¨ä¸äº†è€¶ã€‚ 
+set txt_vc.err.hta=Mshta ä¸å¯ç”¨ï¼ŒJZip è£…ä¸äº†å“Ÿã€‚ 
 
-set txt_vc.title=JFsoft Zip Ñ¹Ëõ °²×°Æ÷
-set txt_vc.get=ÏÖÔÚ¿ÉÒÔ°²×° Jzip 
-set txt_vc.rid=È·ÊµÒª½â³ı°²×° JZip Âğ£¿ 
-set txt_vc.getnew=ÏÖÔÚ¿ÉÒÔ»ñÈ¡ĞÂ°æ±¾ 
-set txt_vc.getauto=ÎÒÃÇÓä¿ìµÄ¿ªÊ¼°É¡£ 
-set txt_vc.newest=ÊÇ×îĞÂµÄ¡£ 
+set txt_vc.title=JFsoft Zip å‹ç¼© å®‰è£…å™¨ 
+set txt_vc.get=ç°åœ¨å¯ä»¥å®‰è£… Jzip
+set txt_vc.rid=ç¡®å®è¦è§£é™¤å®‰è£… JZip å—ï¼Ÿ 
+set txt_vc.getnew=ç°åœ¨å¯ä»¥è·å–æ–°ç‰ˆæœ¬ 
+set txt_vc.getauto=æˆ‘ä»¬æ„‰å¿«çš„å¼€å§‹å§ã€‚ 
+set txt_vc.newest=æ˜¯æœ€æ–°çš„ã€‚ 
 
-set txt_vc.pt.update=ÄúÕıÊ¹ÓÃ JZip ±ãĞ¯°æ£¬¸üĞÂÇ°½«Çå¿Õ JZip ËùÔÚÎÄ¼ş¼Ğ¡£ 
-set txt_vc.pt.uninstall=ÒÑÍê³É Jzip ±ãĞ¯°æ½â³ı°²×°¡£ 
+set txt_vc.pt.update=æ‚¨æ­£ä½¿ç”¨ JZip ä¾¿æºç‰ˆï¼Œæ›´æ–°å‰å°†æ¸…ç©º JZip æ‰€åœ¨æ–‡ä»¶å¤¹ã€‚ 
+set txt_vc.pt.uninstall=å·²å®Œæˆ Jzip ä¾¿æºç‰ˆè§£é™¤å®‰è£…ã€‚ 
 
-set txt_vc.path.rd=ÒÆ³ı JZip ËùÔÚÂ·¾¶Âğ£¿ 
-set txt_vc.path.sure=ÇëÈ·±£Â·¾¶²»º¬¸öÈËÎÄ¼ş¡£ 
-set txt_vc.sure=È·¶¨Âğ£¿ 
+set txt_vc.path.rd=ç§»é™¤ JZip æ‰€åœ¨è·¯å¾„å—ï¼Ÿ 
+set txt_vc.path.sure=è¯·ç¡®ä¿è·¯å¾„ä¸å«ä¸ªäººæ–‡ä»¶ã€‚ 
+set txt_vc.sure=ç¡®å®šå—ï¼Ÿ 
 
-set txt_vc.loading=^>^>^>^> ¼ÓÔØÖĞ
+set txt_vc.loading=^>^>^>^> åŠ è½½ä¸­
 goto :EOF
 
 
@@ -235,7 +229,7 @@ goto :EOF
 
 
 
-:: ²å¼ş 
+:: æ’ä»¶ 
 :MsgBox
 mshta vbscript:execute^("msgbox(""%~1""&vbCrLf&vbCrLf&""%~2"",64+4096)(close)"^)
 goto :EOF
@@ -266,7 +260,7 @@ for /f "delims=" %%a in (' mshta "vbscript:CreateObject("Scripting.Filesystemobj
 goto :EOF
 
 ::  Powershell Downloader   
-::  ÓÃ·¨ call :psdl "ÎÄ¼şÄ¿Â¼" "´æ·ÅÂ·¾¶" "±È¶Ôsha1Öµ£¨¿ÉÑ¡£©"
+::  ç”¨æ³• call :psdl "æ–‡ä»¶ç›®å½•" "å­˜æ”¾è·¯å¾„" "æ¯”å¯¹sha1å€¼ï¼ˆå¯é€‰ï¼‰"
 
 :psdl
 for /f "tokens=1,* delims==" %%a in ('set jz.urlfix.') do (

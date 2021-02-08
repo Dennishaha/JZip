@@ -1,6 +1,7 @@
 
 :: 初始变量设定 
 @echo off
+setlocal EnableExtensions EnableDelayedExpansion
 color %Color%
 title %Arc.path% %title%
 
@@ -9,10 +10,10 @@ mode %Window.Col%, %Window.Ln%
 for %%a in (%jzip.spt.write%) do if /i "%Arc.exten%"==".%%a" set "Arc.Writable=y"
 
 :: 从注册表读取 GUID 配置 
-for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" 2^>nul') do (
+for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip\Recent\@\%Arc.Guid%" 2^>nul') do (
 	if /i "%%b"=="REG_SZ" set "%%a=%%c" & set "%%a=!%%a:~0,-1!"
 )
-reg delete "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" /f >nul 2>nul
+reg delete "HKCU\Software\JFsoft.Jzip\Recent\@\%Arc.Guid%" /f >nul 2>nul
 
 :: 变量设定 
 set "lz.txt=%dir.jzip.temp%\%Arc.Guid%.tmp"
@@ -46,7 +47,7 @@ for %%z in (
 	)
 )
 
-call :设定行清除 
+call :setlineclr 
 
 :Menu
 
@@ -60,7 +61,7 @@ if not defined lz.Dir (
 	if "%type.editor%"=="rar" (
 		for /f "tokens=2* delims=:" %%i in ('type "%lz.txt%\lz" ^| findstr /r "^Details:"') do (
 
-			:: 锁定压缩文件判断
+			:: 锁定压缩文件判断 
 			echo."%%i" | find /i "lock" >nul && set Arc.Writable=
 
 			set "lz.Info=%%i"
@@ -205,7 +206,7 @@ if defined lz.Search (
 for /f "skip=1 delims=:" %%k in ('^(echo;"%bar%"^&echo;^)^|findstr /o ".*"') do set /a bar.Len=%%k-5
 
 ::UI--------------------------------------------------
-
+set > %temp%\JFsoft.JZip\123.txt
 cls
 
 :: 配置第一列栏 
@@ -302,7 +303,7 @@ for /l %%i in (%lz.LnViewStart%,1,%lz.LnViewEnd%) do (
 )
 
 :: 应用选定条颜色 
-if defined tcol.do %tcol% %tcol.do%
+if defined tcol.do 2>nul %tcol% %tcol.do%
 
 :: 补充空行 
 set /a "lz.ViewEchoEnd=lz.LnViewStart+lz.LnViewBlock-1"
@@ -354,7 +355,7 @@ for /f "skip=2 tokens=1-2" %%a in ('mode') do (
 	if /i "%%a"=="列:　　" if !Window.Col! NEQ %%~b (set /a "Window.Col=%%~b" & set "key=rf")
 	if /i "%%a"=="Columns:" if !Window.Col! NEQ %%~b (set /a "Window.Col=%%~b" & set "key=rf")
 )
-if "%key%"=="rf" call :设定行清除  & goto :Fast1
+if "%key%"=="rf" call :setlineclr  & goto :Fast1
 
 :: 压缩列表坐标判断 
 set /a lz.LnTap=lz.LnViewStart+mouse.y-3
@@ -453,7 +454,7 @@ if "%key%"=="1" ( call "%dir.jzip%\Part\Arc_Expan.cmd" Open
 ) else if "%key%"=="t1" ( if "%type.editor%"=="rar" call :全选切换 
 ) else if "%key%"=="t2" ( if "%type.editor%"=="7z" call :全选切换 
 ) else if "%key%"=="s" ( call :Search
-) else if "%key%"=="e" ( start /b /i %ComSpec% /c call "%path.jzip.launcher%" & goto :EOF
+) else if "%key%"=="e" ( start "" /i /min cmd /c "%path.jzip.launcher%" & exit
 )
 
 :: Arc.Do 结束 
@@ -529,8 +530,8 @@ for /f "tokens=1 delims==" %%a in ('2^>nul set "lz.FileSel."') do set "%%a="
 set "lz.FileSel=0"
 goto :EOF
 
-
-:设定行清除 
+:setlineclr
+:: 设定行清除 
 setlocal
 if "%chcp%"=="936" (
 	for /l %%i in (2,1,%Window.Col%) do (

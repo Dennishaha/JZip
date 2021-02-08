@@ -4,13 +4,13 @@ if not defined Arc.Order goto :EOF
 
 :: 从注册表读取 压缩/GUID 配置 
 if /i "%Arc.Order%"=="add" (
-	for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip\Record" 2^>nul') do (
+	for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip\Recent" 2^>nul') do (
 		if /i "%%b"=="REG_SZ" set "%%a=%%c"
 	)
-	for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" 2^>nul') do (
+	for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip\Recent\@\%Arc.Guid%" 2^>nul') do (
 		if /i "%%b"=="REG_SZ" set "%%a=%%c" & set "%%a=!%%a:~0,-1!"
 	)
-	reg delete "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" /f >nul 2>nul && set "Arc.Do=go"
+	reg delete "HKCU\Software\JFsoft.Jzip\Recent\@\%Arc.Guid%" /f >nul 2>nul && set "Arc.Do=go"
 )
 
 echo;"%jzip.spt.add%" | find "%Arc.exten:~1%" >nul || set "Arc.exten=.7z"
@@ -80,7 +80,7 @@ if /i "%Arc.Order%"=="add" (
 if /i "%Arc.Order%"=="add" (
 	echo;"rar 7z zip tar bz2 gz xz wim" | find "%Arc.exten:~1%" >nul && (
 		if not defined 分卷压缩 echo;	%txt_aa.split%		%txt_sym.cir%
-		if defined 分卷压缩 echo;	%txt_aa.split%		%txt_sym.cir.s% %分卷压缩%
+		if defined 分卷压缩 echo;	%txt_aa.split%		%txt_sym.cir.s% !分卷压缩!
 	) || echo;
 ) else echo;
 
@@ -95,7 +95,7 @@ if /i "%Arc.Order%"=="add" (
 			b32/"^!txt_sym.cir.s^! %txt_aa.sfx.b%"
 			b64/"^!txt_sym.cir.s^! %txt_aa.sfx.b%%txt_aa.sfx.64%"
 		) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
-			if "%自解压%"=="%%~a" echo;	%txt_aa.sfxmode%		%%~b
+			if "!自解压!"=="%%~a" echo;	%txt_aa.sfxmode%		%%~b
 		)
 	) || echo;
 ) else echo;
@@ -120,7 +120,7 @@ if /i "%Arc.Order%"=="add" (
 		for %%A in (
 			""/^!txt_sym.cir^!,3/"^!txt_sym.cir.s^! 3%%",6/"^!txt_sym.cir.s^! 6%%",9/"^!txt_sym.cir.s^! 9%%"
 		) do for /f "tokens=1,2 delims=/" %%a in ("%%A") do (
-			if "%压缩恢复记录%"=="%%~a" echo;	%txt_aa.record%		%%~b
+			if "!压缩恢复记录!"=="%%~a" echo;	%txt_aa.record%		%%~b
 		)
 	) else (echo; & echo;)
 )
@@ -218,7 +218,7 @@ if /i not "%Arc.Order%"=="list" (
 :: 保存压缩配置到注册表 
 if /i "%Arc.Order%"=="add" (
 	for %%a in (Arc.exten Add-Level Add-Solid) do (
-		reg add "HKCU\Software\JFsoft.Jzip\Record" /t REG_SZ /v "%%a" /d "!%%a!" /f >nul %iferror%
+		reg add "HKCU\Software\JFsoft.Jzip\Recent" /t REG_SZ /v "%%a" /d "!%%a!" /f >nul %iferror%
 	)
 )
 
@@ -230,11 +230,14 @@ net session >nul 2>nul || >nul 2>nul (
 		:: 保存 GUID 配置到注册表 
 		if /i "%Arc.Order%"=="add" (
 			for %%a in ( 压缩密码 分卷压缩 压缩版本.rar 压缩恢复记录 自解压 Arc.dir Arc.name ) do (
-				reg add "HKCU\Software\JFsoft.Jzip\Record\@\%Arc.Guid%" /t REG_SZ /v "%%a" /d "!%%a!;" /f >nul %iferror%
+				reg add "HKCU\Software\JFsoft.Jzip\Recent\@\%Arc.Guid%" /t REG_SZ /v "%%a" /d "!%%a!;" /f >nul %iferror%
 			)
 		)
 		%sudo% "%path.jzip.launcher%" %Arc.Order% %path.File% //%Arc.Guid%
-		exit 0
+		if "!sudoback!"=="1" (
+			set "Arc.Order=add"
+			goto :Archive_Setting
+		) else (exit)
 	)
 )
 
@@ -250,10 +253,10 @@ if defined Add-Level (
 	)
 )
 if defined Add-Solid set "btn.固实文件=-s"
-if defined 压缩密码 set "btn.压缩密码=-p%压缩密码%"
-if defined 分卷压缩 set "btn.分卷压缩= -v%分卷压缩%"
-if defined 压缩版本.rar set "btn.压缩版本.rar=-ma%压缩版本.rar%"
-if defined 压缩恢复记录 set "btn.压缩恢复记录=-rr%压缩恢复记录%"
+if defined 压缩密码 set "btn.压缩密码=-p!压缩密码!"
+if defined 分卷压缩 set "btn.分卷压缩= -v!分卷压缩!"
+if defined 压缩版本.rar set "btn.压缩版本.rar=-ma!压缩版本.rar!"
+if defined 压缩恢复记录 set "btn.压缩恢复记录=-rr!压缩恢复记录!"
 if defined 自解压 (
 	for %%A in (
 		a32/Default/7z
@@ -261,8 +264,8 @@ if defined 自解压 (
 		b32/WinCon/7zCon
 		b64/WinCon64/""
 	) do for /f "tokens=1-3 delims=/" %%a in ("%%A") do (
-		if "%Arc.exten%"==".rar" if "%自解压%"=="%%a" set btn.自解压=-sfx"%dir.jzip%\Bin\Sfx\%%b.sfx"
-		if "%Arc.exten%"==".7z" if "%自解压%"=="%%a" set btn.自解压=-sfx"%dir.jzip%\Bin\Sfx\%%c.sfx"
+		if "%Arc.exten%"==".rar" if "!自解压!"=="%%a" set btn.自解压=-sfx"%dir.jzip%\Bin\Sfx\%%b.sfx"
+		if "%Arc.exten%"==".7z" if "!自解压!"=="%%a" set btn.自解压=-sfx"%dir.jzip%\Bin\Sfx\%%c.sfx"
 		)
 	)
 )
@@ -279,7 +282,7 @@ if "%type.editor%"=="7z" (
 	)
 )
 
-if "%type.editor%"=="7z" "%path.editor.7z%" a %btn.压缩密码% %btn.压缩级别% %btn.分卷压缩% -w"%dir.jzip.temp%" %btn.自解压% "%Arc.path%" %path.File% %iferror%
+if "%type.editor%"=="7z" "%path.editor.7z%" a %btn.压缩密码% !btn.压缩级别! !btn.分卷压缩! -w"%dir.jzip.temp%" !btn.自解压! "%Arc.path%" %path.File% %iferror%
 
 if "%type.editor%"=="7z" (
 	if "%File.Single%"=="n" for %%a in (bz2 gz xz) do if "%Arc.exten%"==".%%a" (
@@ -288,8 +291,12 @@ if "%type.editor%"=="7z" (
 )
 
 :: CAB 
-if "%type.editor%"=="cab" "%path.editor.cab%" -r %btn.压缩级别% n "%Arc.path%" %path.File% %iferror%
+if "%type.editor%"=="cab" "%path.editor.cab%" -r !btn.压缩级别! n "%Arc.path%" %path.File% %iferror%
 
 set "path.File="
+
+:: 添加到历史记录 
+call "%dir.jzip%\Part\Main.cmd" :History-add "%Arc.path%"
+ 
 goto :EOF
 
