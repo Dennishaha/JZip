@@ -2,6 +2,9 @@
 :: 调用判断 
 if not defined Arc.Order goto :EOF
 
+:: 预配置变量 
+set Add-Solid=y
+
 :: 从注册表读取 压缩/GUID 配置 
 if /i "%Arc.Order%"=="add" (
 	for /f "skip=2 tokens=1,2,*" %%a in ('reg query "HKCU\Software\JFsoft.Jzip\Recent" 2^>nul') do (
@@ -71,7 +74,7 @@ for %%A in (
 )
 
 if /i "%Arc.Order%"=="add" (
-	echo;"rar 7z xz" | find "%Arc.exten:~1%" >nul && (
+	echo;"7z rar" | find "%Arc.exten:~1%" >nul && (
 		if "%Add-Solid%"=="y" echo;	%txt_aa.solid%		%txt_sym.cir.s%
 		if not "%Add-Solid%"=="y" echo;	%txt_aa.solid%		%txt_sym.cir%
 	) || echo;
@@ -189,7 +192,7 @@ if "%key%"=="a" ( if /i "%Arc.Order%"=="add" call "%dir.jzip%\Part\Arc_Set.cmd" 
 ) else if "%key%"=="b" ( if /i "%Arc.Order%"=="add" call "%dir.jzip%\Part\Arc_Set.cmd" :浏览
 ) else if "%key%"=="c" ( if /i "%Arc.Order%"=="add" call "%dir.jzip%\Part\Arc_Set.cmd" :更改名称
 ) else if "%key:~0,1%"=="d" ( for %%a in (rar 7z zip bz2 gz xz cab) do if /i "%Arc.exten%"==".%%a" call "%dir.jzip%\Part\Arc_Set.cmd" :Level %key:~1%
-) else if "%key%"=="e" ( if /i "%Arc.Order%"=="add" for %%a in (rar 7z xz) do if /i "%Arc.exten%"==".%%a" call "%dir.jzip%\Part\Arc_Set.cmd" :固实文件
+) else if "%key%"=="e" ( if /i "%Arc.Order%"=="add" for %%a in (7z rar) do if /i "%Arc.exten%"==".%%a" call "%dir.jzip%\Part\Arc_Set.cmd" :固实文件
 ) else if "%key:~0,1%"=="f" ( for %%a in (rar 7z zip tar bz2 gz xz wim) do if /i "%Arc.exten%"==".%%a" call "%dir.jzip%\Part\Arc_Set.cmd" :分卷压缩 %key:~1%
 ) else if "%key:~0,1%"=="g" ( if /i "%Arc.Order%"=="add" for %%a in (rar 7z) do if /i "%Arc.exten%"==".%%a" call "%dir.jzip%\Part\Arc_Set.cmd" :自解压  %key:~1%
 ) else if "%key:~0,1%"=="h" ( for %%a in (rar 7z zip) do if /i "%Arc.exten%"==".%%a" call "%dir.jzip%\Part\Arc_Set.cmd" :压缩加密 %key:~1%
@@ -253,7 +256,14 @@ if defined Add-Level (
 		if "%type.editor%"=="cab" if "%Add-Level%"=="%%a" set "btn.压缩级别=-m %%d"
 	)
 )
-if defined Add-Solid set "btn.固实文件=-s"
+if defined Add-Solid (
+	if "%type.editor%"=="7z" set "btn.固实文件=-ms"	
+	if "%type.editor%"=="rar" set "btn.固实文件=-s"
+) else (
+	if "%type.editor%"=="7z" set "btn.固实文件=-ms=off"
+)
+
+
 if defined 压缩密码 set "btn.压缩密码=-p!压缩密码!"
 if defined 分卷压缩 set "btn.分卷压缩= -v!分卷压缩!"
 if defined 压缩版本.rar set "btn.压缩版本.rar=-ma!压缩版本.rar!"
@@ -272,7 +282,7 @@ if defined 自解压 (
 )
 
 :: RAR 
-if "%type.editor%"=="rar" "%path.editor.rar%" a %btn.压缩密码% %btn.压缩级别% %btn.固实文件% %btn.分卷压缩% %btn.压缩版本.rar% -ep1 %btn.压缩恢复记录% %btn.自解压% -w"%dir.jzip.temp%" "%Arc.path%" %path.File% %iferror%
+if "%type.editor%"=="rar" "%path.editor.rar%" a !btn.压缩密码! !btn.压缩级别! !btn.固实文件! !btn.分卷压缩! !btn.压缩版本.rar! -ep1 !btn.压缩恢复记录! !btn.自解压! -w"%dir.jzip.temp%" "%Arc.path%" %path.File% %iferror%
 
 :: 7Z 
 if "%type.editor%"=="7z" (
@@ -283,7 +293,7 @@ if "%type.editor%"=="7z" (
 	)
 )
 
-if "%type.editor%"=="7z" "%path.editor.7z%" a %btn.压缩密码% !btn.压缩级别! !btn.分卷压缩! -w"%dir.jzip.temp%" !btn.自解压! "%Arc.path%" %path.File% %iferror%
+if "%type.editor%"=="7z" "%path.editor.7z%" a !btn.压缩密码! !btn.压缩级别! !btn.固实文件! !btn.分卷压缩! -w"%dir.jzip.temp%" !btn.自解压! "%Arc.path%" %path.File% %iferror%
 
 if "%type.editor%"=="7z" (
 	if "%File.Single%"=="n" for %%a in (bz2 gz xz) do if "%Arc.exten%"==".%%a" (

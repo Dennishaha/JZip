@@ -1,4 +1,4 @@
-
+﻿
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 
@@ -56,7 +56,7 @@ if /i "%dir.jzip%"=="%dir.jzip.default%" (set "jzip.Portable=") else (set "jzip.
 
 :: Mshta 可用性判断 
 2>nul (
-	mshta "vbscript:execute(close)" || path %path%;"%SystemRoot%\SysWOW64"
+	mshta "vbscript:execute(close)" || path !path!;"%SystemRoot%\SysWOW64"
 	mshta "vbscript:execute(close)" || (
 		echo;%txt_vc.err.hta%
 		echo;%txt_vc.err.info%
@@ -269,7 +269,9 @@ for /f "tokens=1,* delims==" %%a in ('set jz.urlfix.') do (
 	if "%~3"=="" (
 		>nul 2>nul dir "%~2" /a:-d /b && exit /b 0
 	) else (
-	certutil -hashfile "%~2" sha1 | >nul findstr "\<%~3\>" && exit /b 0
+		for /f "skip=1 tokens=* delims=" %%i in ('certutil -hashfile "%~2" SHA1') do (
+			set "ctt=%%i" & echo;"ctt=!ctt: =!" | >nul findstr "\<%~3\>" && exit /b 0
+		)
 	)
 	set "%%a="
 )
