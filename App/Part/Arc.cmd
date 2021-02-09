@@ -206,7 +206,6 @@ if defined lz.Search (
 for /f "skip=1 delims=:" %%k in ('^(echo;"%bar%"^&echo;^)^|findstr /o ".*"') do set /a bar.Len=%%k-5
 
 ::UI--------------------------------------------------
-set > %temp%\JFsoft.JZip\123.txt
 cls
 
 :: 配置第一列栏 
@@ -303,7 +302,7 @@ for /l %%i in (%lz.LnViewStart%,1,%lz.LnViewEnd%) do (
 )
 
 :: 应用选定条颜色 
-if defined tcol.do 2>nul %tcol% %tcol.do%
+if defined tcol.do %tcol% %tcol.do%
 
 :: 补充空行 
 set /a "lz.ViewEchoEnd=lz.LnViewStart+lz.LnViewBlock-1"
@@ -344,9 +343,10 @@ if defined Arc.Do (
 )
 
 :: 坐标判断 
+%tcurs% /crv 0
 %tmouse% /d 0 -1 1
 %tmouse.process%
-::%tmouse.test%
+:: %tmouse.test% 
 
 :: 窗口大小调整检测，调试时需注释以禁用 
 for /f "skip=2 tokens=1-2" %%a in ('mode') do (

@@ -46,6 +46,7 @@ echo;
 
 ::UI--------------------------------------------------
 
+%tcurs% /crv 0
 %tmouse% /d 0 -1 1
 %tmouse.process%
 ::%tmouse.test%

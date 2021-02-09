@@ -26,7 +26,7 @@
 :: 预配置 Jzip 环境 
 set "dir.jzip.temp.default=%dir.jzip.temp%"
 set title=-- Jzip
-set FileAssoc=
+set FileAssoc=n
 set ShortCut=y
 set RightMenu=y
 set UIRatio=m
@@ -93,9 +93,9 @@ for %%Z in (
 for /f "eol=[ tokens=1,*" %%x in ('type "%dir.jzip%\Lang\!Language!.ini"') do set "%%x%%y"
 
 :: Ttool 配置 
-set tcol="%dir.jzip%\Bin\x86\TCol.exe"
-set tcurs="%dir.jzip%\Bin\x86\Tcurs.exe"
-set tmouse="%dir.jzip%\Bin\x86\tmouse.exe"
+set tcol=>nul 2>nul "%dir.jzip%\Bin\x86\TCol.exe"
+set tcurs=>nul 2>nul "%dir.jzip%\Bin\x86\Tcurs.exe"
+set tmouse=>nul 2>nul "%dir.jzip%\Bin\x86\tmouse.exe"
 set "tmouse.process= set "mouse=^^!errorlevel^^!" & (if "^^!mouse:~0,1^^!"=="-" set "mouse=^^!mouse:~1^^!" ) & set /a "mouse.x=^^!mouse:~0,-3^^!" & set /a "mouse.y=^^!mouse^^!-1000*^^!mouse.x^^!" & set key="
 set "tmouse.test= echo;[^!mouse.x^!,^!mouse.y^!] Raw: ^!mouse^! & ping localhost -n 2 >nul "
 

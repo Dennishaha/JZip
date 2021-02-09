@@ -5,8 +5,13 @@ reg query "HKCR\JFsoft.Jzip" >nul 2>nul && (
 ) || (
 	set "stat.FileAssoc=%txt_sym.cir%"
 )
+
+:: 无需处理的调用 
 if “%~1”==“” exit /b
 if “%~1”==“-info” exit /b
+if /i "%~1"=="-reon" (
+	if not "%FileAssoc%"=="y" exit /b
+)
 
 :: 若没有管理员权限 
 net session >nul 2>nul || (
@@ -43,7 +48,7 @@ for %%a in (%jzip.spt.open%) do 1>nul assoc .%%a=
 reg delete "HKCR\JFsoft.Jzip" /f >nul
 
 if "%~1"=="reg" (
-	reg add "HKCU\Software\JFsoft.Jzip" /v "FileAssoc" /d "" /f >nul
+	reg add "HKCU\Software\JFsoft.Jzip" /v "FileAssoc" /d "n" /f >nul
 )
 goto :EOF
 

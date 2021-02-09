@@ -38,6 +38,8 @@ if "%jzip.branches%"=="master" (
 %echo%;		%txt_s.b.chk%%txt_s.b.bm%%txt_s.b.site% %txt_uninstall%
 %echo%;		%txt_b6.bot%%txt_b6.bot%%txt_b6.bot%
 echo;
+
+%tcurs% /crv 0
 %tmouse% /d 0 -1 1
 %tmouse.process%
 ::%tmouse.test%
