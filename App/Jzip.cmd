@@ -83,7 +83,7 @@ for %%Z in (
 for %%Z in (
 	ColorTable00/0x0
 	ColorTable15/0xffffff
-	LineWrap/0x0
+	FontWeight/0x190
 	QuickEdit/0x0
 	WindowSize/0x1b0050
 ) do for /f "tokens=1-2 delims=/" %%a in ("%%Z") do (

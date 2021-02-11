@@ -7,25 +7,23 @@ reg query "HKCR\JFsoft.Jzip" >nul 2>nul && (
 )
 
 :: 无需处理的调用 
-if “%~1”==“” exit /b
-if “%~1”==“-info” exit /b
-if /i "%~1"=="-reon" (
-	if not "%FileAssoc%"=="y" exit /b
-)
+if "%~1"=="" exit /b
+if /i "%~1"=="-info" exit /b
+if /i "%~1"=="-off" if not "!stat.FileAssoc!"=="%txt_sym.cir.s%" exit /b
+if /i "%~1"=="-reon" if /i not "%FileAssoc%"=="y" exit /b
 
-:: 若没有管理员权限 
+
+:: 若管理员权限未获得 
 net session >nul 2>nul || (
 	call %sudo% "%path.jzip.launcher%" -setting assoc %1
 	if "!sudoback!"=="1" (exit /b) else (exit)
 )
 
 :: 被调用 
-if "%~1"=="-on" if "!stat.FileAssoc!"=="%txt_sym.cir%" call :on
-if "%~1"=="-off" if "!stat.FileAssoc!"=="%txt_sym.cir.s%" call :off
-if /i "%~1"=="-reon" (
-	if "%FileAssoc%"=="y" call :on
-)
-if "%~1"=="-switch" (
+if /i "%~1"=="-on" if "!stat.FileAssoc!"=="%txt_sym.cir%" call :on
+if /i "%~1"=="-off" if "!stat.FileAssoc!"=="%txt_sym.cir.s%" call :off
+if /i "%~1"=="-reon" if /i "%FileAssoc%"=="y" call :on 
+if /i "%~1"=="-switch" (
 	if "%stat.FileAssoc%"=="%txt_sym.cir.s%" call :off reg
 	if "%stat.FileAssoc%"=="%txt_sym.cir%" call :on reg
 )
@@ -51,8 +49,4 @@ if "%~1"=="reg" (
 	reg add "HKCU\Software\JFsoft.Jzip" /v "FileAssoc" /d "n" /f >nul
 )
 goto :EOF
-
-
-
-
 

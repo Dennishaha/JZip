@@ -288,6 +288,7 @@ if "%type.editor%"=="rar" "%path.editor.rar%" a !btn.Ñ¹ËõÃÜÂë! !btn.Ñ¹Ëõ¼¶±ð! !b
 if "%type.editor%"=="7z" (
 	if "%File.Single%"=="n" for %%a in (bz2 gz xz) do if "%Arc.exten%"==".%%a" (
 		"%path.editor.7z%" a -w"%dir.jzip.temp%" "%dir.jzip.temp%\%Arc.Guid%\%Arc.name%.tar" %path.File% %iferror%
+		cls
 		set "Arc.path=%Arc.dir%\%Arc.name%.tar%Arc.exten%"
 		set "path.File=%dir.jzip.temp%\%Arc.Guid%\%Arc.name%.tar"
 	)

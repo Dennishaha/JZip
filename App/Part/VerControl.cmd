@@ -1,4 +1,4 @@
-﻿
+
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 
@@ -158,7 +158,7 @@ for %%a in (Upgrade UnInstall) do if "%1"=="%%a" (
 for %%a in (Install Upgrade) do if "%1"=="%%a" (
 	
 	cls
-	"%ComSpec%" /q /c ">nul 2>nul (rd /q /s "!dir.jzip!"&md "!dir.jzip!")&"!dir.jzip.temp!\!jz.nv7z.exe!" x "!dir.jzip.temp!\!jz.nvzip.pag!" -y -o"!dir.jzip!\"&&"!dir.jzip!\!jzip.newver.installer!" -install"
+	"%ComSpec%" /q /c "(rd /q /s "!dir.jzip!" & md "!dir.jzip!") >nul 2>nul & "!dir.jzip.temp!\!jz.nv7z.exe!" x "!dir.jzip.temp!\!jz.nvzip.pag!" -y -o"!dir.jzip!\" && "!dir.jzip!\!jzip.newver.installer!" -install"
 	exit 0
 )
 
