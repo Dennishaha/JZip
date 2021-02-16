@@ -128,6 +128,7 @@ call "%dir.jzip%\Function\Select_File.cmd" key
 set "path.File=!key!"
 if not defined path.File goto :EOF
 
+cls
 if defined lz.Dir (
 	for /f "delims=" %%i in ('powershell -noprofile -command "&{ [guid]::NewGuid().ToString()}"') do (
 		>nul md "%dir.jzip.temp%\%%i\%lz.Dir%"

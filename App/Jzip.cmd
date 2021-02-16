@@ -129,9 +129,10 @@ set echocut=call "%dir.jzip%\Function\EchoCut.cmd"
 for %%i in (VbsBox SuDo CapTrans) do call "%dir.jzip%\Function\%%i.cmd" -import
 
 ::被调用 
-if exist "%~1" set "jz.wdnew=y" & call "%dir.jzip%\Part\main.cmd" :Set_Info list %* & goto :EOF
-if exist "%~2" set "jz.wdnew=y" & call "%dir.jzip%\Part\main.cmd" :Set_Info %* & goto :EOF
-start "JFsoft.Jzip" "%ComSpec%" /e:on /v:on /d /c call "%dir.jzip%\Part\main.cmd" :Main %*
+set start.jz=start "JFsoft.Jzip" "%ComSpec%" /e:on /v:on /d /c call "%dir.jzip%\Part\main.cmd"
+if exist "%~1" %start.jz% :Set_Info list %* & goto :EOF
+if exist "%~2" %start.jz% :Set_Info %* & goto :EOF
+%start.jz% :Main %*
 exit /b 0
 
 

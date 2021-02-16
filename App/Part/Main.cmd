@@ -154,14 +154,7 @@ for %%a in (add add-7z) do if /i "%~1"=="%%a" (
 		)
 	)
 
-	if defined path.File (
-		if "!jz.wdnew!"=="y" (
-			set jz.wdnew=
-			start "JFsoft.Jzip" "%ComSpec%" /c "%dir.jzip%\Part\Add.cmd"
-		) else (
-			call "%dir.jzip%\Part\Add.cmd"
-		)
-	)
+	if defined path.File call "%dir.jzip%\Part\Add.cmd"
 )
 
 for %%a in (list unzip) do if /i "%~1"=="%%a" (
