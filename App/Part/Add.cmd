@@ -1,4 +1,9 @@
 
+@echo off
+setlocal EnableDelayedExpansion EnableDelayedExpansion
+color %Color%
+title %Arc.path% %title%
+
 :: 调用判断 
 if not defined Arc.Order goto :EOF
 
@@ -18,7 +23,7 @@ if /i "%Arc.Order%"=="add" (
 
 echo;"%jzip.spt.add%" | find "%Arc.exten:~1%" >nul || set "Arc.exten=.7z"
 
-:Archive_Setting
+:AddSet 
 
 :: 自解压扩展名判断 
 if defined 自解压 ( set "Arc.exten.out=.exe" ) else ( set "Arc.exten.out=%Arc.exten%" )
@@ -34,9 +39,12 @@ if "%File.Single%"=="n" for %%a in (bz2 gz xz) do if "%Arc.exten%"==".%%a" (
 title %txt_aa.addto% %Arc.dir%\%Arc.neo% %title%
 
 :: 满足执行条件转到执行 
-if /i "%Arc.Order%"=="add-7z" goto :Add_Process
-if defined Arc.Do goto :Add_Process
+if /i "%Arc.Order%"=="add-7z" goto :Add-Process
+if defined Arc.Do goto :Add-Process
 
+(%echocut% "!Arc.neo!" ui.Arc.neo 48) >nul 2>nul
+
+:AddSet-Fast 
 ::UI--------------------------------------------------
 
 cls
@@ -45,8 +53,8 @@ echo;   %txt_aa.addtozip%
 echo;
 echo;                                                       [ %txt_aa.setpath% ] [ %txt_aa.scan% ]
 echo;
-echo;	%txt_aa.zipname%	%Arc.neo:~0,40%
-echo;			%Arc.neo:~40,80%
+echo;	%txt_aa.zipname%	%ui.Arc.neo%
+echo;
 echo;
 if /i "%Arc.Order%"=="add" (
 	set "ui.Arc.exten= 7z  rar  zip  tar  bz2  gz  xz  wim  cab "
@@ -142,15 +150,15 @@ echo;
 ::%tmouse.test%
 
 for %%A in (
-	24}27}8}8}7z}
-	28}32}8}8}rar}
-	33}37}8}8}zip}
-	38}42}8}8}tar}
-	43}47}8}8}bz2}
-	48}51}8}8}gz}
-	52}55}8}8}xz}
-	56}60}8}8}wim}
-	61}65}8}8}cab}
+	24}27}8}8}.7z}
+	28}32}8}8}.rar}
+	33}37}8}8}.zip}
+	38}42}8}8}.tar}
+	43}47}8}8}.bz2}
+	48}51}8}8}.gz}
+	52}55}8}8}.xz}
+	56}60}8}8}.wim}
+	61}65}8}8}.cab}
 
 	55}66}3}3}a}
 	68}75}3}3}b}
@@ -180,11 +188,11 @@ for %%A in (
 	if %mouse.x% GEQ %%a if %mouse.x% LEQ %%b if %mouse.y% GEQ %%c if %mouse.y% LEQ %%d set "key=%%e"
 )
 
-if not defined key goto :Archive_Setting
+if not defined key goto :AddSet-Fast
 
 if /i "%Arc.Order%"=="add" (
 	for %%a in (7z rar zip tar bz2 gz xz wim cab) do (
-		if /i "%key%"=="%%a" call "%dir.jzip%\Part\Arc_Set.cmd" :压缩格式切换 %%a
+		if /i "%key%"==".%%a" call "%dir.jzip%\Part\Arc_Set.cmd" :压缩格式切换 %%a
 	)
 )
 
@@ -198,13 +206,16 @@ if "%key%"=="a" ( if /i "%Arc.Order%"=="add" call "%dir.jzip%\Part\Arc_Set.cmd" 
 ) else if "%key:~0,1%"=="h" ( for %%a in (rar 7z zip) do if /i "%Arc.exten%"==".%%a" call "%dir.jzip%\Part\Arc_Set.cmd" :压缩加密 %key:~1%
 ) else if "%key%"=="i" ( if /i "%Arc.Order%"=="add" if /i "%Arc.exten%"==".rar" call "%dir.jzip%\Part\Arc_Set.cmd" :压缩版本.rar
 ) else if "%key:~0,1%"=="j" ( if /i "%Arc.Order%"=="add" if /i "%Arc.exten%"==".rar" call "%dir.jzip%\Part\Arc_Set.cmd" :压缩恢复记录 %key:~1%
-) else if "%key%"=="next"  ( goto :Add_Process
+) else if "%key%"=="next"  ( goto :Add-Process
 ) else if "%key%"=="back" ( set "path.File=" & goto :EOF
 )
-goto :Archive_Setting
+
+:: 快速刷新 
+for %%i in (d e f h i j) do if "%key:~0,1%"=="%%i" goto :AddSet-Fast
+goto :AddSet
 
 
-:Add_Process
+:Add-Process
 cls
 
 :: 新建压缩时 
@@ -240,12 +251,12 @@ net session >nul 2>nul || >nul 2>nul (
 		%sudo% "%path.jzip.launcher%" %Arc.Order% %path.File% //%Arc.Guid%
 		if "!sudoback!"=="1" (
 			set "Arc.Order=add"
-			goto :Archive_Setting
+			goto :AddSet
 		) else (exit)
 	)
 )
 
-::配置压缩参数 
+:: 配置压缩效率 
 if defined Add-Level (
 	for %%A in (
 		0/0/0/none,1/1/1/lzx:15,2/2/3/lzx:17,3/3/5/mszip,4/4/7/lzx:19,5/5/9/lzx:21
@@ -256,13 +267,26 @@ if defined Add-Level (
 		if "%type.editor%"=="cab" if "%Add-Level%"=="%%a" set "btn.压缩级别=-m %%d"
 	)
 )
-if defined Add-Solid (
-	if "%type.editor%"=="7z" set "btn.固实文件=-ms"	
-	if "%type.editor%"=="rar" set "btn.固实文件=-s"
-) else (
-	if "%type.editor%"=="7z" set "btn.固实文件=-ms=off"
-)
 
+:: 配置固实压缩 
+for %%A in (
+	7z/.7z/y/-ms=on
+	7z/.7z/""/-ms=off
+	7z/.xz/y/-ms=on
+	7z/.xz/""/-ms=off
+	rar/.rar/y/-s
+	rar/.rar/""/""
+) do (
+	for /f "tokens=1,2,3,4 delims=/" %%a in ("%%A") do (
+		if "%type.editor%"=="%%a" (
+			if "%Arc.exten%"=="%%b" (
+				if /i "%Add-Solid%"=="%%~c" (
+					set "btn.固实文件=%%~d"
+				)
+			)
+		)
+	)				
+)
 
 if defined 压缩密码 set "btn.压缩密码=-p!压缩密码!"
 if defined 分卷压缩 set "btn.分卷压缩= -v!分卷压缩!"

@@ -7,6 +7,7 @@ title %txt_title%
 call "%dir.jzip%\Part\Set_Lnk.cmd" -info
 call "%dir.jzip%\Part\Set_Assoc.cmd" -info
 call "%dir.jzip%\Part\Set_UI.cmd" -info
+%echocut% "!dir.jzip.temp!" ui.dir.jzip.temp 46
 
 cls
 echo;
@@ -24,7 +25,7 @@ echo;
 echo;		%txt_langset%  ^>	!txt_lang.%Language%!
 echo;
 echo;		%txt_workdir%
-echo;		 %dir.jzip.temp%
+echo;		 %ui.dir.jzip.temp%
 %echo%;		%txt_b5.top%%txt_b5.top%%txt_b5.top%%txt_b5.top%
 %echo%;		%txt_s.b.open%%txt_s.b.clean%%txt_s.b.ctm%%txt_s.b.def%
 %echo%;		%txt_b5.bot%%txt_b5.bot%%txt_b5.bot%%txt_b5.bot%

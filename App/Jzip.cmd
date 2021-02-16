@@ -2,7 +2,7 @@
 @setlocal EnableExtensions EnableDelayedExpansion
 
 @set "jzip.branches=master"
-@set "jzip.ver=3.3.9"
+@set "jzip.ver=3.3.10"
 
 @set "path.jzip.launcher=%~0"
 @set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
@@ -21,7 +21,7 @@
 @echo off
 
 :: 设置 ComSpec 
->nul 2>nul dir "%SystemRoot%\system32\cmd.exe" /a:-d /b && set "ComSpec=%SystemRoot%\system32\cmd.exe"
+2>nul (if exist "%SystemRoot%\system32\cmd.exe" set "ComSpec=%SystemRoot%\system32\cmd.exe")
 
 :: 预配置 Jzip 环境 
 set "dir.jzip.temp.default=%dir.jzip.temp%"
@@ -80,14 +80,12 @@ for %%Z in (
 	) >nul
 )
 
-for %%Z in (
-	ColorTable00/0x0
-	ColorTable15/0xffffff
-	FontWeight/0x190
-	QuickEdit/0x0
-	WindowSize/0x1b0050
-) do for /f "tokens=1-2 delims=/" %%a in ("%%Z") do (
-	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "%%~a" /d "%%~b" /f  >nul
+>nul (
+	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "ColorTable00" /d "0x0" /f
+	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "ColorTable15" /d "0xffffff" /f
+	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "FontWeight" /d "0x190" /f
+	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "QuickEdit" /d "0x0" /f
+	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "WindowSize" /d "0x1b0050" /f
 )
 
 for /f "eol=[ tokens=1,*" %%x in ('type "%dir.jzip%\Lang\!Language!.ini"') do set "%%x%%y"
@@ -126,15 +124,14 @@ for /f "skip=2 tokens=3" %%a in ('reg query "HKLM\System\CurrentControlSet\Contr
 )
 
 :: 配置组件 
-set iferror=|| (call "%dir.jzip%\Function\EdCode.cmd" & exit /b ^^!errorlevel^^! )
+set iferror=^|^|(call "%dir.jzip%\Function\EdCode.cmd" ^& exit /b ^^!errorlevel^^! )
 set echocut=call "%dir.jzip%\Function\EchoCut.cmd"
 for %%i in (VbsBox SuDo CapTrans) do call "%dir.jzip%\Function\%%i.cmd" -import
 
 ::被调用 
-set start.jz=start "JFsoft.Jzip" "%ComSpec%" /e:on /v:on /d /c call "%dir.jzip%\Part\main.cmd"
-if exist "%~1" %start.jz% :Set_Info list %* & goto :EOF
-if exist "%~2" %start.jz% :Set_Info %* & goto :EOF
-%start.jz% :Main %*
+if exist "%~1" set "jz.wdnew=y" & call "%dir.jzip%\Part\main.cmd" :Set_Info list %* & goto :EOF
+if exist "%~2" set "jz.wdnew=y" & call "%dir.jzip%\Part\main.cmd" :Set_Info %* & goto :EOF
+start "JFsoft.Jzip" "%ComSpec%" /e:on /v:on /d /c call "%dir.jzip%\Part\main.cmd" :Main %*
 exit /b 0
 
 

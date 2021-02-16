@@ -49,9 +49,9 @@ echo;
 %echo%;                                        %txt_b12.bot%
 
 for /l %%i in (1,1,3) do dir "!arc%%i!" /a:-d /b >nul 2>nul && (
-	%echocut% "!arc%%i!" ui.arc%%i 46
+	%echocut% "!arc%%i!" ui.arc%%i equ46
 ) || (
-	%echocut% "!arc%%i! %txt_m.arcdis%" ui.arc%%i 46
+	%echocut% "!arc%%i! %txt_m.arcdis%" ui.arc%%i equ46
 ) >nul 2>nul
 for /l %%i in (1,1,3) do if defined Arc%%i (
 echo;
@@ -91,8 +91,10 @@ if "%key%"=="1" ( call :SetPath list
 )
 
 for /l %%i in (1,1,3) do (
-	if "%key%"=="h%%i" call :Set_Info list "!Arc%%i!"
-	if "%key%"=="h%%id" call :History-del %%i
+	if defined Arc%%i (
+		if "%key%"=="h%%i" call :Set_Info list "!Arc%%i!"
+		if "%key%"=="h%%id" call :History-del %%i
+	)
 )
 goto :Main
 
@@ -105,6 +107,7 @@ goto :EOF
 
 
 :Set_Info
+
 setlocal
 for %%a in (list unzip add add-7z) do if /i "%~1"=="%%a" set "Arc.Order=%%a"
 set raw.num=1
@@ -145,16 +148,26 @@ for %%a in (add add-7z) do if /i "%~1"=="%%a" (
 
 		set "Arc.dir=%%~dpi" & set "Arc.dir=!Arc.dir:~0,-1!"
 
-		:: 压缩文件名判断
+		:: 压缩文件名判断 
 		dir "!path.raw.1!" /a:d /b >nul 2>nul && set "Arc.name=%%~nxi" || set "Arc.name=%%~ni"
 
 		)
 	)
 
-	if defined path.File call "%dir.jzip%\Part\Add.cmd"
+	if defined path.File (
+		if "!jz.wdnew!"=="y" (
+			set jz.wdnew=
+			start "JFsoft.Jzip" "%ComSpec%" /c "%dir.jzip%\Part\Add.cmd"
+		) else (
+			call "%dir.jzip%\Part\Add.cmd"
+		)
+	)
 )
 
 for %%a in (list unzip) do if /i "%~1"=="%%a" (
+	
+	if defined path.raw.2 set "jz.wdnew=y"
+	
 	for /l %%b in (1,1,%raw.num%) do (
 		for /f "delims=" %%c in ("!path.raw.%%b!") do (
 			
@@ -163,7 +176,7 @@ for %%a in (list unzip) do if /i "%~1"=="%%a" (
 			set "Arc.name=%%~nc"
 			set "Arc.exten=%%~xc"
 
-			:: 分析文件类型
+			:: 分析文件类型 
 			>nul 2>nul (
 				dir "%%~c" /a:d /b || (
 					dir "%%~c" /a:-d /b  && (
@@ -186,17 +199,18 @@ for %%a in (list unzip) do if /i "%~1"=="%%a" (
 					for /f "delims=" %%a in ('powershell -noprofile -command "&{ [guid]::NewGuid().ToString()}"') do set "Arc.Guid=%%a"
 				)
 
-				:: 访问权限判断
+				:: 访问权限判断 
 				>nul 2>nul (
 					net session || (ren "%%~c" "%%~nxc" || set "Arc.Uac=y")
 				)
 
 				if /i "%~1"=="list" (
 					call :History-add "%%~c"
-					if defined path.raw.2 (
+					if "!jz.wdnew!"=="y" (
+						set jz.wdnew=
 						start "JFsoft.Jzip" "%ComSpec%" /c "%dir.jzip%\Part\Arc.cmd"
 					) else (
-						call "%dir.jzip%\Part\Arc.cmd" & exit 0
+						call "%dir.jzip%\Part\Arc.cmd"
 					)
 				)
 				if /i "%~1"=="unzip" call "%dir.jzip%\Part\Arc_Expan.cmd" Unzip /unzip

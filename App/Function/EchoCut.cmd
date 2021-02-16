@@ -9,34 +9,47 @@ set "in=%~1"
 set "out=%in%"
 set "lim=%~3"
 
+set "cuted="
+set "space="
+
+:: 参数处理 
+if /i "%lim:~0,3%"=="equ" (
+	set "lim=%lim:~3%"
+	set "space=y"
+)
+
 if /i %lim% leq 0 exit /b
 
-:loop
+:cut 
 call :strLen out len
 if /i %len% gtr %lim% (
 	set "out=%out:~3%"
-	goto :loop
+	set "cuted=y"
+	goto :cut
 )
 
-:loop2
-call :strLen out len
-if /i %len% lss %lim% (
-	set "out=%out%  "
-	goto :loop2
-)
+if "%space%"=="y" call :space
 
 if /i %len% gtr %lim% set "out=%out:~0,-1%"
 
-::echo;len=%len%
-::echo;%out%
+if "%cuted%"=="y" set "out=..%out:~2%"
 
 endlocal & set "%~2=%out%"
 exit /b
 
 
-:strLen  strVar  [rtnVar]
-setlocal
+:space 
+call :strLen out len
+if /i %len% lss %lim% (
+	set "out=%out%  "
+	goto :space
+)
+exit /b
+
+
+:: 获取文本字节大小 
+:strLen  strVar  [rtnVar] 
 set "len=0" & for /f "delims=:" %%N in ('"(cmd /v:on /c echo(!%~1!&echo()|findstr /o ^^"') do set /a "len=%%N-3"
-endlocal & set "%~2=%len%"
+set "%~2=%len%"
 exit /b
 

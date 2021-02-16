@@ -24,8 +24,8 @@
 	) >nul 2>nul
 )
 
-set params=
-exit /b
+@set params=
+@exit /b
 
 :: 以管理员身份运行命令
 :: 
