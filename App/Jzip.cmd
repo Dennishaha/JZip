@@ -86,6 +86,7 @@ for %%Z in (
 	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "FontWeight" /d "0x190" /f
 	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "QuickEdit" /d "0x0" /f
 	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "WindowSize" /d "0x1b0050" /f
+	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "ScreenBufferSize" /d "0x1b0050" /f
 )
 
 for /f "eol=[ tokens=1,*" %%x in ('type "%dir.jzip%\Lang\!Language!.ini"') do set "%%x%%y"
