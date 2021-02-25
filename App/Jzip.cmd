@@ -2,7 +2,7 @@
 @setlocal EnableExtensions EnableDelayedExpansion
 
 @set "jzip.branches=master"
-@set "jzip.ver=3.3.10"
+@set "jzip.ver=3.3.11"
 
 @set "path.jzip.launcher=%~0"
 @set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
@@ -112,14 +112,14 @@ set "path.editor.rar=%dir.jzip%\Bin\x86\Rar.exe"
 set "path.editor.cab=%dir.jzip%\Bin\x86\Cabarc.exe"
 
 for /f "skip=2 tokens=3" %%a in ('reg query "HKLM\System\CurrentControlSet\Control\Session Manager\Environment" /v PROCESSOR_ARCHITECTURE 2^>nul') do (
-	echo;"%%~a" | find /i "AMD64" >nul && (
+	if /i "%%~a"=="AMD64" (
 		if exist "%dir.jzip%\Bin\x64\7z.exe" set "path.editor.7z=%dir.jzip%\Bin\x64\7z.exe"
 		if exist "%dir.jzip%\Bin\x64\Rar.exe" set "path.editor.rar=%dir.jzip%\Bin\x64\Rar.exe"
 	)
-	echo;"%%~a" | find /i "ARM" >nul && (
+	if /i "%%~a"=="ARM" (
 		if exist "%dir.jzip%\Bin\arm\7z.exe" set "path.editor.7z=%dir.jzip%\Bin\arm\7z.exe"
 	)
-	echo;"%%~a" | find /i "ARM64" >nul && (
+	if /i "%%~a"=="ARM64" (
 		if exist "%dir.jzip%\Bin\arm64\7z.exe" set "path.editor.7z=%dir.jzip%\Bin\arm64\7z.exe"
 	)
 )

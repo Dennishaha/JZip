@@ -150,18 +150,25 @@ exit /b %errorlevel%
 cls
 
 :: EXE 类型询问 
-if /i "%Arc.file:~-4%"==".exe" %MsgBox-s% key.e "%txt_x.exetakeall%"
+for %%i in (exe com cmd bat ps1) do if /i "%Arc.file:~-4%"==".%%i" %MsgBox-s% key.e "%txt_x.exetakeall%"
+
 if "%key.e%"=="1" (
-	if "%type.editor%"=="rar" "%path.editor.rar%" x -y "%Arc.path%" %dir.jzip.temp%\%Arc.Guid%\ %iferror%
-	if "%type.editor%"=="7z" "%path.editor.7z%" x -o"%dir.jzip.temp%\%Arc.Guid%" -y "%Arc.path%" %iferror%
+	if defined lz.Dir (
+		if "%type.editor%"=="rar" "%path.editor.rar%" x -y "%Arc.path%" "!lz.Dir!" %dir.jzip.temp%\%Arc.Guid%\ %iferror%
+		if "%type.editor%"=="7z" "%path.editor.7z%" x -o"%dir.jzip.temp%\%Arc.Guid%" -y "%Arc.path%" "!lz.Dir!" %iferror%
+	) else (
+		if "%type.editor%"=="rar" "%path.editor.rar%" x -y  "%Arc.file%" %dir.jzip.temp%\%Arc.Guid%\ %iferror%
+		if "%type.editor%"=="7z" "%path.editor.7z%" x -o"%dir.jzip.temp%\%Arc.Guid%" -y "%Arc.path%"  %iferror%
+	)
 ) else (
-	if "%type.editor%"=="rar" "%path.editor.rar%" x -y "%Arc.path%" "%Arc.file%" %dir.jzip.temp%\%Arc.Guid%\ %iferror%
-	if "%type.editor%"=="7z" "%path.editor.7z%" x -o"%dir.jzip.temp%\%Arc.Guid%" -y "%Arc.path%" "%Arc.file%" %iferror%
+		if "%type.editor%"=="rar" "%path.editor.rar%" x -y "%Arc.path%" "%Arc.file%" %dir.jzip.temp%\%Arc.Guid%\ %iferror%
+		if "%type.editor%"=="7z" "%path.editor.7z%" x -o"%dir.jzip.temp%\%Arc.Guid%" -y "%Arc.path%" "%Arc.file%" %iferror%
+	)
 )
 
-:: 批处理 类型判断 
-for %%i in (cmd bat ps1) do if /i "%Arc.file:~-4%"==".%%i" (
-	start /i "%ComSpec%" /c call "%dir.jzip.temp%\%Arc.Guid%\%Arc.file%"
+:: 程序类型判断 
+for %%i in (exe com cmd bat ps1) do if /i "%Arc.file:~-4%"==".%%i" (
+	start "%ComSpec%" /i "%ComSpec%" /c "%dir.jzip.temp%\%Arc.Guid%\%Arc.file%"
 	goto :EOF
 )
 
