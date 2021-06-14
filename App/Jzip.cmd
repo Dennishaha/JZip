@@ -2,7 +2,7 @@
 @setlocal EnableExtensions EnableDelayedExpansion
 
 @set "jzip.branches=master"
-@set "jzip.ver=3.3.11"
+@set "jzip.ver=3.3.12"
 
 @set "path.jzip.launcher=%~0"
 @set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
@@ -90,6 +90,7 @@ for %%Z in (
 )
 
 for /f "eol=[ tokens=1,*" %%x in ('type "%dir.jzip%\Lang\!Language!.ini"') do set "%%x%%y"
+chcp %chcp% >nul 
 
 :: Ttool 配置 
 set tcol=>nul 2>nul "%dir.jzip%\Bin\x86\TCol.exe"

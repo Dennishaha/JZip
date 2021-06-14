@@ -14,9 +14,17 @@ set jz.insini.urldir=Server/ver.ini
 
 ::调用
 if /i "%1"=="" call :Wizard Install
-if /i "%1"=="-upgrade" call :Wizard Upgrade
-if /i "%1"=="-uninstall" call :Wizard UnInstall
 if /i "%1"=="-install" start "" "%ComSpec%" /c "%dir.jzip%\Jzip.cmd" -install
+for %%Z in (upgrade uninstall) do if /i "%1"=="-%%Z" (
+	net session >nul 2>nul || (
+		call "%dir.jzip%\Part\Set_Assoc.cmd" -info
+		if "!stat.FileAssoc!"=="!txt_sym.cir.s!" (
+			call %sudo% "%path.jzip.launcher%" -setting %%Z
+			if "!sudoback!"=="1" (exit /b) else (exit)
+		)
+	)
+	call :Wizard %%Z
+)
 goto :EOF
 
 :Wizard
@@ -41,7 +49,7 @@ for /l %%i in (1,1,4) do set "if.error.%%i=(call :MsgBox "!txt_vc.err.%%i!" "%tx
 title %txt_vc.title%
 set "dir.jzip.default=%appdata%\JFsoft\JZip\App"
 
-if "%1"=="Install" (
+if /i "%1"=="Install" (
 	set "dir.jzip=%dir.jzip.default%"
 	set "dir.jzip.temp=%temp%\JFsoft.JZip"
 	>nul 2>nul md !dir.jzip.temp!
@@ -72,7 +80,7 @@ if not "%ERRORLEVEL%"=="0" %if.error.4%
 
 
 :: 获取 Github 上的 JZip 安装信息 
-for %%Z in (Install Upgrade) do if "%1"=="%%Z" (
+for %%Z in (Install Upgrade) do if /i "%1"=="%%Z" (
 	>nul 2>nul ( dir "%dir.jzip.temp%\ver.ini" /a:-d /b && del /q /f /s "%dir.jzip.temp%\ver.ini" )
 
 	call :psdl "!jz.insini.urldir!" "%dir.jzip.temp%\ver.ini"
@@ -88,10 +96,10 @@ echo;
 echo;
 echo;
 
-if "%1"=="Install" echo;	%txt_vc.get% %jzip.newver%
-if "%1"=="Upgrade" if /i not "%jzip.ver%"=="%jzip.newver%" echo;	%txt_vc.getnew% %jzip.newver%
+if /i "%1"=="Install" echo;	%txt_vc.get% %jzip.newver%
+if /i "%1"=="Upgrade" if /i not "%jzip.ver%"=="%jzip.newver%" echo;	%txt_vc.getnew% %jzip.newver%
 
-for %%a in (Install Upgrade) do if "%1"=="%%a" if /i not "%jzip.ver%"=="%jzip.newver%" (
+for %%a in (Install Upgrade) do if /i "%1"=="%%a" if /i not "%jzip.ver%"=="%jzip.newver%" (
 	echo;
 	echo;
 	for %%i in (!jzip.newver.des.%Language%!) do echo;	%%~i
@@ -104,9 +112,9 @@ echo;
 
 :: 弹出选择框 
 set "key="
-if "%1"=="Install" call :MsgBox-s key "%txt_vc.get% %jzip.newver%" " " "%txt_vc.getauto%"
-if "%1"=="UnInstall" call :MsgBox-s key "%txt_vc.rid%"
-if "%1"=="Upgrade" (
+if /i "%1"=="Install" call :MsgBox-s key "%txt_vc.get% %jzip.newver%" " " "%txt_vc.getauto%"
+if /i "%1"=="UnInstall" call :MsgBox-s key "%txt_vc.rid%"
+if /i "%1"=="Upgrade" (
 	if /i "%jzip.ver%"=="%jzip.newver%" (
 		call :MsgBox "JZip %jzip.ver% %txt_vc.newest%"
 	) else (
@@ -119,10 +127,10 @@ if not "%key%"=="1" goto :EOF
 :: Jzip 便携版判断，目录清空/移除询问 
 set "key="
 if defined jzip.Portable (
-	for %%a in (Install Upgrade) do if "%1"=="%%a" (
+	for %%a in (Install Upgrade) do if /i "%1"=="%%a" (
 		call :MsgBox-s key "%txt_vc.pt.update%" " " "%dir.jzip%" "%txt_vc.path.sure%" " " "%txt_vc.sure%"
 	)
-	if "%1"=="UnInstall" (
+	if /i "%1"=="UnInstall" (
 		call :MsgBox-s key "%txt_vc.path.rd%" " " "%dir.jzip%" "%txt_vc.path.sure%" " " "%txt_vc.sure%"
 	)
 	if not "!key!"=="1" goto :EOF
@@ -130,7 +138,7 @@ if defined jzip.Portable (
 
 
 :: 获取 JZip 安装包 
-for %%a in (Install Upgrade) do if "%1"=="%%a" (
+for %%a in (Install Upgrade) do if /i "%1"=="%%a" (
 	>nul 2>nul (
 		del /q /f /s "%dir.jzip.temp%\%jz.7zcab.pag%"
 		del /q /f /s "%dir.jzip.temp%\%jz.nvzip.pag%"
@@ -148,14 +156,14 @@ for %%a in (Install Upgrade) do if "%1"=="%%a" (
 
 
 :: 解除安装 
-for %%a in (Upgrade UnInstall) do if "%1"=="%%a" (
+for %%a in (Upgrade UnInstall) do if /i "%1"=="%%a" (
 	call "%dir.jzip%\Part\Set_Lnk.cmd" -off all
 	call "%dir.jzip%\Part\Set_Assoc.cmd" -off
 )
 
 
 :: 安装 
-for %%a in (Install Upgrade) do if "%1"=="%%a" (
+for %%a in (Install Upgrade) do if /i "%1"=="%%a" (
 	
 	cls
 	"%ComSpec%" /q /c "(rd /q /s "!dir.jzip!" & md "!dir.jzip!") >nul 2>nul & "!dir.jzip.temp!\!jz.nv7z.exe!" x "!dir.jzip.temp!\!jz.nvzip.pag!" -y -o"!dir.jzip!\" && "!dir.jzip!\!jzip.newver.installer!" -install"
@@ -164,7 +172,7 @@ for %%a in (Install Upgrade) do if "%1"=="%%a" (
 
 
 :: 删除 JZip 注册表项和目录 
-if "%1"=="UnInstall" (
+if /i "%1"=="UnInstall" (
 	>nul (
 		reg delete "HKCU\Console\JFsoft.Jzip" /f
 		reg delete "HKCU\Software\JFsoft.Jzip" /f

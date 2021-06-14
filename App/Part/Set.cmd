@@ -1,6 +1,7 @@
 
 :: ±»µ÷ÓÃ 
 if "%~1"=="assoc" call "%dir.jzip%\Part\Set_Assoc.cmd" "%~2" "%~3"
+for %%i in (upgrade uninstall) do if /i "%~1"=="%%i" call "%dir.jzip%\Part\VerControl.cmd" -%%i
 
 :more
 title %txt_title%
