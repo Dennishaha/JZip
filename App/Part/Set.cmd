@@ -1,7 +1,7 @@
 
 :: ±»µ÷ÓÃ 
 if "%~1"=="assoc" call "%dir.jzip%\Part\Set_Assoc.cmd" "%~2" "%~3"
-for %%i in (upgrade uninstall) do if /i "%~1"=="%%i" call "%dir.jzip%\Part\VerControl.cmd" -%%i
+for %%i in (upgrade uninstall) do if /i "%~1"=="%%i" call "%dir.jzip%\Part\VerControl.cmd" %*
 
 :more
 title %txt_title%
@@ -81,10 +81,10 @@ if "%key%"== "1" ( goto :EOF
 ) else if "%key%"== "w3" ( call :Temp_Set
 ) else if "%key%"== "w4" ( call :Temp_Reset
 ) else if "%key%"== "lang-s" ( call :lang-s
-) else if "%key%"== "ver" ( call "%dir.jzip%\Part\VerControl.cmd" -upgrade
+) else if "%key%"== "ver" ( call "%dir.jzip%\Part\VerControl.cmd" upgrade
 ) else if "%key%"== "bm" ( call :Benchmark
 ) else if "%key%"== "web" ( explorer "https://github.com/dennishaha/Jzip"
-) else if "%key%"== "rid" ( call "%dir.jzip%\Part\VerControl.cmd" -uninstall
+) else if "%key%"== "rid" ( call "%dir.jzip%\Part\VerControl.cmd" uninstall
 )
 goto :more
 

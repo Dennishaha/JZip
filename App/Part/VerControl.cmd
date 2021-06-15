@@ -12,19 +12,10 @@ set jz.urlfix.4=https://gitlab.com/Dennishaha/JZip/-/raw/!jzip.branches!
 
 set jz.insini.urldir=Server/ver.ini
 
-::调用
-if /i "%1"=="" call :Wizard Install
+::调用 
 if /i "%1"=="-install" start "" "%ComSpec%" /c "%dir.jzip%\Jzip.cmd" -install
-for %%Z in (upgrade uninstall) do if /i "%1"=="-%%Z" (
-	net session >nul 2>nul || (
-		call "%dir.jzip%\Part\Set_Assoc.cmd" -info
-		if "!stat.FileAssoc!"=="!txt_sym.cir.s!" (
-			call %sudo% "%path.jzip.launcher%" -setting %%Z
-			if "!sudoback!"=="1" (exit /b) else (exit)
-		)
-	)
-	call :Wizard %%Z
-)
+if /i "%~1"=="" call :Wizard install
+for %%i in (upgrade,uninstall) do if /i "%1"=="%%i" call :Wizard %*
 goto :EOF
 
 :Wizard
@@ -110,23 +101,25 @@ echo;
 ::UI--------------------------------------------------
 
 
-:: 弹出选择框 
+:: 弹出安装、卸载、更新询问框，忽略 -y 开关 
 set "key="
-if /i "%1"=="Install" call :MsgBox-s key "%txt_vc.get% %jzip.newver%" " " "%txt_vc.getauto%"
-if /i "%1"=="UnInstall" call :MsgBox-s key "%txt_vc.rid%"
-if /i "%1"=="Upgrade" (
-	if /i "%jzip.ver%"=="%jzip.newver%" (
-		call :MsgBox "JZip %jzip.ver% %txt_vc.newest%"
-	) else (
-		call :MsgBox-s key "%txt_vc.getnew% %jzip.newver%" " " "%txt_vc.getauto%"
+if /i not "%2"=="-y" (
+	if /i "%1"=="Install" call :MsgBox-s key "%txt_vc.get% %jzip.newver%" " " "%txt_vc.getauto%"
+	if /i "%1"=="UnInstall" call :MsgBox-s key "%txt_vc.rid%"
+	if /i "%1"=="Upgrade" (
+		if /i "%jzip.ver%"=="%jzip.newver%" (
+			call :MsgBox "JZip %jzip.ver% %txt_vc.newest%"
+		) else (
+			call :MsgBox-s key "%txt_vc.getnew% %jzip.newver%" " " "%txt_vc.getauto%"
+		)
 	)
+	if not "!key!"=="1" goto :EOF
 )
-if not "%key%"=="1" goto :EOF
 
 
-:: Jzip 便携版判断，目录清空/移除询问 
+:: Jzip 便携版判断，目录清空/移除询问，忽略 -y 开关 
 set "key="
-if defined jzip.Portable (
+if defined jzip.Portable if /i not "%2"=="-y" (
 	for %%a in (Install Upgrade) do if /i "%1"=="%%a" (
 		call :MsgBox-s key "%txt_vc.pt.update%" " " "%dir.jzip%" "%txt_vc.path.sure%" " " "%txt_vc.sure%"
 	)
@@ -136,6 +129,16 @@ if defined jzip.Portable (
 	if not "!key!"=="1" goto :EOF
 )
 
+:: 管理员权限需求判断（升级、卸载时） 
+for %%Z in (upgrade uninstall) do if /i "%1"=="%%Z" (
+	net session >nul 2>nul || (
+		call "%dir.jzip%\Part\Set_Assoc.cmd" -info
+		if "!stat.FileAssoc!"=="!txt_sym.cir.s!" (
+			call %sudo% "%path.jzip.launcher%" -setting %%Z -y
+			if "!sudoback!"=="1" (exit /b) else (exit)
+		)
+	)
+)
 
 :: 获取 JZip 安装包 
 for %%a in (Install Upgrade) do if /i "%1"=="%%a" (
@@ -166,7 +169,7 @@ for %%a in (Upgrade UnInstall) do if /i "%1"=="%%a" (
 for %%a in (Install Upgrade) do if /i "%1"=="%%a" (
 	
 	cls
-	"%ComSpec%" /q /c "(rd /q /s "!dir.jzip!" & md "!dir.jzip!") >nul 2>nul & "!dir.jzip.temp!\!jz.nv7z.exe!" x "!dir.jzip.temp!\!jz.nvzip.pag!" -y -o"!dir.jzip!\" && "!dir.jzip!\!jzip.newver.installer!" -install"
+	"%ComSpec%" /q /c "(rd /q /s "!dir.jzip!" & md "!dir.jzip!") >nul 2>nul & "!dir.jzip.temp!\!jz.nv7z.exe!" x "!dir.jzip.temp!\!jz.nvzip.pag!" -y -o"!dir.jzip!\" && "!dir.jzip!\!jzip.newver.installer!" !jzip.newver.installer.parm!"
 	exit 0
 )
 

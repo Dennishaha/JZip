@@ -8,7 +8,7 @@ mode 80,27
 color %color%
 
 :: ∞≤◊∞≈‰÷√ 
-if /i "%~2"=="-setting" call "%dir.jzip%\Part\Set.cmd" "%~3" "%~4"
+if /i "%~2"=="-setting" call "%dir.jzip%\Part\Set.cmd" %3 %4
 if /i "%~2"=="-install" (
 	call "%dir.jzip%\Part\Set_Lnk.cmd" -reon
 	call "%dir.jzip%\Part\Set_Assoc.cmd" -reon
