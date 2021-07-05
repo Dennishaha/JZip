@@ -1,6 +1,7 @@
 
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
+set "path.jzip.vc=%~0"
 
 ::预设安装信息源
 if not defined jzip.branches set "jzip.branches=master"
@@ -15,6 +16,7 @@ set jz.insini.urldir=Server/ver.ini
 ::调用 
 if /i "%1"=="-install" start "" "%ComSpec%" /c "%dir.jzip%\Jzip.cmd" -install
 if /i "%~1"=="" call :Wizard install
+if /i "%~1"=="setup" call :Wizard install %2
 for %%i in (upgrade,uninstall) do if /i "%1"=="%%i" call :Wizard %*
 goto :EOF
 
@@ -129,11 +131,25 @@ if defined jzip.Portable if /i not "%2"=="-y" (
 	if not "!key!"=="1" goto :EOF
 )
 
+:: 安装时，创建jzip目录，管理员权限需求判断 
+if /i "%1"=="install" >nul 2>nul (
+	md "!dir.jzip!" || dir "!dir.jzip!" /a:d /b || net session || (
+		powershell -noprofile -command "&{start-process %ComSpec% -ArgumentList '/c call %path.jzip.vc% setup -y' -verb RunAs}" 2>&1 | findstr "." & exit /b"
+	)
+)
+
 :: 管理员权限需求判断（升级、卸载时） 
 for %%Z in (upgrade uninstall) do if /i "%1"=="%%Z" (
 	net session >nul 2>nul || (
+	
+		for /f "delims=" %%i in ('powershell -noprofile -command "&{[guid]::NewGuid().ToString()}"') do 2>nul (
+			>"!dir.jzip!\tmp.%%~i" echo; && >nul del /q/f/s "!dir.jzip!\tmp.%%~i" || set "vc.getuac=y"
+		)
+		
 		call "%dir.jzip%\Part\Set_Assoc.cmd" -info
-		if "!stat.FileAssoc!"=="!txt_sym.cir.s!" (
+		if "!stat.FileAssoc!"=="!txt_sym.cir.s!" set "vc.getuac=y"
+		
+		if "!vc.getuac!"=="y" (
 			call %sudo% "%path.jzip.launcher%" -setting %%Z -y
 			if "!sudoback!"=="1" (exit /b) else (exit)
 		)
@@ -181,9 +197,10 @@ if /i "%1"=="UnInstall" (
 		reg delete "HKCU\Software\JFsoft.Jzip" /f
 	)
 	start "" /min "%ComSpec%" /q /c ">nul rd /q /s "%dir.jzip%""
+	exit 0
 )
-exit /b
 
+exit /b
 
 
 :: 语言包 

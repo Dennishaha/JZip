@@ -137,7 +137,7 @@ for %%a in (add add-7z) do if /i "%~1"=="%%a" (
 	if defined Guid (
 		set "Arc.Guid=%Guid%"
 	) else (
-		for /f "delims=" %%a in ('powershell -noprofile -command "&{ [guid]::NewGuid().ToString()}"') do set "Arc.Guid=%%a"
+		for /f "delims=" %%a in ('powershell -noprofile -command "&{[guid]::NewGuid().ToString()}"') do set "Arc.Guid=%%a"
 	)
 
 	:: 添加文件数判断 
