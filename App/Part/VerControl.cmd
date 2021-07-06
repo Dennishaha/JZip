@@ -36,7 +36,6 @@ chcp %chcp% >nul
 :: 预设错误代码 
 for /l %%i in (1,1,4) do set "if.error.%%i=(call :MsgBox "!txt_vc.err.%%i!" "%txt_vc.err.info%" & exit /b %%i)"
 
-
 :: 配置路径和窗口 
 title %txt_vc.title%
 set "dir.jzip.default=%appdata%\JFsoft\JZip\App"
@@ -49,10 +48,8 @@ if /i "%1"=="Install" (
 	mode 80, 25
 )
 
-
 :: Jzip 便携版判断 
 if /i "%dir.jzip%"=="%dir.jzip.default%" (set "jzip.Portable=") else (set "jzip.Portable=1")
-
 
 :: Mshta 可用性判断 
 2>nul (
@@ -65,11 +62,9 @@ if /i "%dir.jzip%"=="%dir.jzip.default%" (set "jzip.Portable=") else (set "jzip.
 	)
 )
 
-
 :: Powershell 可用性判断 
 powershell -? >nul 2>nul
 if not "%ERRORLEVEL%"=="0" %if.error.4%
-
 
 :: 获取 Github 上的 JZip 安装信息 
 for %%Z in (Install Upgrade) do if /i "%1"=="%%Z" (
@@ -101,7 +96,6 @@ echo;
 
 ::UI--------------------------------------------------
 
-
 :: 弹出安装、卸载、更新询问框，忽略 -y 开关 
 set "key="
 if /i not "%2"=="-y" (
@@ -116,7 +110,6 @@ if /i not "%2"=="-y" (
 	)
 	if not "!key!"=="1" goto :EOF
 )
-
 
 :: Jzip 便携版判断，目录清空/移除询问，忽略 -y 开关 
 set "key="
@@ -148,9 +141,9 @@ if /i "%1"=="install" md "!dir.jzip!" >nul 2>nul
 	)
 	
 	if "!vc.getuac!"=="y" (
-			if /i "%1"=="install" call :sudo %path.jzip.vc% %1 -y
+			if /i "%1"=="install" call :sudo "%path.jzip.vc%" %1 -y
 			for %%Z in (upgrade uninstall) do (
-				if /i "%1"=="%%Z" call :sudo "%path.jzip.launcher%" -setting %%Z -y
+				if /i "%1"=="%%Z" call :sudo "%path.jzip.launcher%" -setting %1 -y
 			)
 			if "!sudoback!"=="1" (exit /b) else (exit)
 		)
@@ -304,5 +297,12 @@ for /f "tokens=1,* delims==" %%a in ('set jz.urlfix.') do (
 exit /b 1
 
 :sudo
-powershell -noprofile -command "&{start-process %ComSpec% -ArgumentList '/c call %*' -verb RunAs}" 2>&1 | findstr "." && set "sudoback=1" || set "sudoback=0"
+setlocal
+set params=%*
+if defined params (
+	set "params=!params:'=''!"
+	set "params=!params:"="""!"
+	set "params=!params:?=&!"
+)
+endlocal & powershell -noprofile -command "&{start-process %ComSpec% -ArgumentList '/c call %params%' -verb RunAs}" 2>&1 | findstr "." && set "sudoback=1" || set "sudoback=0"
 exit /b
