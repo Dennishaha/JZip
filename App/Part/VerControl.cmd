@@ -14,10 +14,9 @@ set jz.urlfix.4=https://gitlab.com/Dennishaha/JZip/-/raw/!jzip.branches!
 set jz.insini.urldir=Server/ver.ini
 
 ::调用 
-if /i "%1"=="-install" start "" "%ComSpec%" /c "%dir.jzip%\Jzip.cmd" -install
+if /i "%~1"=="-install" start "" "%ComSpec%" /c "%dir.jzip%\Jzip.cmd" -install
 if /i "%~1"=="" call :Wizard install
-if /i "%~1"=="setup" call :Wizard install %2
-for %%i in (upgrade,uninstall) do if /i "%1"=="%%i" call :Wizard %*
+for %%i in (install,upgrade,uninstall) do if /i "%1"=="%%i" call :Wizard %*
 goto :EOF
 
 :Wizard
@@ -131,26 +130,28 @@ if defined jzip.Portable if /i not "%2"=="-y" (
 	if not "!key!"=="1" goto :EOF
 )
 
-:: 安装时，创建jzip目录，管理员权限需求判断 
-if /i "%1"=="install" >nul 2>nul (
-	md "!dir.jzip!" || dir "!dir.jzip!" /a:d /b || net session || (
-		powershell -noprofile -command "&{start-process %ComSpec% -ArgumentList '/c call %path.jzip.vc% setup -y' -verb RunAs}" 2>&1 | findstr "." & exit /b"
-	)
-)
+:: 创建jzip目录（安装时） 
+if /i "%1"=="install" md "!dir.jzip!" >nul 2>nul
 
-:: 管理员权限需求判断（升级、卸载时） 
-for %%Z in (upgrade uninstall) do if /i "%1"=="%%Z" (
-	net session >nul 2>nul || (
-	
-		for /f "delims=" %%i in ('powershell -noprofile -command "&{[guid]::NewGuid().ToString()}"') do 2>nul (
-			>"!dir.jzip!\tmp.%%~i" echo; && >nul del /q/f/s "!dir.jzip!\tmp.%%~i" || set "vc.getuac=y"
+:: 管理员权限需求判断 
+>nul 2>nul net session || >nul 2>nul (
+	for %%Z in (install upgrade uninstall) do if /i "%1"=="%%Z" (
+
+		for /f "delims=" %%i in ('powershell -noprofile -command "&{[guid]::NewGuid().ToString()}"') do (
+			>"!dir.jzip!\tmp.%%~i" echo; && del /q/f/s "!dir.jzip!\tmp.%%~i" || set "vc.getuac=y"
 		)
-		
+	)
+	
+	for %%Z in (upgrade uninstall) do if /i "%1"=="%%Z" (
 		call "%dir.jzip%\Part\Set_Assoc.cmd" -info
 		if "!stat.FileAssoc!"=="!txt_sym.cir.s!" set "vc.getuac=y"
-		
-		if "!vc.getuac!"=="y" (
-			call %sudo% "%path.jzip.launcher%" -setting %%Z -y
+	)
+	
+	if "!vc.getuac!"=="y" (
+			if /i "%1"=="install" call :sudo %path.jzip.vc% %1 -y
+			for %%Z in (upgrade uninstall) do (
+				if /i "%1"=="%%Z" call :sudo "%path.jzip.launcher%" -setting %%Z -y
+			)
 			if "!sudoback!"=="1" (exit /b) else (exit)
 		)
 	)
@@ -169,17 +170,15 @@ for %%a in (Install Upgrade) do if /i "%1"=="%%a" (
 	if "!ERRORLEVEL!"=="1" %if.error.2%
 
 	cls
-	expand -r "%dir.jzip.temp%\%jz.7zcab.pag%" >nul || %if.error.3%
+	>nul expand -r "%dir.jzip.temp%\%jz.7zcab.pag%" || %if.error.3%
 	>nul 2>nul dir "%dir.jzip.temp%\%jz.nv7z.exe%" /a:-d /b || %if.error.3%
 )
-
 
 :: 解除安装 
 for %%a in (Upgrade UnInstall) do if /i "%1"=="%%a" (
 	call "%dir.jzip%\Part\Set_Lnk.cmd" -off all
 	call "%dir.jzip%\Part\Set_Assoc.cmd" -off
 )
-
 
 :: 安装 
 for %%a in (Install Upgrade) do if /i "%1"=="%%a" (
@@ -188,7 +187,6 @@ for %%a in (Install Upgrade) do if /i "%1"=="%%a" (
 	"%ComSpec%" /q /c "(rd /q /s "!dir.jzip!" & md "!dir.jzip!") >nul 2>nul & "!dir.jzip.temp!\!jz.nv7z.exe!" x "!dir.jzip.temp!\!jz.nvzip.pag!" -y -o"!dir.jzip!\" && "!dir.jzip!\!jzip.newver.installer!" !jzip.newver.installer.parm!"
 	exit 0
 )
-
 
 :: 删除 JZip 注册表项和目录 
 if /i "%1"=="UnInstall" (
@@ -208,7 +206,7 @@ exit /b
 set txt_vc.err.info=您可以在 github.com/Dennishaha/JZip 上用其他方法安装以及了解更多信息。 
 set txt_vc.err.1=哎呀，网路不太通畅耶，要疏通一下。 
 set txt_vc.err.2=嘤嘤嘤，服务器大哥帮了我找一下，那个文件躲猫猫了耶。 
-set txt_vc.err.3=文件明明下载下来了但是丢了，Windows Defender 大哥可能觉得我不行。 
+set txt_vc.err.3=文件明明下载下来了但是丢了，Windows Defender 大哥可能知道原因。 
 set txt_vc.err.4=好奇怪，Powershell 组件调用不了耶。 
 set txt_vc.err.hta=Mshta 不可用，JZip 装不了哟。 
 
@@ -227,14 +225,14 @@ set txt_vc.path.sure=请确保路径不含个人文件。
 set txt_vc.sure=确定吗？ 
 
 set txt_vc.loading=^>^>^>^> 加载中
-goto :EOF
+exit /b
 
 
 :Langs-en
 set txt_vc.err.info=You can install it in other ways and learn more about it on github.com/Dennishaha/JZip.
 set txt_vc.err.1=Oops, the internet is not smooth, so I need to clear it up.
 set txt_vc.err.2=Hey, the server elder brother helped me find the file, and the file was hidden.
-set txt_vc.err.3=The file was downloaded but disappeared. Windows Defender might think I can't do it.
+set txt_vc.err.3=The file was downloaded but disappeared. Brother called Windows Defender may know the reason.
 set txt_vc.err.4=It's strange, the Powershell component can't be called.
 set txt_vc.err.hta=Mshta is not available, and JZip cannot be installed.
 
@@ -253,14 +251,14 @@ set txt_vc.path.sure=Make sure?
 set txt_vc.sure=
 
 set txt_vc.loading=^>^>^> loading
-goto :EOF
+exit /b
 
 
 
 :: 插件 
 :MsgBox
 mshta vbscript:execute^("msgbox(""%~1""&vbCrLf&vbCrLf&""%~2"",64+4096)(close)"^)
-goto :EOF
+exit /b
 
 :MsgBox-s
 set "msgbox.t1="""
@@ -285,7 +283,7 @@ if not "%~2"=="" (
 for /f "delims=" %%a in (' mshta "vbscript:CreateObject("Scripting.Filesystemobject").GetStandardStream(1).Write(msgbox(%msgbox.t1:`?`="%,1+64+4096))(close)" ') do (
 	set "%~1=%%a"
 )
-goto :EOF
+exit /b
 
 ::  Powershell Downloader   
 ::  用法 call :psdl "文件目录" "存放路径" "比对sha1值（可选）"
@@ -304,5 +302,7 @@ for /f "tokens=1,* delims==" %%a in ('set jz.urlfix.') do (
 	set "%%a="
 )
 exit /b 1
-goto :EOF
 
+:sudo
+powershell -noprofile -command "&{start-process %ComSpec% -ArgumentList '/c call %*' -verb RunAs}" 2>&1 | findstr "." && set "sudoback=1" || set "sudoback=0"
+exit /b
