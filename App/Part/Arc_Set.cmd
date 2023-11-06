@@ -11,7 +11,7 @@ goto :EOF
 
 
 :Ñ¹Ëõ¼ÓÃÜ 
-set "key="
+set key=0
 if "%~1"=="" (
 	if defined Ñ¹ËõÃÜÂë ( set "Ñ¹ËõÃÜÂë=" ) else ( set "key=1" )
 ) else (
@@ -19,6 +19,7 @@ if "%~1"=="" (
 )
 if "%key%"=="1" %InputBox-r% Ñ¹ËõÃÜÂë "%Ñ¹ËõÃÜÂë%" "%txt_aas.passwd%"
 goto :EOF
+
 
 :Level
 for %%i in (0 1 2 3 4 5) do if "%~1"=="%%i" (
@@ -35,7 +36,7 @@ set "Add-Solid=" & goto :EOF
 
 
 :·Ö¾íÑ¹Ëõ 
-set "key="
+set key=0
 if "%~1"=="" (
 	if defined ·Ö¾íÑ¹Ëõ ( set "·Ö¾íÑ¹Ëõ=" ) else ( set "key=1" )
 ) else (

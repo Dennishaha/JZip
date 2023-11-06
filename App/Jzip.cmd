@@ -2,7 +2,7 @@
 @setlocal EnableExtensions EnableDelayedExpansion
 
 @set "jzip.branches=master"
-@set "jzip.ver=3.3.16"
+@set "jzip.ver=3.3.17"
 
 @set "path.jzip.launcher=%~0"
 @set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
@@ -16,7 +16,7 @@
 	exit /b 1
 )
 
-@for %%a in (-su -help) do @if /i "%~1"=="%%a" (call :%* & goto :EOF)
+@for %%a in (-su) do @if /i "%~1"=="%%a" (call :%* & goto :EOF)
 
 @echo off
 
@@ -89,6 +89,7 @@ for %%Z in (
 	reg add "HKCU\Console\JFsoft.Jzip" /t REG_DWORD /v "ScreenBufferSize" /d "0x1b0050" /f
 )
 
+:: 读取语言包
 for /f "eol=[ tokens=1,*" %%x in ('type "%dir.jzip%\Lang\!Language!.ini"') do set "%%x%%y"
 chcp %chcp% >nul 
 
@@ -130,7 +131,10 @@ set iferror=^|^|(call "%dir.jzip%\Function\EdCode.cmd" ^& exit /b ^^!errorlevel^
 set echocut=call "%dir.jzip%\Function\EchoCut.cmd"
 for %%i in (VbsBox SuDo CapTrans) do call "%dir.jzip%\Function\%%i.cmd" -import
 
-::被调用 
+:: 帮助信息跳转 
+for %%a in (-help) do @if /i "%~1"=="%%a" (call :%* & goto :EOF)
+
+:: 被调用 
 set start.jz=start "JFsoft.Jzip" "%ComSpec%" /e:on /v:on /d /c call "%dir.jzip%\Part\main.cmd"
 if exist "%~1" %start.jz% :Set_Info list %* & goto :EOF
 if exist "%~2" %start.jz% :Set_Info %* & goto :EOF
@@ -144,20 +148,21 @@ exit /b 0
 
 
 :-help
-@echo;
-@echo; JFsoft JZip %jzip.ver%   2012-2021 (c) Dennishaha  %txt.rightres%
-@echo;
-@echo; %txt.usage%： Jzip ^< %txt.switch% ^> ^< %txt.command% ^> ^< %txt.files% ^| %txt.archives% ^>
-@echo;
-@echo;   ^< %txt.switch% ^>
-@echo;	-help		%txt.h.help%
-@echo;	-su		%txt.h.su%
-@echo;	-install	%txt.h.install%
-@echo;	-setting	%txt.h.setting%
-@echo;
-@echo;   ^< %txt.command% ^>
-@echo;	""		%txt.h.@%
-@echo;	add		%txt.h.add%
-@echo;	unzip		%txt.h.unzip%
-@echo;
-@goto :EOF
+echo;
+echo; JFsoft JZip %jzip.ver%   2012-2023 (c) Dennishaha  %txt.rightres%
+echo;
+echo; %txt.usage%： Jzip ^< %txt.switch% ^> ^< %txt.command% ^> ^< %txt.files% ^| %txt.archives% ^>
+echo;
+echo;   ^< %txt.switch% ^>
+echo;	-help		%txt.h.help%
+echo;	-su		%txt.h.su%
+echo;	-install	%txt.h.install%
+echo;	-setting	%txt.h.setting%
+echo;
+echo;   ^< %txt.command% ^>
+echo;	""		%txt.h.@%
+echo;	add		%txt.h.add%
+echo;	unzip		%txt.h.unzip%
+echo;
+echo;
+pause
