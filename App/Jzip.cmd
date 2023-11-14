@@ -2,7 +2,7 @@
 @setlocal EnableExtensions EnableDelayedExpansion
 
 @set "jzip.branches=master"
-@set "jzip.ver=3.3.17"
+@set "jzip.ver=3.3.18"
 
 @set "path.jzip.launcher=%~0"
 @set "dir.jzip=%~dp0" & set "dir.jzip=!dir.jzip:~0,-1!"
@@ -16,8 +16,9 @@
 	exit /b 1
 )
 
-@for %%a in (-su) do @if /i "%~1"=="%%a" (call :%* & goto :EOF)
-
+:: 获取管理员权限跳转（此处避免英文括号使用）
+@if /i "%~1"=="-su" call :%*
+@if /i "%~1"=="-su" exit /b 0
 @echo off
 
 :: 设置 ComSpec 
@@ -52,6 +53,9 @@ if not defined Language (
 )
 reg add "HKCU\Software\JFsoft.Jzip" /t REG_SZ /v "Language" /d "!Language!" /f >nul
 
+:: 控制台设置为传统控制台 
+>nul (reg query "HKCU\Console\%%%%Startup" /v "DelegationConsole" | find "{B23D10C0-E52E-411E-9D5B-C09FDF709C7D}" || reg add "HKCU\Console\%%%%Startup" /t REG_SZ /v "DelegationConsole" /d "{B23D10C0-E52E-411E-9D5B-C09FDF709C7D}" /f)
+>nul (reg query "HKCU\Console\%%%%Startup" /v "DelegationTerminal" | find "{B23D10C0-E52E-411E-9D5B-C09FDF709C7D}" || reg add "HKCU\Console\%%%%Startup" /t REG_SZ /v "DelegationTerminal" /d "{B23D10C0-E52E-411E-9D5B-C09FDF709C7D}" /f)
 
 :: 检测语言/控制台，设定代码页/字体/大小/快速编辑，加载制表符补偿/语言配置 
 reg query "HKCU\Console" /v "ForceV2" 2>nul | find "0x1" >nul && set "Console.ver=2" || set "Console.ver=1"
@@ -132,7 +136,7 @@ set echocut=call "%dir.jzip%\Function\EchoCut.cmd"
 for %%i in (VbsBox SuDo CapTrans) do call "%dir.jzip%\Function\%%i.cmd" -import
 
 :: 帮助信息跳转 
-for %%a in (-help) do @if /i "%~1"=="%%a" (call :%* & goto :EOF)
+if /i "%~1"=="-help" (call :-help & goto :EOF)
 
 :: 被调用 
 set start.jz=start "JFsoft.Jzip" "%ComSpec%" /e:on /v:on /d /c call "%dir.jzip%\Part\main.cmd"
@@ -144,7 +148,7 @@ exit /b 0
 
 :-su
 @call "%dir.jzip%\Function\sudo.cmd" "%path.jzip.launcher%" %*
-@goto :EOF
+@exit /b 0
 
 
 :-help
