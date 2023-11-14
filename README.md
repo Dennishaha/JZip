@@ -1,6 +1,6 @@
 # JZip
 
-JFsoft Zip Tool 是一款命令行版的压缩工具，基于 7Zip Rar 命令行工具。666
+JFsoft Zip Tool 是一款命令行版的压缩工具，基于 7Zip Rar 命令行工具。
 
 ![mainui](https://raw.githubusercontent.com/Dennishaha/JZip/master/Server/mainui.jpg)
 
